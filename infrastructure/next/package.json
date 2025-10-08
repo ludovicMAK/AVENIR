@@ -1,0 +1,20 @@
+{
+  "name": "@avenir/next",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@avenir/application": "1.0.0",
+    "@avenir/domain": "1.0.0",
+    "body-parser": "^1.20.2"
+  },
+  "devDependencies": {
+    "next": "^15.5.4",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.3.3"
+  }
+}
