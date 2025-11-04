@@ -1,9 +1,9 @@
 export class Role {
   private constructor(private readonly value: 'customer' | 'bankManager' | 'bankAdvisor') {}
 
-  static CUSTOMER = new Role('customer');
-  static MANAGER = new Role('bankManager');
-  static ADVISOR = new Role('bankAdvisor');
+  static CUSTOMER: Role = new Role('customer');
+  static MANAGER: Role = new Role('bankManager');
+  static ADVISOR: Role = new Role('bankAdvisor');
 
   getValue(): string {
     return this.value;
