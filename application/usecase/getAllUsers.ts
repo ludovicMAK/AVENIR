@@ -1,11 +1,14 @@
-import { UserRepository } from "../repositories/users";
-import { User } from "../../domain/entities/users";
-import { Role } from "../../domain/object-value/role";
+import { UserRepository } from "@/application/repositories/users";
+import { User } from "@/domain/entities/users";
 
 export class GetAllUsers {
-  constructor(private userRepo: UserRepository) {}
+    private readonly userRepository: UserRepository;
 
-  public async execute() {
-    return this.userRepo.getAllUsers();
-  }
+    constructor(userRepository: UserRepository) {
+        this.userRepository = userRepository;
+    }
+
+    async execute(): Promise<User[]> {
+        return this.userRepository.findAll();
+    }
 }

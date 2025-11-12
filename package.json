@@ -7,11 +7,10 @@
     "infrastructure/*"
   ],
   "scripts": {
-  "dev:express": "npm run dev --workspace=@avenir/express",
-  "dev:next": "npm run dev --workspace=@avenir/next",
-  "start:next": "npm run start --workspace=@avenir/next"
-},
-
+    "dev:express": "npm run dev --workspace=@avenir/express",
+    "dev:next": "npm run dev --workspace=@avenir/next",
+    "start:next": "npm run start --workspace=@avenir/next"
+  },
   "devDependencies": {
     "@types/node": "^24.7.0",
     "ts-node": "^10.9.2",

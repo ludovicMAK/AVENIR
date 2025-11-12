@@ -21,14 +21,23 @@
     "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
+    "@avenir/application": "1.0.0",
+    "@avenir/domain": "1.0.0",
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/postcss-load-config": "^2.0.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.21",
+    "body-parser": "^1.20.2",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
+    "next": "^15.5.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "tailwindcss": "^4",
+    "ts-node": "^10.9.1",
     "typescript": "^5"
   }
 }
