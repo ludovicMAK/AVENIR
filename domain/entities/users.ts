@@ -1,4 +1,4 @@
-import { Role } from "@/domain/object-value/role";
+import { Role } from "@domain/values/role"
 
 export class User {
     constructor(

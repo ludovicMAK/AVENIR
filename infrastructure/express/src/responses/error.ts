@@ -1,12 +1,29 @@
-import { Response } from "express";
-import { ApplicationError, InfrastructureError } from "@/application/errors";
+import { Response } from "express"
+import {
+    ApplicationError,
+    ConflictError,
+    InfrastructureError,
+    NotFoundError,
+    UnauthorizedError,
+    UnprocessableError,
+    ValidationError,
+} from "@application/errors"
 
-export function mapErrorToHttpResponse(res: Response, err: unknown) {
-    if (err instanceof ApplicationError) {
-        if (err.headers) for (const [k, v] of Object.entries(err.headers)) res.setHeader(k, v);
-        if (err.status === 204) return res.status(204).send();
-        return res.status(err.status).json(err.toPayload());
+function resolveStatus(error: ApplicationError): number {
+    if (error instanceof ValidationError) return 400
+    if (error instanceof UnauthorizedError) return 401
+    if (error instanceof NotFoundError) return 404
+    if (error instanceof ConflictError) return 409
+    if (error instanceof UnprocessableError) return 422
+    if (error instanceof InfrastructureError) return 500
+    return 400
+}
+
+export function mapErrorToHttpResponse(response: Response, error: unknown) {
+    if (error instanceof ApplicationError) {
+        return response.status(resolveStatus(error)).json(error.toPayload())
     }
-    const fallback = new InfrastructureError();
-    return res.status(fallback.status).json(fallback.toPayload());
+
+    const fallback = new InfrastructureError()
+    return response.status(500).json(fallback.toPayload())
 }

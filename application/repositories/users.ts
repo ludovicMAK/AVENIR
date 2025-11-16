@@ -1,7 +1,7 @@
-import { User } from "@/domain/entities/users";
+import { User } from "@domain/entities/users"
 
 export interface UserRepository {
-    save(user: User): Promise<void>;
-    findAll(): Promise<User[]>;
-    findByEmail(email: string): Promise<User | null>;
+    save(user: User): Promise<void>
+    findAll(): Promise<User[]>
+    findByEmail(email: string): Promise<User | null>
 }

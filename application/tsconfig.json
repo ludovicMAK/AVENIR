@@ -1,0 +1,20 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": ".",
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "@application/*": ["./*"],
+      "@domain/*": ["../domain/*"]
+    },
+    "declaration": true,
+    "emitDeclarationOnly": true
+  },
+  "references": [
+    { "path": "../domain" }
+  ],
+  "include": ["**/*.ts"],
+  "exclude": ["dist", "node_modules"]
+}
