@@ -1,9 +1,9 @@
-import { LoginPayload, RegisterPayload } from "@/types/auth"
+import { LoginPayload, RegisterPayload, LoginSuccessResponse } from "@/types/auth"
 import { request } from "./client"
 
 export const authApi = {
     async login(payload: LoginPayload) {
-        return request("/login", {
+        return request<LoginSuccessResponse>("/login", {
             method: "POST",
             body: JSON.stringify(payload),
         })

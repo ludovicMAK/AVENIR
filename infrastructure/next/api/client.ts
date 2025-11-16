@@ -1,15 +1,11 @@
-import {
-    ValidationError,
-    UnauthorizedError,
-    NotFoundError,
-    ConflictError,
-    UnprocessableError,
-    InfrastructureError,
-} from "../../../application/errors";
+import { ApiError } from "@/lib/errors/apiError";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+if (!API_BASE_URL) {
+    throw new Error("NEXT_PUBLIC_API_BASE_URL required environment variable is missing");
+}
 
-export async function request(path: string, options: RequestInit = {}) {
+export async function request<T = unknown>(path: string, options: RequestInit = {}): Promise<T> {
     const headers = new Headers(options.headers);
     headers.set("Content-Type", "application/json");
 
@@ -20,7 +16,7 @@ export async function request(path: string, options: RequestInit = {}) {
             headers,
         });
     } catch {
-        throw new InfrastructureError("Unable to reach the server. Please try again later.");
+        throw new ApiError("INFRASTRUCTURE_ERROR", "Unable to reach the server. Please try again later.");
     }
 
     const data = await response.json().catch(() => null);
@@ -30,25 +26,9 @@ export async function request(path: string, options: RequestInit = {}) {
         const payload = data?.data;
         const code = data?.code as string | undefined;
 
-        switch (code) {
-            case "VALIDATION_ERROR":
-                throw new ValidationError(message, payload);
-            case "UNAUTHORIZED":
-                throw new UnauthorizedError(message, payload);
-            case "NOT_FOUND":
-                throw new NotFoundError(message, payload);
-            case "CONFLICT":
-                throw new ConflictError(message, payload);
-            case "UNPROCESSABLE_ENTITY":
-            case "APPLICATION_ERROR":
-                throw new UnprocessableError(message, payload);
-            case "INFRASTRUCTURE_ERROR":
-                throw new InfrastructureError(message, payload);
-            default:
-                throw new InfrastructureError(message, payload);
-        }
+        throw new ApiError(code ?? "INFRASTRUCTURE_ERROR", message, payload);
     }
 
-    return data;
+    return data as T;
 }
 

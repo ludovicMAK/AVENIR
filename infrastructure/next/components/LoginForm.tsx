@@ -1,5 +1,6 @@
 "use client";
 import { useState, FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
     Card, CardContent, CardDescription, CardHeader, CardTitle,
@@ -10,10 +11,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { authApi } from "@/api/auth";
 import { LoginPayload } from "@/types/auth";
+import { clearRedirectHint, getRedirectHint, persistAuthentication } from "@/lib/auth/client";
+import { sanitizeRedirectPath } from "@/lib/auth/redirect";
+import { ApiError } from "@/lib/errors/apiError";
 
 export function LoginForm() {
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const router = useRouter();
 
     async function handleLogin(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -27,9 +32,27 @@ export function LoginForm() {
         };
 
         try {
-            await authApi.login(data);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : "An unexpected error occurred");
+            const response = await authApi.login(data);
+            const userToken = response?.data?.user?.id;
+
+            if (!userToken) {
+                throw new ApiError("INFRASTRUCTURE_ERROR", "Invalid authentication response.");
+            }
+
+            persistAuthentication(userToken);
+
+            const redirectPath = sanitizeRedirectPath(getRedirectHint());
+            clearRedirectHint();
+            router.replace(redirectPath);
+            router.refresh();
+        } catch (error) {
+            if (error instanceof ApiError) {
+                setError(error.message);
+            } else if (error instanceof Error) {
+                setError(error.message);
+            } else {
+                setError("An unexpected error occurred");
+            }
         } finally {
             setIsLoading(false);
         }
