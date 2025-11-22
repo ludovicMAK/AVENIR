@@ -14,6 +14,7 @@ import { RegisterPayload } from "@/types/auth";
 export function RegisterForm() {
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [success, setSuccess] = useState(false);
 
     async function handleRegister(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -30,11 +31,37 @@ export function RegisterForm() {
 
         try {
             await authApi.register(data);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : "An unexpected error occurred");
+            setSuccess(true);
+        } catch (error) {
+            setError(error instanceof Error ? error.message : "An unexpected error occurred");
         } finally {
             setIsLoading(false);
         }
+    }
+
+    if (success) {
+        return (
+            <div className="flex flex-col gap-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Check your email</CardTitle>
+                        <CardDescription>
+                            We've sent you a confirmation link. Please check your email to complete your registration.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-center">
+                            <p className="text-sm text-muted-foreground mb-4">
+                                The confirmation link will expire in 24 hours.
+                            </p>
+                            <FieldDescription className="text-center">
+                                <a href="/login">Back to login</a>
+                            </FieldDescription>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        );
     }
 
     return (

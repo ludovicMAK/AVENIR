@@ -18,4 +18,21 @@ export class InMemoryUserRepository implements UserRepository {
     async findAll(): Promise<User[]> {
         return Array.from(this.items.values())
     }
+
+    async setEmailVerified(userId: string, verifiedAt: Date): Promise<void> {
+        const user = this.items.get(userId)
+        if (user) {
+            const updatedUser = new User(
+                user.id,
+                user.lastname,
+                user.firstname,
+                user.email,
+                user.role,
+                user.password,
+                user.status,
+                verifiedAt,
+            )
+            this.items.set(userId, updatedUser)
+        }
+    }
 }

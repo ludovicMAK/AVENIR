@@ -22,8 +22,26 @@ export class UserHttpHandler {
             await this.controller.register(parsed.data)
             return sendSuccess(response, {
                 status: 201,
-                code: "USER_REGISTERED",
-                message: "Register successfully.",
+                code: "REGISTRATION_PENDING",
+                message: "Registration successful. Please check your email to confirm.",
+            })
+        } catch (error) {
+            return mapErrorToHttpResponse(response, error)
+        }
+    }
+
+    public async confirmRegistration(request: Request, response: Response) {
+        try {
+            const token = request.query.token as string
+            if (!token || typeof token !== "string") {
+                throw new ValidationError("Confirmation token is required")
+            }
+
+            await this.controller.confirmRegistrationToken(token)
+            return sendSuccess(response, {
+                status: 200,
+                code: "REGISTRATION_CONFIRMED",
+                message: "Registration confirmed successfully. You can now login.",
             })
         } catch (error) {
             return mapErrorToHttpResponse(response, error)

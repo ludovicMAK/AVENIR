@@ -15,4 +15,10 @@ export const authApi = {
             body: JSON.stringify(payload),
         })
     },
+
+    async confirmRegistration(token: string) {
+        return request(`/users/confirm-registration?token=${token}`, {
+            method: "GET",
+        })
+    },
 }

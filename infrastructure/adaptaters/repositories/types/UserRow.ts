@@ -5,4 +5,6 @@ export type UserRow = {
     email: string
     role: string
     password: string
+    status: string
+    email_verified_at: Date | null
 }

@@ -1,16 +1,23 @@
 import { UserRepository } from "@application/repositories/users"
+import { EmailConfirmationTokenRepository } from "@application/repositories/emailConfirmationTokens"
 import { ValidationError, ConflictError } from "@application/errors"
-import { Role } from "@domain/values/role"
 import { User } from "@domain/entities/users"
+import { EmailConfirmationToken } from "@domain/entities/emailConfirmationToken"
+import { Role } from "@domain/values/role"
 import { RegisterUserInput } from "@application/requests/auth"
 import { PasswordHasher } from "../services/PasswordHasher"
 import { UuidGenerator } from "../services/UuidGenerator"
+import { TokenGenerator } from "../services/TokenGenerator"
+import { EmailSender } from "../services/EmailSender"
 
 export class RegisterUser {
     constructor(
         private readonly userRepository: UserRepository,
+        private readonly emailConfirmationTokenRepository: EmailConfirmationTokenRepository,
         private readonly passwordHasher: PasswordHasher,
         private readonly uuidGenerator: UuidGenerator,
+        private readonly tokenGenerator: TokenGenerator,
+        private readonly emailSender: EmailSender,
     ) {}
 
     async execute(input: RegisterUserInput): Promise<void> {
@@ -30,17 +37,27 @@ export class RegisterUser {
         }
 
         const passwordHash = await this.passwordHasher.hash(input.password)
+        const userId = this.uuidGenerator.generate()
 
         const user = new User(
-            this.uuidGenerator.generate(),
+            userId,
             input.lastname.trim(),
             input.firstname.trim(),
             normalizedEmail,
             Role.CUSTOMER,
             passwordHash,
+            "active",
+            null,
         )
 
         await this.userRepository.save(user)
+
+        const confirmationToken = this.tokenGenerator.generate()
+        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
+
+        const token = new EmailConfirmationToken(userId, confirmationToken, expiresAt)
+        await this.emailConfirmationTokenRepository.save(token)
+
+        await this.emailSender.sendConfirmationEmail(normalizedEmail, confirmationToken)
     }
 }
-

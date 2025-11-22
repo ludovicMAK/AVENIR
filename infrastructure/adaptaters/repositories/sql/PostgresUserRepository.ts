@@ -14,8 +14,8 @@ export class PostgresUserRepository implements UserRepository {
         try {
             await this.pool.query(
                 `
-                    INSERT INTO users (id, lastname, firstname, email, role, password)
-                    VALUES ($1, $2, $3, $4, $5, $6)
+                    INSERT INTO users (id, lastname, firstname, email, role, password, status, email_verified_at)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
                 `,
                 [
                     user.id,
@@ -24,6 +24,8 @@ export class PostgresUserRepository implements UserRepository {
                     user.email.toLowerCase(),
                     user.role.getValue(),
                     user.password,
+                    user.status,
+                    user.emailVerifiedAt,
                 ],
             )
         } catch (error) {
@@ -35,7 +37,7 @@ export class PostgresUserRepository implements UserRepository {
         try {
             const result = await this.pool.query<UserRow>(
                 `
-                    SELECT id, lastname, firstname, email, role, password
+                    SELECT id, lastname, firstname, email, role, password, status, email_verified_at
                     FROM users
                     ORDER BY lastname ASC, firstname ASC
                 `,
@@ -51,7 +53,7 @@ export class PostgresUserRepository implements UserRepository {
         try {
             const result = await this.pool.query<UserRow>(
                 `
-                    SELECT id, lastname, firstname, email, role, password
+                    SELECT id, lastname, firstname, email, role, password, status, email_verified_at
                     FROM users
                     WHERE email = $1
                     LIMIT 1
@@ -69,6 +71,21 @@ export class PostgresUserRepository implements UserRepository {
         }
     }
 
+    async setEmailVerified(userId: string, verifiedAt: Date): Promise<void> {
+        try {
+            await this.pool.query(
+                `
+                    UPDATE users
+                    SET email_verified_at = $1
+                    WHERE id = $2
+                `,
+                [verifiedAt, userId],
+            )
+        } catch (error) {
+            this.handleDatabaseError(error)
+        }
+    }
+
     private mapRowToUser(row: UserRow): User {
         return new User(
             row.id,
@@ -77,6 +94,8 @@ export class PostgresUserRepository implements UserRepository {
             row.email,
             Role.from(row.role),
             row.password,
+            row.status,
+            row.email_verified_at,
         )
     }
 

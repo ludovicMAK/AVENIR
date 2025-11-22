@@ -24,6 +24,10 @@ export class LoginUser {
             throw new UnauthorizedError("Invalid credentials")
         }
 
+        if (!user.canLogin()) {
+            throw new UnauthorizedError("Please verify your email address to login")
+        }
+
         return user
     }
 }

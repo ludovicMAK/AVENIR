@@ -2,24 +2,38 @@ import { Router } from "express"
 import { RegisterUser } from "@application/usecases/registerUser"
 import { LoginUser } from "@application/usecases/loginUser"
 import { GetAllUsers } from "@application/usecases/getAllUsers"
-import { userRepository } from "@express/src/config/repositories"
+import { ConfirmRegistration } from "@application/usecases/confirmRegistration"
+import { userRepository, emailConfirmationTokenRepository } from "@express/src/config/repositories"
 import { UserController } from "@express/controllers/UserController"
 import { UserHttpHandler } from "@express/src/http/UserHttpHandler"
 import { CryptoPasswordHasher } from "@adapters/services/CryptoPasswordHasher"
 import { NodeUuidGenerator } from "@adapters/services/NodeUuidGenerator"
+import { NodeTokenGenerator } from "@adapters/services/NodeTokenGenerator"
+import { ConsoleEmailSender } from "@adapters/services/ConsoleEmailSender"
 
 const passwordHasher = new CryptoPasswordHasher()
 const uuidGenerator = new NodeUuidGenerator()
+const tokenGenerator = new NodeTokenGenerator()
+const emailSender = new ConsoleEmailSender()
 
-const registerUser = new RegisterUser(userRepository, passwordHasher, uuidGenerator)
+const registerUser = new RegisterUser(
+    userRepository,
+    emailConfirmationTokenRepository,
+    passwordHasher,
+    uuidGenerator,
+    tokenGenerator,
+    emailSender,
+)
 const loginUser = new LoginUser(userRepository, passwordHasher)
 const getAllUsers = new GetAllUsers(userRepository)
+const confirmRegistration = new ConfirmRegistration(userRepository, emailConfirmationTokenRepository)
 
-const userController = new UserController(registerUser, loginUser, getAllUsers)
+const userController = new UserController(registerUser, loginUser, getAllUsers, confirmRegistration)
 const userHttpHandler = new UserHttpHandler(userController)
 
 export const httpRouter = Router()
 
 httpRouter.post("/users/register", (request, response) => userHttpHandler.register(request, response))
+httpRouter.get("/users/confirm-registration", (request, response) => userHttpHandler.confirmRegistration(request, response))
 httpRouter.post("/login", (request, response) => userHttpHandler.login(request, response))
 httpRouter.get("/users", (request, response) => userHttpHandler.list(request, response))
