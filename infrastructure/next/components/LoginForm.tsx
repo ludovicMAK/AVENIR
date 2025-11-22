@@ -1,60 +1,60 @@
-"use client";
-import { useState, FormEvent } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+"use client"
+import { useState, FormEvent } from "react"
+import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
 import {
     Card, CardContent, CardDescription, CardHeader, CardTitle,
-} from "@/components/ui/card";
+} from "@/components/ui/card"
 import {
     Field, FieldDescription, FieldError, FieldGroup, FieldLabel,
-} from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { authApi } from "@/api/auth";
-import { LoginPayload } from "@/types/auth";
-import { clearRedirectHint, getRedirectHint, persistAuthentication } from "@/lib/auth/client";
-import { sanitizeRedirectPath } from "@/lib/auth/redirect";
-import { ApiError } from "@/lib/errors/apiError";
+} from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
+import { authApi } from "@/api/auth"
+import { LoginPayload } from "@/types/auth"
+import { clearRedirectHint, getRedirectHint, persistAuthentication } from "@/lib/auth/client"
+import { sanitizeRedirectPath } from "@/lib/auth/redirect"
+import { ApiError } from "@/lib/errors"
 
 export function LoginForm() {
-    const [error, setError] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
-    const router = useRouter();
+    const [error, setError] = useState<string | null>(null)
+    const [isLoading, setIsLoading] = useState(false)
+    const router = useRouter()
 
     async function handleLogin(event: FormEvent<HTMLFormElement>) {
-        event.preventDefault();
-        setError(null);
-        setIsLoading(true);
+        event.preventDefault()
+        setError(null)
+        setIsLoading(true)
 
-        const formData = new FormData(event.currentTarget);
+        const formData = new FormData(event.currentTarget)
         const data: LoginPayload = {
             email: formData.get("email") as string,
             password: formData.get("password") as string,
-        };
+        }
 
         try {
-            const response = await authApi.login(data);
-            const userToken = response?.data?.user?.id;
+            const response = await authApi.login(data)
+            const userToken = response?.data?.user?.id
 
             if (!userToken) {
-                throw new ApiError("INFRASTRUCTURE_ERROR", "Invalid authentication response.");
+                throw new ApiError("INFRASTRUCTURE_ERROR", "Invalid authentication response.")
             }
 
-            persistAuthentication(userToken);
+            persistAuthentication(userToken)
 
-            const redirectPath = sanitizeRedirectPath(getRedirectHint());
-            clearRedirectHint();
-            router.replace(redirectPath);
-            router.refresh();
+            const redirectPath = sanitizeRedirectPath(getRedirectHint())
+            clearRedirectHint()
+            router.replace(redirectPath)
+            router.refresh()
         } catch (error) {
             if (error instanceof ApiError) {
-                setError(error.message);
+                setError(error.message)
             } else if (error instanceof Error) {
-                setError(error.message);
+                setError(error.message)
             } else {
-                setError("An unexpected error occurred");
+                setError("An unexpected error occurred")
             }
         } finally {
-            setIsLoading(false);
+            setIsLoading(false)
         }
     }
 
@@ -90,5 +90,5 @@ export function LoginForm() {
                 </CardContent>
             </Card>
         </div>
-    );
+    )
 }

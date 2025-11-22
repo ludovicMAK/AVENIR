@@ -10,23 +10,30 @@ import {
     REDIRECT_COOKIE_SAME_SITE,
 } from "@/lib/auth/constants";
 
-const HOME_PATH = "/";
-const LOGIN_PATH = "/login";
-const REGISTER_PATH = "/register";
-const AUTH_PAGES = new Set([LOGIN_PATH, REGISTER_PATH]);
+export const PATHS = {
+    HOME: "/",
+    LOGIN: "/login",
+    REGISTER: "/register",
+} as const;
+
+const AUTH_PAGES = new Set<string>([PATHS.LOGIN, PATHS.REGISTER]);
 
 export function middleware(request: NextRequest) {
     const authenticated = isAuthenticated(request);
     const { pathname } = request.nextUrl;
 
-    const isHome = pathname === HOME_PATH;
+    const isHome = pathname === PATHS.HOME;
     const isAuthPage = AUTH_PAGES.has(pathname);
 
+    if (!isHome && !isAuthPage) {
+        return NextResponse.next();
+    }
+
     if (isHome && !authenticated) {
-        const loginUrl = new URL(LOGIN_PATH, request.url);
+        const loginUrl = new URL(PATHS.LOGIN, request.url);
         const response = NextResponse.redirect(loginUrl);
 
-        const redirectPath = sanitizeRedirectPath(pathname, HOME_PATH);
+        const redirectPath = sanitizeRedirectPath(pathname, PATHS.HOME);
         response.cookies.set(REDIRECT_COOKIE_NAME, redirectPath, {
             path: REDIRECT_COOKIE_PATH,
             maxAge: REDIRECT_COOKIE_MAX_AGE_SECONDS,
@@ -39,7 +46,7 @@ export function middleware(request: NextRequest) {
 
     if (isAuthPage && authenticated) {
         const redirectHint = request.cookies.get(REDIRECT_COOKIE_NAME)?.value;
-        const fallback = HOME_PATH;
+        const fallback = PATHS.HOME;
         const destinationPath = sanitizeRedirectPath(redirectHint, fallback);
         const destination = new URL(destinationPath, request.url);
 
@@ -54,8 +61,3 @@ export function middleware(request: NextRequest) {
 
     return NextResponse.next();
 }
-
-export const config = {
-    matcher: [HOME_PATH, LOGIN_PATH, REGISTER_PATH],
-};
-

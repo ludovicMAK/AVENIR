@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import {
     AUTH_COOKIE_MAX_AGE_SECONDS,
@@ -8,44 +8,39 @@ import {
     REDIRECT_COOKIE_NAME,
     REDIRECT_COOKIE_PATH,
     REDIRECT_COOKIE_SAME_SITE,
-} from "./constants";
-
-type CookieOptions = {
-    maxAge: number;
-    path?: string;
-    sameSite?: "lax" | "strict" | "none";
-};
+} from "./constants"
+import { CookieOptions } from "@/types/auth"
 
 function buildCookie(name: string, value: string, options: CookieOptions) {
     const {
         maxAge,
         path = "/",
         sameSite = "lax",
-    } = options;
+    } = options
 
     const attributes = [
         `${name}=${encodeURIComponent(value)}`,
         `Path=${path}`,
         `Max-Age=${maxAge}`,
         `SameSite=${sameSite}`,
-    ];
+    ]
 
     if (typeof window !== "undefined" && window.location.protocol === "https:") {
-        attributes.push("Secure");
+        attributes.push("Secure")
     }
 
-    return attributes.join("; ");
+    return attributes.join("; ")
 }
 
 function readCookie(name: string): string | null {
-    const entries = document.cookie?.split(";") ?? [];
+    const entries = document.cookie?.split(";") ?? []
     for (const entry of entries) {
-        const [key, ...rest] = entry.trim().split("=");
+        const [key, ...rest] = entry.trim().split("=")
         if (key === name) {
-            return decodeURIComponent(rest.join("="));
+            return decodeURIComponent(rest.join("="))
         }
     }
-    return null;
+    return null
 }
 
 export function persistAuthentication(userToken: string) {
@@ -53,7 +48,7 @@ export function persistAuthentication(userToken: string) {
         maxAge: AUTH_COOKIE_MAX_AGE_SECONDS,
         path: AUTH_COOKIE_PATH,
         sameSite: AUTH_COOKIE_SAME_SITE,
-    });
+    })
 }
 
 export function clearAuthentication() {
@@ -61,11 +56,11 @@ export function clearAuthentication() {
         maxAge: 0,
         path: AUTH_COOKIE_PATH,
         sameSite: AUTH_COOKIE_SAME_SITE,
-    });
+    })
 }
 
 export function getRedirectHint(): string | null {
-    return readCookie(REDIRECT_COOKIE_NAME);
+    return readCookie(REDIRECT_COOKIE_NAME)
 }
 
 export function clearRedirectHint() {
@@ -73,5 +68,5 @@ export function clearRedirectHint() {
         maxAge: 0,
         path: REDIRECT_COOKIE_PATH,
         sameSite: REDIRECT_COOKIE_SAME_SITE,
-    });
+    })
 }

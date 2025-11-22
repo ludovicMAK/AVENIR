@@ -5,6 +5,7 @@ import { LoginUserSchema } from "@express/schemas/LoginUserSchema"
 import { ValidationError } from "@application/errors"
 import { mapErrorToHttpResponse } from "@express/src/responses/error"
 import { sendSuccess } from "@express/src/responses/success"
+import { UserView } from "@express/types/responses"
 import { User } from "@domain/entities/users"
 
 export class UserHttpHandler {
@@ -62,7 +63,7 @@ export class UserHttpHandler {
         }
     }
 
-    private toUserView(user: User) {
+    private toUserView(user: User): UserView {
         return {
             id: user.id,
             firstname: user.firstname,

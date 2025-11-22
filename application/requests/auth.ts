@@ -1,9 +1,9 @@
-export interface LoginUserInput {
+export type LoginUserInput = {
     email: string
     password: string
 }
 
-export interface RegisterUserInput {
+export type RegisterUserInput = {
     lastname: string
     firstname: string
     email: string

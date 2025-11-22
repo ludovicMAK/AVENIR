@@ -1,7 +1,7 @@
 import { Response } from "express"
-import { SuccessOptions } from "@express/types/responses"
+import { SuccessOptions, SuccessPayload, SuccessData } from "@express/types/responses"
 
-export function sendSuccess<T>(response: Response, options: SuccessOptions<T>) {
+export function sendSuccess<ResponseData extends SuccessData>(response: Response, options: SuccessOptions<ResponseData>) {
     const {
         status = 200,
         code,
@@ -16,7 +16,7 @@ export function sendSuccess<T>(response: Response, options: SuccessOptions<T>) {
         }
     }
 
-    const payload: Record<string, unknown> = { ok: true, code }
+    const payload: SuccessPayload<ResponseData> = { ok: true, code }
     if (message) payload.message = message
     if (data !== undefined) payload.data = data
 
