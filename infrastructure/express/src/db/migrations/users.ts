@@ -11,7 +11,9 @@ export async function ensureUsersTable(): Promise<void> {
                 firstname TEXT NOT NULL,
                 email TEXT NOT NULL UNIQUE,
                 role TEXT NOT NULL,
-                password TEXT NOT NULL
+                password TEXT NOT NULL,
+                status TEXT NOT NULL DEFAULT 'active',
+                email_verified_at TIMESTAMP NULL
             )
         `)
     } catch (error) {

@@ -2,7 +2,7 @@ import express from "express"
 import bodyParser from "body-parser"
 import cors from "cors"
 import { InfrastructureError } from "@application/errors"
-import { httpRouter } from "@express/src/routes"
+import { httpRouter } from "@express/src/config/dependencies"
 
 const app = express()
 

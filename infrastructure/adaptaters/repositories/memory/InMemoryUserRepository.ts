@@ -11,11 +11,35 @@ export class InMemoryUserRepository implements UserRepository {
         return null
     }
 
+    async findUnverifiedByEmail(email: string): Promise<User | null> {
+        for (const item of this.items.values()) {
+            if (item.email === email && !item.isEmailVerified()) return item
+        }
+        return null
+    }
+
     async save(user: User): Promise<void> {
         this.items.set(user.id, user)
     }
 
     async findAll(): Promise<User[]> {
         return Array.from(this.items.values())
+    }
+
+    async setEmailVerified(userId: string, verifiedAt: Date): Promise<void> {
+        const user = this.items.get(userId)
+        if (user) {
+            const updatedUser = new User(
+                user.id,
+                user.lastname,
+                user.firstname,
+                user.email,
+                user.role,
+                user.password,
+                user.status,
+                verifiedAt,
+            )
+            this.items.set(userId, updatedUser)
+        }
     }
 }
