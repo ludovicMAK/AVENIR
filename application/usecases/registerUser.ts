@@ -33,6 +33,11 @@ export class RegisterUser {
 
         const existingUser = await this.userRepository.findByEmail(normalizedEmail)
         if (existingUser) {
+            if (!existingUser.isEmailVerified()) {
+                throw new ConflictError(
+                    "An account with this email already exists but is not verified. Please check your email for the confirmation link."
+                )
+            }
             throw new ConflictError("Email already registered")
         }
 
@@ -58,6 +63,11 @@ export class RegisterUser {
         const token = new EmailConfirmationToken(userId, confirmationToken, expiresAt)
         await this.emailConfirmationTokenRepository.save(token)
 
-        await this.emailSender.sendConfirmationEmail(normalizedEmail, confirmationToken)
+        await this.emailSender.sendConfirmationEmail(
+            normalizedEmail, 
+            confirmationToken, 
+            input.firstname.trim(), 
+            input.lastname.trim()
+        )
     }
 }

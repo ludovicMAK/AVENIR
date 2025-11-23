@@ -1,5 +1,6 @@
 import { Pool, PoolConfig } from "pg"
 import { InfrastructureError } from "@application/errors"
+import { readEnv } from "@adapters/utils/env"
 
 let pool: Pool | null = null
 
@@ -9,27 +10,17 @@ function resolvePoolConfig(): PoolConfig {
         return { connectionString }
     }
 
-    const readEnv = (key: string): string => {
-        const value = process.env[key]
-        if (!value) {
-            console.error(`Missing required environment variable: ${key}`)
-            throw new InfrastructureError("Database unavailable. Please try again later.")
+    try {
+        return {
+            host: readEnv("DB_HOST"),
+            port: Number(readEnv("DB_PORT")),
+            user: readEnv("POSTGRES_USER"),
+            password: readEnv("POSTGRES_PASSWORD"),
+            database: readEnv("POSTGRES_DB"),
         }
-        return value
-    }
-
-    const port = Number.parseInt(readEnv("DB_PORT"), 10)
-    if (Number.isNaN(port)) {
-        console.error("Environment variable DB_PORT must be a number.")
+    } catch (error) {
+        console.error("Database configuration error:", error)
         throw new InfrastructureError("Database unavailable. Please try again later.")
-    }
-
-    return {
-        host: readEnv("DB_HOST"),
-        port,
-        user: readEnv("POSTGRES_USER"),
-        password: readEnv("POSTGRES_PASSWORD"),
-        database: readEnv("POSTGRES_DB"),
     }
 }
 

@@ -17,6 +17,6 @@
     { "path": "../../domain" },
     { "path": "../../application" }
   ],
-  "include": ["repositories/**/*.ts", "services/**/*.ts"],
+  "include": ["repositories/**/*.ts", "services/**/*.ts", "utils/**/*.ts"],
   "exclude": ["dist", "node_modules"]
 }

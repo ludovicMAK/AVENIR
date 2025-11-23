@@ -5,9 +5,11 @@
     "dev": "DOTENV_CONFIG_PATH=../../.env ts-node --project tsconfig.json -r dotenv/config -r tsconfig-paths/register src/index.ts"
   },
   "dependencies": {
+    "@types/nodemailer": "^7.0.4",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
+    "nodemailer": "^7.0.10",
     "pg": "^8.16.3"
   },
   "devDependencies": {

@@ -71,6 +71,28 @@ export class PostgresUserRepository implements UserRepository {
         }
     }
 
+    async findUnverifiedByEmail(email: string): Promise<User | null> {
+        try {
+            const result = await this.pool.query<UserRow>(
+                `
+                    SELECT id, lastname, firstname, email, role, password, status, email_verified_at
+                    FROM users
+                    WHERE email = $1 AND email_verified_at IS NULL
+                    LIMIT 1
+                `,
+                [email.toLowerCase()],
+            )
+
+            if (result.rowCount === 0) {
+                return null
+            }
+
+            return this.mapRowToUser(result.rows[0])
+        } catch (error) {
+            this.handleDatabaseError(error)
+        }
+    }
+
     async setEmailVerified(userId: string, verifiedAt: Date): Promise<void> {
         try {
             await this.pool.query(
