@@ -20,3 +20,19 @@ export class UnknownRoleError extends DomainError {
         })
     }
 }
+export class UnknownStatusAccountError extends DomainError {
+    constructor(value: string) {
+        super("UNKNOWN_STATUS_ACCOUNT", `Unknown status account: ${value}`, {
+            issue: "unknown_status_account",
+            context: { value },
+        })
+    }
+}
+export class UnknownAccountTypeError extends DomainError {
+    constructor(value: string) {
+        super("UNKNOWN_ACCOUNT_TYPE", `Unknown account type: ${value}`, {
+            issue: "unknown_account_type",
+            context: { value },
+        })
+    }
+}
