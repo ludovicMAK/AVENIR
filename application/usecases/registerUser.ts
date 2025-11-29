@@ -9,6 +9,10 @@ import { PasswordHasher } from "../services/PasswordHasher"
 import { UuidGenerator } from "../services/UuidGenerator"
 import { TokenGenerator } from "../services/TokenGenerator"
 import { EmailSender } from "../services/EmailSender"
+import { AccountRepository } from "@application/repositories/account"
+import { IBANGenerator } from "@application/services/IBANGenreator"
+import { Account } from "@domain/entities/account"
+import { AccountType } from "@domain/values/accountType"
 
 export class RegisterUser {
     constructor(
@@ -18,6 +22,8 @@ export class RegisterUser {
         private readonly uuidGenerator: UuidGenerator,
         private readonly tokenGenerator: TokenGenerator,
         private readonly emailSender: EmailSender,
+        private readonly ibanGenerator: IBANGenerator,
+        private readonly accountRepository: AccountRepository,
     ) {}
 
     async execute(input: RegisterUserInput): Promise<void> {
@@ -56,6 +62,11 @@ export class RegisterUser {
         )
 
         await this.userRepository.save(user)
+        const iban = this.ibanGenerator.generate();
+        const account = new Account(
+            AccountType: Ac
+           
+        )
 
         const confirmationToken = this.tokenGenerator.generate()
         const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
