@@ -1,7 +1,8 @@
-import { User } from "@domain/entities/users"
+import { AccountType } from "@domain/values/accountType";
+import { StatusAccount } from "@domain/values/statusAccount";
 
 export class Account{
-    constructor(readonly IBAN:string,readonly user:User,readonly name:string){
+    constructor(readonly accountType:AccountType,readonly IBAN:string,readonly accountName:string,readonly authorizedOverdraft:boolean,readonly status:StatusAccount,readonly idOwner:string){
 
     }
 }
