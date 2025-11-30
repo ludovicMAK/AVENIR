@@ -3,9 +3,12 @@ import { EmailConfirmationTokenRepository } from "@application/repositories/emai
 import { InMemoryUserRepository } from "@adapters/repositories/memory/InMemoryUserRepository"
 import { InMemoryEmailConfirmationTokenRepository } from "@adapters/repositories/memory/InMemoryEmailConfirmationTokenRepository"
 import { PostgresUserRepository } from "@adapters/repositories/sql/PostgresUserRepository"
+import { PostgresAccountRepository } from "@adapters/repositories/sql/PostgresAccountRepository"
 import { PostgresEmailConfirmationTokenRepository } from "@adapters/repositories/sql/PostgresEmailConfirmationTokenRepository"
 import { getPool } from "@adapters/repositories/sql/connection"
 import { RepositoryDriver } from "@express/types/repositories"
+import { InMemoryAccountRepository } from "@adapters/repositories/memory/InMemoryAccountRepository"
+import { AccountRepository } from "@application/repositories/account"
 
 function resolveRepositoryDriver(): RepositoryDriver {
     const driver = (process.env.DATA_SOURCE ?? "memory").toLowerCase()
@@ -32,8 +35,16 @@ function buildEmailConfirmationTokenRepository(driver: RepositoryDriver): EmailC
 
     return new InMemoryEmailConfirmationTokenRepository()
 }
+function buildAccountRepository(driver: RepositoryDriver) {
+    if (driver === "postgres") {
+        return new PostgresAccountRepository(getPool())
+    }
+
+    return new InMemoryAccountRepository()
+}
 
 export const repositoryDriver: RepositoryDriver = resolveRepositoryDriver()
 process.stdout.write(`Repository driver: ${repositoryDriver}\n`)
 export const userRepository: UserRepository = buildUserRepository(repositoryDriver)
 export const emailConfirmationTokenRepository: EmailConfirmationTokenRepository = buildEmailConfirmationTokenRepository(repositoryDriver)
+export const accountRepository: AccountRepository = buildAccountRepository(repositoryDriver)

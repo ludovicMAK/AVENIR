@@ -8,6 +8,8 @@ import { NodeTokenGenerator } from "@adapters/services/NodeTokenGenerator"
 import { ConsoleEmailSender } from "@adapters/services/ConsoleEmailSender"
 import { SmtpEmailSender } from "@adapters/services/SmtpEmailSender"
 import { EmailDriver } from "@express/types/services"
+import { IBANGenerator } from "@application/services/IBANGenreator"
+import { NodeIBANGenerator } from "@adapters/services/NodeIBANGenerator"
 
 function resolveEmailDriver(): EmailDriver {
     const driver = (process.env.EMAIL_DRIVER || "console").toLowerCase()
@@ -34,4 +36,5 @@ export const emailSender: EmailSender = buildEmailSender(emailDriver)
 export const passwordHasher: PasswordHasher = new CryptoPasswordHasher()
 export const uuidGenerator: UuidGenerator = new NodeUuidGenerator()
 export const tokenGenerator: TokenGenerator = new NodeTokenGenerator()
+export const ibanGenerator: IBANGenerator = new NodeIBANGenerator()
 
