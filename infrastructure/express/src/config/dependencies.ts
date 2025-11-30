@@ -18,12 +18,10 @@ const registerUser = new RegisterUser(
     uuidGenerator,
     tokenGenerator,
     emailSender,
-    ibanGenerator,
-    accountRepository,
 )
 const loginUser = new LoginUser(userRepository, passwordHasher)
 const getAllUsers = new GetAllUsers(userRepository)
-const confirmRegistration = new ConfirmRegistration(userRepository, emailConfirmationTokenRepository)
+const confirmRegistration = new ConfirmRegistration(userRepository, emailConfirmationTokenRepository, accountRepository, ibanGenerator)
 
 const userController = new UserController(registerUser, loginUser, getAllUsers, confirmRegistration)
 const getAccountsFromOwnerId = new GetAccountsFromOwnerId(accountRepository)

@@ -80,6 +80,26 @@ export class PostgresAccountRepository implements AccountRepository {
             row.id_owner,
         )
     }
+        async createAccountForUser(userId: string, IBAN: string): Promise<void> {
+        try {
+            await this.pool.query(
+                `
+                    INSERT INTO accounts (IBAN, account_type, account_name, authorized_overdraft, status, id_owner)
+                    VALUES ($1, $2, $3, $4, $5, $6)
+                `,
+                [
+                    IBAN,
+                    AccountType.CURRENT.getValue(),
+                    `compte courant`,
+                    false,
+                    StatusAccount.OPEN.getValue(),
+                    userId,
+                ],
+            )
+        } catch (error) {
+            this.handleDatabaseError(error)
+        }
+    }
 
     private handleDatabaseError(unknownError: unknown): never {
         const error = ensureError(unknownError, "Unexpected database error")

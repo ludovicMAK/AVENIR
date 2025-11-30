@@ -23,8 +23,6 @@ export class RegisterUser {
         private readonly uuidGenerator: UuidGenerator,
         private readonly tokenGenerator: TokenGenerator,
         private readonly emailSender: EmailSender,
-        private readonly ibanGenerator: IBANGenerator,
-        private readonly accountRepository: AccountRepository,
     ) {}
 
     async execute(input: RegisterUserInput): Promise<void> {
@@ -63,16 +61,7 @@ export class RegisterUser {
         )
 
         await this.userRepository.save(user)
-        const iban = this.ibanGenerator.generate();
-        const account = new Account(
-            AccountType.CURRENT,
-            iban,
-            `${input.firstname.trim()} ${input.lastname.trim()}` ,
-            false,
-            StatusAccount.CLOSE,
-            userId
-        )
-        await this.accountRepository.save(account);
+        
 
         const confirmationToken = this.tokenGenerator.generate()
         const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000)

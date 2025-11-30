@@ -1,5 +1,7 @@
 import { AccountRepository } from "@application/repositories/account"
 import { Account } from "@domain/entities/account"
+import { AccountType } from "@domain/values/accountType"
+import { StatusAccount } from "@domain/values/statusAccount"
 
 export class InMemoryAccountRepository implements AccountRepository {
     private readonly items: Map<string, Account> = new Map()
@@ -21,6 +23,10 @@ export class InMemoryAccountRepository implements AccountRepository {
             }
         }
         return accounts
+    }
+    async createAccountForUser(userId: string, IBAN: string): Promise<void> {
+        const newAccount = new Account(AccountType.CURRENT, IBAN, `compte courant`, false, StatusAccount.OPEN, userId);
+        this.items.set(newAccount.IBAN, newAccount);
     }
 
     
