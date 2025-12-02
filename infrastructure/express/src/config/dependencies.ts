@@ -32,7 +32,7 @@ import { ShareController } from "@express/controllers/ShareController";
 import { UserHttpHandler } from "@express/src/http/UserHttpHandler";
 import { AccountHttpHandler } from "@express/src/http/AccountHttpHandler";
 import { ShareHttpHandler } from "@express/src/http/ShareHttpHandler";
-import { createHttpRouter } from "@express/src/routes";
+import { createHttpRouter } from "@express/src/routes/index";
 
 const registerUser = new RegisterUser(
   userRepository,
