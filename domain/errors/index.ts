@@ -36,3 +36,19 @@ export class UnknownAccountTypeError extends DomainError {
         })
     }
 }
+export class UnknownDirectionError extends DomainError {
+    constructor(value: string) {
+        super("UNKNOWN_DIRECTION", `Unknown direction: ${value}`, {
+            issue: "unknown_direction",
+            context: { value },
+        })
+    }
+}
+export class UnknownStatusTransactionError extends DomainError {
+    constructor(value: string) {
+        super("UNKNOWN_STATUS_TRANSACTION", `Unknown status transaction: ${value}`, {
+            issue: "unknown_status_transaction",
+            context: { value },
+        })
+    }
+}
