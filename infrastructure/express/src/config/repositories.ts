@@ -11,7 +11,7 @@ import { InMemoryAccountRepository } from "@adapters/repositories/memory/InMemor
 import { AccountRepository } from "@application/repositories/account"
 
 function resolveRepositoryDriver(): RepositoryDriver {
-    const driver = (process.env.DATA_SOURCE ?? "memory").toLowerCase()
+    const driver = (process.env.DATA_DRIVER ?? "memory").toLowerCase()
 
     if (driver === "postgres") {
         return "postgres"
