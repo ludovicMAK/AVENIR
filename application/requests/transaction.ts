@@ -1,8 +1,9 @@
 export type TransactionInput = {
-    id:
     description: string
     amount: number
-    accountIBAN: string
+    accountIBANFrom: string
+    accountIBANTo: string
     direction: string
+    dateExecuted: Date
 }
 
