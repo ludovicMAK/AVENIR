@@ -1,7 +1,15 @@
-import { ensureUsersTable } from "@express/src/db/migrations/users"
-import { ensureEmailConfirmationTokensTable } from "@express/src/db/migrations/pendingRegistrations"
+import { ensureUsersTable } from "@express/src/db/migrations/users";
+import { ensureEmailConfirmationTokensTable } from "@express/src/db/migrations/pendingRegistrations";
+import { ensureSharesTable } from "@express/src/db/migrations/shares";
+import { ensureOrdersTable } from "@express/src/db/migrations/orders";
+import { ensureShareTransactionsTable } from "@express/src/db/migrations/shareTransactions";
+import { ensureSecuritiesPositionsTable } from "@express/src/db/migrations/securitiesPositions";
 
 export async function ensureSchema(): Promise<void> {
-    await ensureUsersTable()
-    await ensureEmailConfirmationTokensTable()
+  await ensureUsersTable();
+  await ensureEmailConfirmationTokensTable();
+  await ensureSharesTable();
+  await ensureOrdersTable();
+  await ensureShareTransactionsTable();
+  await ensureSecuritiesPositionsTable();
 }

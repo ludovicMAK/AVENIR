@@ -11,23 +11,18 @@ services:
       - "${DB_PORT:-5432}:5432"
     volumes:
       - avenir-postgres-data:/var/lib/postgresql/data
-  
-  pgadmin:
-    image: dpage/pgadmin4
+  adminer:
+    image: dpage/pgadmin4:latest
     container_name: avenir-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "${PGADMIN_DEFAULT_EMAIL:-avenir.noreply@gmail.com}"
+      PGADMIN_DEFAULT_PASSWORD: "${PGADMIN_DEFAULT_PASSWORD:-admin}"
     restart: unless-stopped
-    ports:
-      - "5050:80"  
     env_file:
       - .env
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@avenir.com}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-supersecurepassword}
-    volumes:
-      - avenir-pgadmin-data:/var/lib/pgadmin
+    ports:
+      - "${PGADMIN_PORT:-8080}:80"
     depends_on:
-      - postgres 
-
+      - postgres
 volumes:
   avenir-postgres-data:
-  avenir-pgadmin-data:

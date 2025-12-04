@@ -2,7 +2,7 @@
   "name": "@avenir/express",
   "version": "1.0.0",
   "scripts": {
-    "dev": "DOTENV_CONFIG_PATH=../../.env ts-node --project tsconfig.json -r dotenv/config -r tsconfig-paths/register src/index.ts"
+    "dev": "cross-env DOTENV_CONFIG_PATH=../../.env ts-node --project tsconfig.json -r dotenv/config -r tsconfig-paths/register src/index.ts"
   },
   "dependencies": {
     "@types/nodemailer": "^7.0.4",
