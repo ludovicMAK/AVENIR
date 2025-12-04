@@ -6,11 +6,15 @@ export async function ensureAccountsTable(): Promise<void> {
   try {
     await client.query(`
             CREATE TABLE IF NOT EXISTS accounts (
-                IBAN VARCHAR(34) PRIMARY KEY,
+                id UUID PRIMARY KEY,
+                IBAN VARCHAR(34) UNIQUE NOT NULL,
                 account_type VARCHAR(50) NOT NULL,
                 account_name VARCHAR(255) NOT NULL,
                 authorized_overdraft BOOLEAN NOT NULL DEFAULT false,
+                overdraft_limit DECIMAL(15, 2) NOT NULL DEFAULT 0,
+                overdraft_fees DECIMAL(15, 2) NOT NULL DEFAULT 0,
                 status VARCHAR(50) NOT NULL,
+                balance DECIMAL(15, 2) NOT NULL DEFAULT 0,
                 id_owner UUID NOT NULL,
                 FOREIGN KEY (id_owner) REFERENCES users(id)
             )
