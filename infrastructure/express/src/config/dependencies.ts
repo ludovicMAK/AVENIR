@@ -1,18 +1,23 @@
-import { RegisterUser } from "@application/usecases/registerUser";
-import { LoginUser } from "@application/usecases/loginUser";
-import { GetAllUsers } from "@application/usecases/getAllUsers";
-import { ConfirmRegistration } from "@application/usecases/confirmRegistration";
-import { GetAccountsFromOwnerId } from "@application/usecases/getAccountsFromOwnerId";
-import { CreateAccount } from "@application/usecases/createAccount";
-import { GetAccountById } from "@application/usecases/getAccountById";
-import { CloseAccount } from "@application/usecases/closeAccount";
-import { CreateShare } from "@application/usecases/createShare";
-import { GetAllShares } from "@application/usecases/getAllShares";
-import { GetShareById } from "@application/usecases/getShareById";
-import { PlaceOrder } from "@application/usecases/placeOrder";
-import { CancelOrder } from "@application/usecases/cancelOrder";
-import { GetClientPositions } from "@application/usecases/getClientPositions";
-import { GetOrdersByCustomer } from "@application/usecases/getOrdersByCustomer";
+// Users use cases
+import { RegisterUser } from "@application/usecases/users/registerUser";
+import { LoginUser } from "@application/usecases/users/loginUser";
+import { GetAllUsers } from "@application/usecases/users/getAllUsers";
+import { ConfirmRegistration } from "@application/usecases/users/confirmRegistration";
+
+// Accounts use cases
+import { GetAccountsFromOwnerId } from "@application/usecases/accounts/getAccountsFromOwnerId";
+import { CreateAccount } from "@application/usecases/accounts/createAccount";
+import { GetAccountById } from "@application/usecases/accounts/getAccountById";
+import { CloseAccount } from "@application/usecases/accounts/closeAccount";
+
+// Shares use cases
+import { CreateShare } from "@application/usecases/shares/createShare";
+import { GetAllShares } from "@application/usecases/shares/getAllShares";
+import { GetShareById } from "@application/usecases/shares/getShareById";
+import { PlaceOrder } from "@application/usecases/shares/placeOrder";
+import { CancelOrder } from "@application/usecases/shares/cancelOrder";
+import { GetClientPositions } from "@application/usecases/shares/getClientPositions";
+import { GetOrdersByCustomer } from "@application/usecases/shares/getOrdersByCustomer";
 import {
   userRepository,
   emailConfirmationTokenRepository,
