@@ -3,6 +3,9 @@ import { LoginUser } from "@application/usecases/loginUser";
 import { GetAllUsers } from "@application/usecases/getAllUsers";
 import { ConfirmRegistration } from "@application/usecases/confirmRegistration";
 import { GetAccountsFromOwnerId } from "@application/usecases/getAccountsFromOwnerId";
+import { CreateAccount } from "@application/usecases/createAccount";
+import { GetAccountById } from "@application/usecases/getAccountById";
+import { CloseAccount } from "@application/usecases/closeAccount";
 import { CreateShare } from "@application/usecases/createShare";
 import { GetAllShares } from "@application/usecases/getAllShares";
 import { GetShareById } from "@application/usecases/getShareById";
@@ -58,7 +61,19 @@ const userController = new UserController(
   confirmRegistration
 );
 const getAccountsFromOwnerId = new GetAccountsFromOwnerId(accountRepository);
-const accountController = new AccountController(getAccountsFromOwnerId);
+const createAccount = new CreateAccount(
+  accountRepository,
+  uuidGenerator,
+  ibanGenerator
+);
+const getAccountById = new GetAccountById(accountRepository);
+const closeAccount = new CloseAccount(accountRepository);
+const accountController = new AccountController(
+  getAccountsFromOwnerId,
+  createAccount,
+  getAccountById,
+  closeAccount
+);
 
 const createShare = new CreateShare(shareRepository, uuidGenerator);
 const getAllShares = new GetAllShares(shareRepository);

@@ -6,8 +6,17 @@ export function createAccountRoutes(
 ): Router {
   const router = Router();
 
-  router.post("/dashboard", (request, response) =>
+  router.get("/users/:userId/accounts", (request, response) =>
     accountHttpHandler.listByOwnerId(request, response)
+  );
+  router.get("/accounts/:accountId", (request, response) =>
+    accountHttpHandler.getById(request, response)
+  );
+  router.post("/accounts", (request, response) =>
+    accountHttpHandler.create(request, response)
+  );
+  router.delete("/accounts/:accountId", (request, response) =>
+    accountHttpHandler.close(request, response)
   );
 
   return router;
