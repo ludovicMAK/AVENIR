@@ -1,0 +1,16 @@
+// settings.json
+{
+  // 1. Définir Prettier comme formateur par défaut pour les types de fichiers courants
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  // 2. Activer le formatage automatique lors de la sauvegarde du fichier
+  "editor.formatOnSave": true,
+
+  // 3. Définir une configuration spécifique pour TypeScript (souvent facultatif)
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
+}

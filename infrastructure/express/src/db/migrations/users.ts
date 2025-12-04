@@ -14,7 +14,7 @@ export async function ensureUsersTable(): Promise<void> {
                 password TEXT NOT NULL,
                 status TEXT NOT NULL DEFAULT 'active',
                 email_verified_at TIMESTAMP NULL
-            )
+            );
         `)
     } catch (error) {
         console.error("Failed to ensure users table", error)
