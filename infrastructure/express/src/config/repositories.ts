@@ -21,6 +21,12 @@ import { PostgresShareTransactionRepository } from "@adapters/repositories/sql/P
 import { PostgresSecuritiesPositionRepository } from "@adapters/repositories/sql/PostgresSecuritiesPositionRepository";
 import { getPool } from "@adapters/repositories/sql/connection";
 import { RepositoryDriver } from "@express/types/repositories";
+import { TransactionRepository } from "@application/repositories/transaction";
+import { TransferRepository } from "@application/repositories/transfer";
+import { PostgresTransactionRepository } from "@adapters/repositories/sql/PostgresTransactionRepository";
+import { InMemoryTransactionRepository } from "@adapters/repositories/memory/InMemoryTransactionRepository";
+import { PostgresTransferRepository } from "@adapters/repositories/sql/PostgresTransferRepository";
+import { InMemoryTransferRepository } from "@adapters/repositories/memory/InMemoryTransferRepository";
 
 function resolveRepositoryDriver(): RepositoryDriver {
   const driver = (process.env.DATA_DRIVER ?? "memory").toLowerCase();
@@ -56,19 +62,21 @@ function buildAccountRepository(driver: RepositoryDriver) {
 
   return new InMemoryAccountRepository();
 }
-function buildTransactionRepository(driver: RepositoryDriver): TransactionRepository {
-    if (driver === "postgres") {
-        return new PostgresTransactionRepository(getPool())
-    }
+function buildTransactionRepository(
+  driver: RepositoryDriver
+): TransactionRepository {
+  if (driver === "postgres") {
+    return new PostgresTransactionRepository(getPool());
+  }
 
-    return new InMemoryTransactionRepository()
+  return new InMemoryTransactionRepository();
 }
-function buildTransferRepository(driver: RepositoryDriver) : TransferRepository {
-    if (driver === "postgres") {
-        return new PostgresTransferRepository(getPool())
-    }
+function buildTransferRepository(driver: RepositoryDriver): TransferRepository {
+  if (driver === "postgres") {
+    return new PostgresTransferRepository(getPool());
+  }
 
-    return new InMemoryTransferRepository()
+  return new InMemoryTransferRepository();
 }
 
 function buildShareRepository(driver: RepositoryDriver): ShareRepository {
@@ -123,3 +131,7 @@ export const shareTransactionRepository: ShareTransactionRepository =
   buildShareTransactionRepository(repositoryDriver);
 export const securitiesPositionRepository: SecuritiesPositionRepository =
   buildSecuritiesPositionRepository(repositoryDriver);
+export const transactionRepository: TransactionRepository =
+  buildTransactionRepository(repositoryDriver);
+export const transferRepository: TransferRepository =
+  buildTransferRepository(repositoryDriver);
