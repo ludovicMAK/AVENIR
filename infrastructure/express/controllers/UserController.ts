@@ -1,7 +1,3 @@
-import { RegisterUser } from "@application/usecases/registerUser"
-import { GetAllUsers } from "@application/usecases/getAllUsers"
-import { LoginUser } from "@application/usecases/loginUser"
-import { ConfirmRegistration } from "@application/usecases/confirmRegistration"
 import { RegisterUserInput, LoginUserInput } from "@application/requests/auth"
 import { User } from "@domain/entities/users"
 

@@ -7,4 +7,5 @@ export interface AccountRepository {
   updateBalance(accountId: string, newBalance: number): Promise<void>;
   updateStatus(accountId: string, status: string): Promise<void>;
   delete(accountId: string): Promise<void>;
+  createAccountForUser(userId: string, IBAN: string): Promise<void>;
 }

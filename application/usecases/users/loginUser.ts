@@ -2,7 +2,7 @@ import { UserRepository } from "@application/repositories/users"
 import { UnauthorizedError } from "@application/errors"
 import { User } from "@domain/entities/users"
 import { LoginUserInput } from "@application/requests/auth"
-import { PasswordHasher } from "../services/PasswordHasher"
+import { PasswordHasher } from "@application/services/PasswordHasher"
 
 export class LoginUser {
     constructor(

@@ -155,6 +155,9 @@ export class PostgresAccountRepository implements AccountRepository {
       parseFloat(row.balance.toString())
     );
   }
+  async createAccountForUser(userId: string, IBAN: string): Promise<void> {
+    
+  }
 
   private handleDatabaseError(unknownError: unknown): never {
     const error = ensureError(unknownError, "Unexpected database error");

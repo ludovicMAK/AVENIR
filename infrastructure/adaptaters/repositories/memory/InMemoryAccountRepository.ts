@@ -71,6 +71,9 @@ export class InMemoryAccountRepository implements AccountRepository {
       this.items.set(accountId, updatedAccount);
     }
   }
+  createAccountForUser(userId: string, IBAN: string): Promise<void> {
+    return Promise.resolve();
+  }
 
   async delete(accountId: string): Promise<void> {
     this.items.delete(accountId);
