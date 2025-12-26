@@ -9,7 +9,8 @@
       "@domain/*": ["./*"]
     },
     "declaration": true,
-    "emitDeclarationOnly": true
+    "emitDeclarationOnly": true,
+    "ignoreDeprecations": "6.0"
   },
   "include": ["**/*.ts"],
   "exclude": ["dist", "node_modules"]

@@ -1,10 +1,10 @@
-import { CreateShare } from "@application/usecases/createShare";
-import { GetAllShares } from "@application/usecases/getAllShares";
-import { GetShareById } from "@application/usecases/getShareById";
-import { PlaceOrder } from "@application/usecases/placeOrder";
-import { CancelOrder } from "@application/usecases/cancelOrder";
-import { GetClientPositions } from "@application/usecases/getClientPositions";
-import { GetOrdersByCustomer } from "@application/usecases/getOrdersByCustomer";
+import { CreateShare } from "@application/usecases/shares/createShare";
+import { GetAllShares } from "@application/usecases/shares/getAllShares";
+import { GetShareById } from "@application/usecases/shares/getShareById";
+import { PlaceOrder } from "@application/usecases/shares/placeOrder";
+import { CancelOrder } from "@application/usecases/shares/cancelOrder";
+import { GetClientPositions } from "@application/usecases/shares/getClientPositions";
+import { GetOrdersByCustomer } from "@application/usecases/shares/getOrdersByCustomer";
 import {
   CreateShareInput,
   PlaceOrderInput,

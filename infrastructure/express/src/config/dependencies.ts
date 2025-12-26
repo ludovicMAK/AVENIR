@@ -56,7 +56,8 @@ const confirmRegistration = new ConfirmRegistration(
   userRepository,
   emailConfirmationTokenRepository,
   accountRepository,
-  ibanGenerator
+  ibanGenerator,
+  uuidGenerator
 );
 
 const userController = new UserController(

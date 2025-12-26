@@ -1,7 +1,7 @@
-import { GetAccountsFromOwnerId } from "@application/usecases/getAccountsFromOwnerId";
-import { CreateAccount } from "@application/usecases/createAccount";
-import { GetAccountById } from "@application/usecases/getAccountById";
-import { CloseAccount } from "@application/usecases/closeAccount";
+import { GetAccountsFromOwnerId } from "@application/usecases/accounts/getAccountsFromOwnerId";
+import { CreateAccount } from "@application/usecases/accounts/createAccount";
+import { GetAccountById } from "@application/usecases/accounts/getAccountById";
+import { CloseAccount } from "@application/usecases/accounts/closeAccount";
 
 export class AccountController {
   public constructor(
