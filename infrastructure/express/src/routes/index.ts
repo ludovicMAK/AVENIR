@@ -5,17 +5,20 @@ import { ShareHttpHandler } from "@express/src/http/ShareHttpHandler";
 import { createUserRoutes } from "./userRoutes";
 import { createAccountRoutes } from "./accountRoutes";
 import { createShareRoutes } from "./shareRoutes";
-
+import { createTransactionRoutes } from "./transactionRoutes";
+import { TransactionHttpHandler } from "@express/src/http/TransactionHttpHandler";
 export function createHttpRouter(
   userHttpHandler: UserHttpHandler,
   accountHttpHandler: AccountHttpHandler,
-  shareHttpHandler: ShareHttpHandler
+  shareHttpHandler: ShareHttpHandler,
+  transactionHttpHandler: TransactionHttpHandler
 ): Router {
   const router = Router();
 
   router.use(createUserRoutes(userHttpHandler));
   router.use(createAccountRoutes(accountHttpHandler));
   router.use(createShareRoutes(shareHttpHandler));
+  router.use(createTransactionRoutes(transactionHttpHandler));
 
   return router;
 }

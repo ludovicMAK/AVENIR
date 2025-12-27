@@ -26,6 +26,8 @@ import {
   orderRepository,
   shareTransactionRepository,
   securitiesPositionRepository,
+  transactionRepository,
+  transferRepository
 } from "@express/src/config/repositories";
 import {
   emailSender,
@@ -41,6 +43,9 @@ import { UserHttpHandler } from "@express/src/http/UserHttpHandler";
 import { AccountHttpHandler } from "@express/src/http/AccountHttpHandler";
 import { ShareHttpHandler } from "@express/src/http/ShareHttpHandler";
 import { createHttpRouter } from "@express/src/routes/index";
+import { TransactionHttpHandler } from "../http/TransactionHttpHandler";
+import { TransactionController } from "@express/controllers/TansactionController";
+import { CreateTransaction } from "@application/usecases/transactions/createTransaction";
 
 const registerUser = new RegisterUser(
   userRepository,
@@ -104,13 +109,17 @@ const shareController = new ShareController(
   getClientPositions,
   getOrdersByCustomer
 );
+const createTransaction = new CreateTransaction(transactionRepository, uuidGenerator, transferRepository, accountRepository);
+const transactionController = new TransactionController(createTransaction);
 
 const userHttpHandler = new UserHttpHandler(userController);
 const accountHttpHandler = new AccountHttpHandler(accountController);
 const shareHttpHandler = new ShareHttpHandler(shareController);
+const transactionHttpHandler = new TransactionHttpHandler(transactionController);
 
 export const httpRouter = createHttpRouter(
   userHttpHandler,
   accountHttpHandler,
-  shareHttpHandler
+  shareHttpHandler,
+  transactionHttpHandler,
 );
