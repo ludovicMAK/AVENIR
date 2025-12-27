@@ -15,7 +15,7 @@ export async function ensureTransactionsTable(): Promise<void> {
                 reason TEXT NOT NULL,
                 account_date TIMESTAMP NOT NULL,
                 status statust_transaction NOT NULL,
-                transfer_id TIMESTAMP NOT NULL,
+                transfer_id TIMESTAMP NOT NULL
                 
             )
         `);

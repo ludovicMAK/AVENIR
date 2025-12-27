@@ -10,7 +10,7 @@ export async function ensureTransferTable(): Promise<void> {
                 amount int NOT NULL,
                 date_requested TIMESTAMP NOT NULL,
                 date_executed TIMESTAMP NOT NULL,
-                description INTEGER NOT NULL, 
+                description INTEGER NOT NULL
             )
         `);
 
