@@ -17,13 +17,13 @@ export async function ensureTransactionsTable(): Promise<void> {
 
       CREATE TABLE IF NOT EXISTS transactions (
           id UUID PRIMARY KEY,
-          account_IBAN UUID NOT NULL,
+          account_IBAN VARCHAR NOT NULL,
           transaction_direction transaction_direction NOT NULL,
           amount int NOT NULL,
           reason TEXT NOT NULL,
           account_date TIMESTAMP NOT NULL,
           status status_transaction NOT NULL,
-          transfer_id TIMESTAMP NOT NULL
+          transfer_id UUID NOT NULL
       );
     `);
 

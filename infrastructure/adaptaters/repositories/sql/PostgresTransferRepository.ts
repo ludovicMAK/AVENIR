@@ -11,11 +11,11 @@ import { Transfer } from "@domain/entities/transfer"
 export class PostgresTransferRepository implements TransferRepository {
     constructor(private readonly pool: Pool) {}
 
-    async save(transfer: Transfer): Promise<void> {
+    async save(transfer: Transfer): Promise<boolean> { 
         try {
-            await this.pool.query(
+            const result = await this.pool.query(
                 `
-                    INSERT INTO transfer (id, amount, date_requested,date_executed,description)
+                    INSERT INTO transfer (id, amount, date_requested, date_executed, description)
                     VALUES ($1, $2, $3, $4, $5)
                 `,
                 [
@@ -25,17 +25,13 @@ export class PostgresTransferRepository implements TransferRepository {
                     transfer.dateExecuted,
                     transfer.description,
                 ],
-            )
+            );
+            
+            return result.rowCount === 1; 
+            
         } catch (error) {
-            this.handleDatabaseError(error)
+            console.error("Database operation failed", error);
+            return false;
         }
-    }
-     
-
-
-    private handleDatabaseError(unknownError: unknown): never {
-        const error = ensureError(unknownError, "Unexpected database error")
-        console.error("Database operation failed", error)
-        throw new InfrastructureError("Database unavailable. Please try again later.")
     }
 }

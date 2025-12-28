@@ -14,7 +14,7 @@ export class PostgresTransactionRepository implements TransactionRepository {
         try {
             await this.pool.query(
                 `
-                    INSERT INTO transactions (id, account_id, transaction_direction, amount, reason,account_date,status,transfer_id)
+                    INSERT INTO transactions (id, account_IBAN, transaction_direction, amount, reason,account_date,status,transfer_id)
                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
                 `,
                 [
