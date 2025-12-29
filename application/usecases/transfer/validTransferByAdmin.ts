@@ -31,6 +31,9 @@ export class ValidTransferByAdmin {
     if (userInformationConnected.role.getValue() !== "bankManager" && userInformationConnected.role.getValue() !== "bankAdvisor") {
       throw new TransferCreationFailedError("Unauthorized: Only admin users can validate transfers.");
     }
+    if(!transfer.statusTransfer.equals(StatusTransfer.PENDING)) {
+      throw new TransferCreationFailedError("Only pending transfers can be validated.");
+    }
     await this.unitOfWork.begin();
     try {
       const updatedTransfer = new Transfer(
@@ -47,7 +50,6 @@ export class ValidTransferByAdmin {
         throw new TransferCreationFailedError("Failed to validate the transfer.");
       }
       const transactions = await this.transactionRepository.getAllTransactionsByTransferId(transfer.id);
-      console.log("Transfer validated successfully:", transactions);
 
       for (const transaction of transactions) {
         const updatedTransaction = new Transaction(
@@ -62,6 +64,7 @@ export class ValidTransferByAdmin {
         );
         await this.transactionRepository.update(updatedTransaction, this.unitOfWork);
       }
+      
       await this.unitOfWork.commit();
     }catch (error) {
       await this.unitOfWork.rollback();

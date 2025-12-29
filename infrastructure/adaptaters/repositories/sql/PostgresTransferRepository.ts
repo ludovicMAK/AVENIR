@@ -3,6 +3,7 @@ import { TransferRepository } from "@application/repositories/transfer"
 import { Transfer } from "@domain/entities/transfer"
 import { UnitOfWork } from "@application/services/UnitOfWork"
 import { PostgresUnitOfWork } from "@adapters/services/PostgresUnitOfWork";
+import { StatusTransfer } from "@domain/values/statusTransfer";
 
 export class PostgresTransferRepository implements TransferRepository {
     constructor(private readonly pool: Pool) {}
@@ -61,7 +62,7 @@ export class PostgresTransferRepository implements TransferRepository {
                 row.date_requested,
                 row.date_executed,
                 row.description,
-                row.status
+                StatusTransfer.from(row.status)
             );
         } catch (error) {
             console.error("Database operation failed", error);
