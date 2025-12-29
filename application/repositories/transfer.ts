@@ -1,4 +1,6 @@
 import { Transfer } from "@domain/entities/transfer"
+import { UnitOfWork } from "@application/services/UnitOfWork";
+
 export interface TransferRepository {
-    save(transfer: Transfer): Promise<boolean>;
+    save(transfer: Transfer, unitOfWork?: UnitOfWork): Promise<boolean>;
 }

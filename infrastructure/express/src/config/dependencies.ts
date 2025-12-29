@@ -27,7 +27,8 @@ import {
   shareTransactionRepository,
   securitiesPositionRepository,
   transactionRepository,
-  transferRepository
+  transferRepository,
+  unitOfWork,
 } from "@express/src/config/repositories";
 import {
   emailSender,
@@ -109,7 +110,13 @@ const shareController = new ShareController(
   getClientPositions,
   getOrdersByCustomer
 );
-const createTransaction = new CreateTransaction(transactionRepository, uuidGenerator, transferRepository, accountRepository);
+const createTransaction = new CreateTransaction(
+  transactionRepository,
+  uuidGenerator,
+  transferRepository,
+  accountRepository,
+  unitOfWork
+);
 const transactionController = new TransactionController(createTransaction);
 
 const userHttpHandler = new UserHttpHandler(userController);

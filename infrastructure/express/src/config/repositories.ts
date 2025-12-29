@@ -27,6 +27,9 @@ import { InMemoryTransactionRepository } from "@adapters/repositories/memory/InM
 import { PostgresTransferRepository } from "@adapters/repositories/sql/PostgresTransferRepository";
 import { InMemoryTransferRepository } from "@adapters/repositories/memory/InMemoryTransferRepository";
 import { TransferRepository } from "@application/repositories/transfer";
+import { UnitOfWork } from "@application/services/UnitOfWork";
+import { InMemoryUnitOfWork } from "@adapters/services/InMemoryUnitOfWork";
+import { PostgresUnitOfWork } from "@adapters/services/PostgresUnitOfWork";
 
 function resolveRepositoryDriver(): RepositoryDriver {
   const driver = (process.env.DATA_DRIVER ?? "memory").toLowerCase();
@@ -112,6 +115,12 @@ function buildTransferRepository(driver: RepositoryDriver) {
 
   return new InMemoryTransferRepository();
 }
+function buildUnitOfWork(driver: RepositoryDriver): UnitOfWork {
+  if (driver === "postgres") {
+    return new PostgresUnitOfWork(getPool());
+  }
+  return new InMemoryUnitOfWork();
+}
 
 export const repositoryDriver: RepositoryDriver = resolveRepositoryDriver();
 process.stdout.write(`Repository driver: ${repositoryDriver}\n`);
@@ -133,3 +142,5 @@ export const transactionRepository: TransactionRepository =
   buildTransactionRepository(repositoryDriver);
 export const transferRepository: TransferRepository =
   buildTransferRepository(repositoryDriver);
+export const unitOfWork: UnitOfWork = 
+  buildUnitOfWork(repositoryDriver);
