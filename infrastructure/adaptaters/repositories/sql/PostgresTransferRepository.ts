@@ -14,7 +14,7 @@ export class PostgresTransferRepository implements TransferRepository {
                 : null;
 
             const query = `
-                INSERT INTO transfer (id, amount, date_requested, date_executed, description)
+                INSERT INTO transfer (id, amount, date_requested, date_executed, description, status)
                 VALUES ($1, $2, $3, $4, $5)
             `;
             
@@ -24,6 +24,7 @@ export class PostgresTransferRepository implements TransferRepository {
                 transfer.dateRequested,
                 transfer.dateExecuted,
                 transfer.description,
+                transfer.statusTransfer.getValue(),
             ];
 
             const result = client

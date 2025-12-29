@@ -44,6 +44,14 @@ export class UnknownDirectionError extends DomainError {
         })
     }
 }
+export class UnknownStatusTransferError extends DomainError {
+    constructor(value: string) {
+        super("UNKNOWN_STATUS_TRANSFER", `Unknown status transfer: ${value}`, {
+            issue: "unknown_status_transfer",
+            context: { value },
+        })
+    }
+}
 export class UnknownStatusTransactionError extends DomainError {
     constructor(value: string) {
         super("UNKNOWN_STATUS_TRANSACTION", `Unknown status transaction: ${value}`, {

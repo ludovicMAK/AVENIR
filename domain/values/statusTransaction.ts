@@ -1,20 +1,17 @@
 import { UnknownStatusTransactionError } from "@domain/errors"
 
 export class StatusTransaction {
-    private constructor(private readonly value: "pending" | "validated"| "cancelled") {}
+    private constructor(private readonly value: "posted" | "validated") {}
 
-    static readonly PENDING: StatusTransaction = new StatusTransaction("pending")
     static readonly VALIDATED: StatusTransaction = new StatusTransaction("validated")
-    static readonly CANCELLED: StatusTransaction = new StatusTransaction("cancelled")
+    static readonly POSTED: StatusTransaction = new StatusTransaction("posted")
 
     static from(value: string): StatusTransaction {
         switch (value) {
-            case "pending":
-                return StatusTransaction.PENDING
+            case "posted":
+                return StatusTransaction.POSTED
             case "validated":
                 return StatusTransaction.VALIDATED
-            case "cancelled":
-                return StatusTransaction.CANCELLED
             default:
                 throw new UnknownStatusTransactionError(value)
         }
