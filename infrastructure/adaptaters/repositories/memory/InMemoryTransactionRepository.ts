@@ -17,6 +17,20 @@ export class InMemoryTransactionRepository implements TransactionRepository {
             this.items.set(transaction.id, transaction);
         }
     }
+    async getAllTransactionsByTransferId(transferId: string): Promise<Transaction[]> {
+        return Array.from(this.items.values()).filter(transaction => transaction.transferId === transferId);
+    }
+    async update(transaction: Transaction, unitOfWork?: UnitOfWork): Promise<void> {
+        if (unitOfWork instanceof InMemoryUnitOfWork) {
+            unitOfWork.registerChange({
+                execute: async () => {
+                    this.items.set(transaction.id, transaction);
+                }
+            });
+        } else {
+            this.items.set(transaction.id, transaction);
+        }
+    }
 
     getAll(): Transaction[] {
         return Array.from(this.items.values());

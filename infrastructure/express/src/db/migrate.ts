@@ -7,9 +7,11 @@ import { ensureShareTransactionsTable } from "@express/src/db/migrations/shareTr
 import { ensureSecuritiesPositionsTable } from "@express/src/db/migrations/securitiesPositions";
 import { ensureTransferTable } from "./migrations/transfer";
 import { ensureTransactionsTable } from "./migrations/transaction";
+import { ensureSessionsTable } from "./migrations/sessions";
 
 export async function ensureSchema(): Promise<void> {
   await ensureUsersTable();
+  await ensureSessionsTable();
   await ensureEmailConfirmationTokensTable();
   await ensureAccountsTable();
   await ensureSharesTable();

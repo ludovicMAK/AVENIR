@@ -9,6 +9,7 @@ import { StatusTransaction } from "@domain/values/statusTransaction";
 import { TransferCreationFailedError } from "@application/errors/index";
 import { AccountRepository } from "@application/repositories/account";
 import { UnitOfWork } from "@application/services/UnitOfWork";
+import { StatusTransfer } from "@domain/values/statusTransfer";
 
 export class CreateTransaction {
   constructor(
@@ -29,7 +30,8 @@ export class CreateTransaction {
       input.amount,
       new Date(),
       input.dateExecuted,
-      input.description
+      input.description,
+      StatusTransfer.PENDING
     );
 
     const accountFrom = await this.accountRepository.findByIBAN(input.accountIBANFrom);
@@ -60,7 +62,7 @@ export class CreateTransaction {
           input.amount,
           input.description,
           input.dateExecuted,
-          StatusTransaction.PENDING,
+          StatusTransaction.POSTED,
           transfer.id
         );
         await this.transactionRepository.createTransaction(transactionFrom, this.unitOfWork);
@@ -72,7 +74,7 @@ export class CreateTransaction {
           input.amount,
           input.description,
           input.dateExecuted,
-          StatusTransaction.PENDING,
+          StatusTransaction.POSTED,
           transfer.id
         );
         await this.transactionRepository.createTransaction(transactionTo, this.unitOfWork);
@@ -86,7 +88,7 @@ export class CreateTransaction {
           input.amount,
           input.description,
           input.dateExecuted,
-          StatusTransaction.PENDING,
+          StatusTransaction.POSTED,
           transfer.id
         );
         await this.transactionRepository.createTransaction(transactionTo, this.unitOfWork);
@@ -98,7 +100,7 @@ export class CreateTransaction {
           input.amount,
           input.description,
           input.dateExecuted,
-          StatusTransaction.PENDING,
+          StatusTransaction.POSTED,
           transfer.id
         );
         await this.transactionRepository.createTransaction(transactionFrom, this.unitOfWork);

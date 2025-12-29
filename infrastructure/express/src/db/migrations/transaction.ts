@@ -11,13 +11,13 @@ export async function ensureTransactionsTable(): Promise<void> {
         END IF;
         
         IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'status_transaction') THEN
-          CREATE TYPE status_transaction AS ENUM ('pending', 'validated', 'cancelled');
+          CREATE TYPE status_transaction AS ENUM ('posted', 'validated');
         END IF;
       END $$;
 
       CREATE TABLE IF NOT EXISTS transactions (
           id UUID PRIMARY KEY,
-          account_IBAN VARCHAR NOT NULL,
+          account_iban VARCHAR NOT NULL,
           transaction_direction transaction_direction NOT NULL,
           amount int NOT NULL,
           reason TEXT NOT NULL,
