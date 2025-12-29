@@ -17,7 +17,7 @@ export async function ensureTransactionsTable(): Promise<void> {
 
       CREATE TABLE IF NOT EXISTS transactions (
           id UUID PRIMARY KEY,
-          account_IBAN VARCHAR NOT NULL,
+          account_iban VARCHAR NOT NULL,
           transaction_direction transaction_direction NOT NULL,
           amount int NOT NULL,
           reason TEXT NOT NULL,

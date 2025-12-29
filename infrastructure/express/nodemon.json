@@ -1,0 +1,6 @@
+{
+  "watch": ["src", "controllers", "schemas", "types"],
+  "ext": "ts,json",
+  "ignore": ["node_modules", "dist"],
+  "delay": 500
+}

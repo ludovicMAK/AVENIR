@@ -20,6 +20,24 @@ export class InMemoryTransferRepository implements TransferRepository {
         }
         return true;
     }
+    async findById(transferId: string): Promise<Transfer | null> {
+        const transfer = this.items.get(transferId);
+        return transfer || null;
+    }
+    async update(transfer: Transfer, unitOfWork?: UnitOfWork): Promise<boolean> {
+        if (unitOfWork instanceof InMemoryUnitOfWork) {
+            unitOfWork.registerChange({
+                execute: async () => {
+                    this.items.set(transfer.id, transfer);
+                    console.log("Transfer updated in memory:", this.items);
+                }
+            });
+        } else {
+            this.items.set(transfer.id, transfer);
+            console.log("Transfer updated in memory:", this.items);
+        }
+        return true;
+    }
 
     getAll(): Transfer[] {
         return Array.from(this.items.values());

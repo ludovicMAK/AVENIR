@@ -112,7 +112,7 @@ const shareController = new ShareController(
   placeOrder,
   cancelOrder,
   getClientPositions,
-  getOrdersByCustomer
+  getOrdersByCustomer,
 );
 const createTransaction = new CreateTransaction(
   transactionRepository,
@@ -123,7 +123,10 @@ const createTransaction = new CreateTransaction(
 );
 
 const validateTransferByAdmin = new ValidTransferByAdmin(
-  userRepository
+  transactionRepository,
+  transferRepository,
+  userRepository,
+  unitOfWork
 );
 const transactionController = new TransactionController(createTransaction);
 const transferController = new TransferController(validateTransferByAdmin);
@@ -140,4 +143,5 @@ export const httpRouter = createHttpRouter(
   shareHttpHandler,
   transactionHttpHandler,
   transferHttpHandler
+
 );
