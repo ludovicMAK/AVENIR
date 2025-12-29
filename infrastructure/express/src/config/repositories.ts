@@ -21,6 +21,15 @@ import { PostgresShareTransactionRepository } from "@adapters/repositories/sql/P
 import { PostgresSecuritiesPositionRepository } from "@adapters/repositories/sql/PostgresSecuritiesPositionRepository";
 import { getPool } from "@adapters/repositories/sql/connection";
 import { RepositoryDriver } from "@express/types/repositories";
+import { TransactionRepository } from "@application/repositories/transaction";
+import { PostgresTransactionRepository } from "@adapters/repositories/sql/PostgresTransactionRepository";
+import { InMemoryTransactionRepository } from "@adapters/repositories/memory/InMemoryTransactionRepository";
+import { PostgresTransferRepository } from "@adapters/repositories/sql/PostgresTransferRepository";
+import { InMemoryTransferRepository } from "@adapters/repositories/memory/InMemoryTransferRepository";
+import { TransferRepository } from "@application/repositories/transfer";
+import { UnitOfWork } from "@application/services/UnitOfWork";
+import { InMemoryUnitOfWork } from "@adapters/services/InMemoryUnitOfWork";
+import { PostgresUnitOfWork } from "@adapters/services/PostgresUnitOfWork";
 
 function resolveRepositoryDriver(): RepositoryDriver {
   const driver = (process.env.DATA_DRIVER ?? "memory").toLowerCase();
@@ -92,6 +101,26 @@ function buildSecuritiesPositionRepository(
 
   return new InMemorySecuritiesPositionRepository();
 }
+function buildTransactionRepository(driver: RepositoryDriver): TransactionRepository {
+  if (driver === "postgres") {
+    return new PostgresTransactionRepository(getPool());
+  }
+
+  return new InMemoryTransactionRepository();
+}
+function buildTransferRepository(driver: RepositoryDriver) {
+  if (driver === "postgres") {
+    return new PostgresTransferRepository(getPool());
+  }
+
+  return new InMemoryTransferRepository();
+}
+function buildUnitOfWork(driver: RepositoryDriver): UnitOfWork {
+  if (driver === "postgres") {
+    return new PostgresUnitOfWork(getPool());
+  }
+  return new InMemoryUnitOfWork();
+}
 
 export const repositoryDriver: RepositoryDriver = resolveRepositoryDriver();
 process.stdout.write(`Repository driver: ${repositoryDriver}\n`);
@@ -109,3 +138,9 @@ export const shareTransactionRepository: ShareTransactionRepository =
   buildShareTransactionRepository(repositoryDriver);
 export const securitiesPositionRepository: SecuritiesPositionRepository =
   buildSecuritiesPositionRepository(repositoryDriver);
+export const transactionRepository: TransactionRepository =
+  buildTransactionRepository(repositoryDriver);
+export const transferRepository: TransferRepository =
+  buildTransferRepository(repositoryDriver);
+export const unitOfWork: UnitOfWork = 
+  buildUnitOfWork(repositoryDriver);
