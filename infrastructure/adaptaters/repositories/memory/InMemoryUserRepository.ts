@@ -43,7 +43,7 @@ export class InMemoryUserRepository implements UserRepository {
             this.items.set(userId, updatedUser)
         }
     }
-    async getInforationUserConnected(userId: string, token: string): Promise<UserInfoConnected | null> {
+    async getInformationUserConnected(userId: string, token: string): Promise<UserInfoConnected | null> {
         const user = this.items.get(userId)
         if (user) {
             return new UserInfoConnected(

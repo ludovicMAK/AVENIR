@@ -7,11 +7,14 @@ import { createAccountRoutes } from "./accountRoutes";
 import { createShareRoutes } from "./shareRoutes";
 import { createTransactionRoutes } from "./transactionRoutes";
 import { TransactionHttpHandler } from "@express/src/http/TransactionHttpHandler";
+import { createTransferRoutes } from "./createTransferRoutes";
+import { TransferHttpHandler } from "../http/TransferHttpHandler";
 export function createHttpRouter(
   userHttpHandler: UserHttpHandler,
   accountHttpHandler: AccountHttpHandler,
   shareHttpHandler: ShareHttpHandler,
-  transactionHttpHandler: TransactionHttpHandler
+  transactionHttpHandler: TransactionHttpHandler,
+  TransferHttpHandler: TransferHttpHandler
 ): Router {
   const router = Router();
 
@@ -19,6 +22,7 @@ export function createHttpRouter(
   router.use(createAccountRoutes(accountHttpHandler));
   router.use(createShareRoutes(shareHttpHandler));
   router.use(createTransactionRoutes(transactionHttpHandler));
+  router.use(createTransferRoutes(TransferHttpHandler));
 
   return router;
 }

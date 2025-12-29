@@ -7,5 +7,5 @@ export interface UserRepository {
     findByEmail(email: string): Promise<User | null>
     findUnverifiedByEmail(email: string): Promise<User | null>
     setEmailVerified(userId: string, verifiedAt: Date): Promise<void>
-    getInforationUserConnected(userId: string, token: string): Promise<UserInfoConnected | null>
+    getInformationUserConnected(userId: string, token: string): Promise<UserInfoConnected | null>
 }

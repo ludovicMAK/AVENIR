@@ -1,5 +1,6 @@
 export type confirmTransfer = {
-    id: string
-    
+    userId: string
+    token: string
+    idTransfer: string
 }
 

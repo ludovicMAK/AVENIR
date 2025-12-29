@@ -48,6 +48,9 @@ import { createHttpRouter } from "@express/src/routes/index";
 import { TransactionHttpHandler } from "../http/TransactionHttpHandler";
 import { TransactionController } from "@express/controllers/TansactionController";
 import { CreateTransaction } from "@application/usecases/transactions/createTransaction";
+import { TransferHttpHandler } from "../http/TransferHttpHandler";
+import { TransferController } from "@express/controllers/TransferController";
+import { ValidTransferByAdmin } from "@application/usecases/transfer/validTransferByAdmin";
 
 const registerUser = new RegisterUser(
   userRepository,
@@ -118,16 +121,23 @@ const createTransaction = new CreateTransaction(
   accountRepository,
   unitOfWork
 );
+
+const validateTransferByAdmin = new ValidTransferByAdmin(
+  userRepository
+);
 const transactionController = new TransactionController(createTransaction);
+const transferController = new TransferController(validateTransferByAdmin);
 
 const userHttpHandler = new UserHttpHandler(userController);
 const accountHttpHandler = new AccountHttpHandler(accountController);
 const shareHttpHandler = new ShareHttpHandler(shareController);
 const transactionHttpHandler = new TransactionHttpHandler(transactionController);
+const transferHttpHandler = new TransferHttpHandler(transferController);
 
 export const httpRouter = createHttpRouter(
   userHttpHandler,
   accountHttpHandler,
   shareHttpHandler,
   transactionHttpHandler,
+  transferHttpHandler
 );

@@ -93,11 +93,11 @@ export class PostgresUserRepository implements UserRepository {
             this.handleDatabaseError(error)
         }
     }
-    async getInforationUserConnected(userId: string, token: string): Promise<UserInfoConnected | null> {
+    async getInformationUserConnected(userId: string, token: string): Promise<UserInfoConnected | null> {
         try {
             const result = await this.pool.query<UserRow>(
                 `
-                    SELECT id, lastname, firstname, email, role, password, status, email_verified_at
+                    SELECT  lastname, firstname, email, role, status
                     FROM users
                     inner join sessions on sessions.user_id = users.id
                     WHERE sessions.refresh_token_hash = $2 AND users.id = $1
