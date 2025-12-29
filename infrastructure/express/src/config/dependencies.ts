@@ -29,6 +29,7 @@ import {
   transactionRepository,
   transferRepository,
   unitOfWork,
+  sessionRepository,
 } from "@express/src/config/repositories";
 import {
   emailSender,
@@ -56,7 +57,7 @@ const registerUser = new RegisterUser(
   tokenGenerator,
   emailSender
 );
-const loginUser = new LoginUser(userRepository, passwordHasher);
+const loginUser = new LoginUser(userRepository, passwordHasher,uuidGenerator, tokenGenerator, sessionRepository);
 const getAllUsers = new GetAllUsers(userRepository);
 const confirmRegistration = new ConfirmRegistration(
   userRepository,

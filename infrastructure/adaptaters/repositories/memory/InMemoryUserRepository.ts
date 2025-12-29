@@ -1,5 +1,6 @@
 import { UserRepository } from "@application/repositories/users"
 import { User } from "@domain/entities/users"
+import { UserInfoConnected } from "@domain/values/userInfoConnected"
 
 export class InMemoryUserRepository implements UserRepository {
     private readonly items: Map<string, User> = new Map()
@@ -41,5 +42,18 @@ export class InMemoryUserRepository implements UserRepository {
             )
             this.items.set(userId, updatedUser)
         }
+    }
+    async getInforationUserConnected(userId: string, token: string): Promise<UserInfoConnected | null> {
+        const user = this.items.get(userId)
+        if (user) {
+            return new UserInfoConnected(
+                user.lastname,
+                user.firstname,
+                user.email,
+                user.role,
+                user.status,
+            )
+        }
+        return null
     }
 }

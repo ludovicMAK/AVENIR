@@ -6,6 +6,7 @@ import { InfrastructureError } from "@application/errors"
 import { ensureError } from "@application/utils/errors"
 import { Role } from "@domain/values/role"
 import { UserRow } from "@adapters/repositories/types/UserRow"
+import { UserInfoConnected } from "@domain/values/userInfoConnected"
 
 export class PostgresUserRepository implements UserRepository {
     constructor(private readonly pool: Pool) {}
@@ -92,7 +93,35 @@ export class PostgresUserRepository implements UserRepository {
             this.handleDatabaseError(error)
         }
     }
+    async getInforationUserConnected(userId: string, token: string): Promise<UserInfoConnected | null> {
+        try {
+            const result = await this.pool.query<UserRow>(
+                `
+                    SELECT id, lastname, firstname, email, role, password, status, email_verified_at
+                    FROM users
+                    inner join sessions on sessions.user_id = users.id
+                    WHERE sessions.refresh_token_hash = $2 AND users.id = $1
+                    LIMIT 1
+                `,
+                [userId, token],
+            )
 
+            if (result.rowCount === 0) {
+                return null
+            }
+
+            const row = result.rows[0];
+            return new UserInfoConnected(
+                row.lastname,
+                row.firstname,
+                row.email,
+                Role.from(row.role),
+                row.status,
+            );
+        } catch (error) {
+            this.handleDatabaseError(error)
+        }
+    }
     async setEmailVerified(userId: string, verifiedAt: Date): Promise<void> {
         try {
             await this.pool.query(

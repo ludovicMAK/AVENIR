@@ -15,7 +15,7 @@ export class PostgresTransferRepository implements TransferRepository {
 
             const query = `
                 INSERT INTO transfer (id, amount, date_requested, date_executed, description, status)
-                VALUES ($1, $2, $3, $4, $5)
+                VALUES ($1, $2, $3, $4, $5, $6)
             `;
             
             const params = [
