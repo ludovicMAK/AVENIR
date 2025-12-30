@@ -18,6 +18,9 @@ export function createAccountRoutes(
   router.delete("/accounts/:accountId", (request, response) =>
     accountHttpHandler.close(request, response)
   );
+  router.patch("/accounts/:accountId/name", (request, response) =>
+    accountHttpHandler.updateName(request, response)
+  );
 
   return router;
 }

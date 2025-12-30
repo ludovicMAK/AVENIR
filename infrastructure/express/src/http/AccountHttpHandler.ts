@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { AccountController } from "@express/controllers/AccountController";
 import { sendSuccess } from "../responses/success";
 import { mapErrorToHttpResponse } from "../responses/error";
+import { ValidationError } from "@application/errors";
 
 export class AccountHttpHandler {
   constructor(private readonly controller: AccountController) {}
@@ -73,25 +74,74 @@ export class AccountHttpHandler {
 
   public async close(request: Request, response: Response) {
     try {
-      const { accountId } = request.params;
-
+      const accountId = request.params.accountId;
+      const userId = request.headers["x-user-id"] as string; 
+      const authHeader = request.headers.authorization as string;
+      const token = authHeader?.startsWith("Bearer ") 
+        ? authHeader.split(" ")[1] 
+        : authHeader;
       if (!accountId) {
         return response.status(400).send({
           code: "MISSING_ACCOUNT_ID",
           message: "L'ID du compte est requis.",
         });
       }
+      if (!userId) {
+        return response.status(400).send({
+          code: "MISSING_USER_ID",
+          message: "L'ID de l'utilisateur est requis.",
+        });
+      }
+      if (!token) {
+        return response.status(400).send({
+          code: "MISSING_AUTH_TOKEN",
+          message: "Le token d'authentification est requis.",
+        });
+      }
+      
 
-      await this.controller.close(accountId);
+      await this.controller.close(accountId, userId, token);
 
       return sendSuccess(response, {
-        status: 200,
+        status: 200, 
         code: "ACCOUNT_CLOSED",
         message: "Account successfully closed.",
         data: undefined,
       });
     } catch (error) {
+      console.error("Error in AccountHttpHandler.close:", error);
       return mapErrorToHttpResponse(response, error);
     }
+}
+  public async updateName(request: Request, response: Response) {
+      try {
+        const { accountId } = request.params;
+        const { newName } = request.body; 
+        const userId = request.headers["x-user-id"] as string; 
+
+        const authHeader = request.headers.authorization as string;
+        const token = authHeader?.startsWith("Bearer ") 
+          ? authHeader.split(" ")[1] 
+          : authHeader;
+
+        if (!newName || typeof newName !== 'string' || newName.trim().length === 0) {
+          throw new ValidationError("Le nouveau nom est requis et doit être une chaîne valide.");
+        }
+
+        if (newName.length > 50) {
+          throw new ValidationError("Le nom du compte ne peut pas dépasser 50 caractères.");
+        }
+
+
+        await this.controller.updateName(accountId, newName, userId, token);
+
+        return sendSuccess(response, {
+          status: 200,
+          code: "ACCOUNT_UPDATED",
+          message: "Le nom du compte a été mis à jour avec succès.",
+        });
+      } catch (error) {
+        return mapErrorToHttpResponse(response, error);
+      }
   }
 }

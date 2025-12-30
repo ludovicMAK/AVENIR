@@ -9,4 +9,12 @@ export class InMemorySessionRepository
     async createSession(session: Session): Promise<void> {
         this.sessions.set(session.id, session);
     }
+    async isConnected(userId: string, token: string): Promise<boolean> {
+        for (const session of this.sessions.values()) {
+            if (session.userId === userId && session.refreshToken === token && session.expirationAt > new Date()) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

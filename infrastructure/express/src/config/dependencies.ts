@@ -8,7 +8,7 @@ import { ConfirmRegistration } from "@application/usecases/users/confirmRegistra
 import { GetAccountsFromOwnerId } from "@application/usecases/accounts/getAccountsFromOwnerId";
 import { CreateAccount } from "@application/usecases/accounts/createAccount";
 import { GetAccountById } from "@application/usecases/accounts/getAccountById";
-import { CloseAccount } from "@application/usecases/accounts/closeAccount";
+import { CloseOwnAccount } from "@application/usecases/accounts/closeOwnAccount";
 
 // Shares use cases
 import { CreateShare } from "@application/usecases/shares/createShare";
@@ -29,7 +29,7 @@ import {
   transactionRepository,
   transferRepository,
   unitOfWork,
-  sessionRepository,
+  sessionRepository
 } from "@express/src/config/repositories";
 import {
   emailSender,
@@ -51,6 +51,7 @@ import { CreateTransaction } from "@application/usecases/transactions/createTran
 import { TransferHttpHandler } from "../http/TransferHttpHandler";
 import { TransferController } from "@express/controllers/TransferController";
 import { ValidTransferByAdmin } from "@application/usecases/transfer/validTransferByAdmin";
+import { UpdateNameAccount } from "@application/usecases/accounts/updateNameAccount";
 
 const registerUser = new RegisterUser(
   userRepository,
@@ -78,17 +79,20 @@ const userController = new UserController(
 );
 const getAccountsFromOwnerId = new GetAccountsFromOwnerId(accountRepository);
 const createAccount = new CreateAccount(
+  sessionRepository,
   accountRepository,
   uuidGenerator,
   ibanGenerator
 );
 const getAccountById = new GetAccountById(accountRepository);
-const closeAccount = new CloseAccount(accountRepository);
+const closeOwnAccount = new CloseOwnAccount(accountRepository, sessionRepository);
+const updateNameAccount = new UpdateNameAccount(sessionRepository, accountRepository);
 const accountController = new AccountController(
   getAccountsFromOwnerId,
   createAccount,
   getAccountById,
-  closeAccount
+  closeOwnAccount,
+  updateNameAccount
 );
 
 const createShare = new CreateShare(shareRepository, uuidGenerator);

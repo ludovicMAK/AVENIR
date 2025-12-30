@@ -111,6 +111,25 @@ export class PostgresAccountRepository implements AccountRepository {
       this.handleDatabaseError(error);
     }
   }
+  async findByIdAndUserId(id: string, userId: string): Promise<Account | null> {
+    try {
+      const result = await this.pool.query<AccountRow>(
+        `
+                    SELECT id, IBAN, account_type, account_name, authorized_overdraft, overdraft_limit, overdraft_fees, status, balance, id_owner
+                    FROM accounts
+                    WHERE id = $1 AND id_owner = $2
+                `,
+        [id, userId]
+      );
+      if (result.rows.length === 0) {
+        return null;
+      }
+      const row = result.rows[0];
+      return this.mapRowToAccount(row);
+    } catch (error) {
+      this.handleDatabaseError(error);
+    }
+  }
 
   async updateStatus(accountId: string, status: string): Promise<void> {
     try {
@@ -140,6 +159,20 @@ export class PostgresAccountRepository implements AccountRepository {
       this.handleDatabaseError(error);
     }
   }
+  async updateNameAccount(accountId: string, newName: string): Promise<boolean> {
+  try {
+    const result = await this.pool.query(
+      `UPDATE accounts 
+       SET account_name = $1 
+       WHERE id = $2 AND status != 'CLOSED'`, 
+      [newName, accountId]
+    );
+
+    return (result.rowCount ?? 0) > 0; 
+  } catch (error) {
+    return this.handleDatabaseError(error);
+  }
+}
 
   private mapRowToAccount(row: AccountRow): Account {
     return new Account(

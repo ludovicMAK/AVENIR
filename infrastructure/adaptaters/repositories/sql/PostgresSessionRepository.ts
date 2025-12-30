@@ -31,6 +31,22 @@ export class PostgresSessionRepository
       this.handleDatabaseError(error);
     }
   }
+  async isConnected(userId: string, token: string): Promise<boolean> {
+    try {
+
+      const result = await this.pool.query(
+        `SELECT COUNT(*) as count FROM sessions WHERE user_id = $1 AND refresh_token_hash = $2 AND expires_at > NOW()`,
+        [userId, token]
+      );
+
+      const rawCount = result.rows[0].count;
+
+      const count = parseInt(rawCount, 10);
+      return count > 0;
+    } catch (error) {
+      this.handleDatabaseError(error);
+    }
+}
 
   
 
