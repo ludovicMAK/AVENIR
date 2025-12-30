@@ -4,24 +4,25 @@ import { StatusAccount } from "@domain/values/statusAccount";
 import { AccountRepository } from "@application/repositories/account";
 import { UuidGenerator } from "@application/services/UuidGenerator";
 import { IBANGenerator } from "@application/services/IBANGenreator";
+import { CreateAccountRequest } from "@application/requests/accounts";
+import { SessionRepository } from "@application/repositories/session";
+import { ConnectedError } from "@application/errors";
 
-type CreateAccountRequest = {
-  accountType: string;
-  accountName: string;
-  authorizedOverdraft: boolean;
-  overdraftLimit: number;
-  overdraftFees: number;
-  idOwner: string;
-};
+
 
 export class CreateAccount {
   constructor(
+    private readonly sessionRepository: SessionRepository,
     private readonly accountRepository: AccountRepository,
     private readonly uuidGenerator: UuidGenerator,
     private readonly ibanGenerator: IBANGenerator
   ) {}
 
   async execute(request: CreateAccountRequest): Promise<Account> {
+    const isConnected = await this.sessionRepository.isConnected(request.idOwner, request.token);
+    if (!isConnected) {
+      throw new ConnectedError("User is not connected");
+    }
     const accountType = AccountType.from(request.accountType);
     const id = this.uuidGenerator.generate();
     const iban = this.ibanGenerator.generate();
@@ -36,7 +37,7 @@ export class CreateAccount {
       request.overdraftFees,
       StatusAccount.OPEN,
       request.idOwner,
-      0 // balance initial
+      0 
     );
 
     await this.accountRepository.save(account);

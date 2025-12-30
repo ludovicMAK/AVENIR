@@ -75,4 +75,31 @@ export class InMemoryAccountRepository implements AccountRepository {
   async delete(accountId: string): Promise<void> {
     this.items.delete(accountId);
   }
+  async findByIdAndUserId(id: string, userId: string): Promise<Account | null> {
+    const account = this.items.get(id);
+    if (account && account.idOwner === userId) {
+      return account;
+    }
+    return null;
+  }
+  async updateNameAccount(accountId: string, newName: string): Promise<boolean> {
+    const account = this.items.get(accountId);
+    if (account) {
+      const updatedAccount = new Account(
+        account.id,
+        account.accountType,
+        account.IBAN,
+        newName,
+        account.authorizedOverdraft,
+        account.overdraftLimit,
+        account.overdraftFees,
+        account.status,
+        account.idOwner,
+        account.balance
+      );
+      this.items.set(accountId, updatedAccount);
+      return true;
+    }
+    return false;
+  }
 }
