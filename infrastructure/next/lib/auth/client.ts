@@ -59,6 +59,10 @@ export function clearAuthentication() {
     })
 }
 
+export function getAuthenticationToken(): string | null {
+    return readCookie(AUTH_COOKIE_NAME)
+}
+
 export function getRedirectHint(): string | null {
     return readCookie(REDIRECT_COOKIE_NAME)
 }

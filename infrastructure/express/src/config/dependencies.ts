@@ -73,6 +73,7 @@ import { TransferHttpHandler } from "../http/TransferHttpHandler";
 import { TransferController } from "@express/controllers/TransferController";
 import { ValidTransferByAdmin } from "@application/usecases/transfer/validTransferByAdmin";
 import { UpdateNameAccount } from "@application/usecases/accounts/updateNameAccount";
+import { GetUserById } from "@application/usecases/users/getUserById";
 
 const registerUser = new RegisterUser(
   userRepository,
@@ -90,6 +91,7 @@ const loginUser = new LoginUser(
   sessionRepository
 );
 const getAllUsers = new GetAllUsers(userRepository);
+const getUserById = new GetUserById(userRepository);
 const confirmRegistration = new ConfirmRegistration(
   userRepository,
   emailConfirmationTokenRepository,
@@ -102,7 +104,8 @@ const userController = new UserController(
   registerUser,
   loginUser,
   getAllUsers,
-  confirmRegistration
+  confirmRegistration,
+  getUserById
 );
 const getAccountsFromOwnerId = new GetAccountsFromOwnerId(accountRepository);
 const createAccount = new CreateAccount(

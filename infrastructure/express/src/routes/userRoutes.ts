@@ -16,6 +16,9 @@ export function createUserRoutes(userHttpHandler: UserHttpHandler): Router {
   router.get("/users", (request, response) =>
     userHttpHandler.list(request, response)
   );
+  router.get("/users/me", (request, response) =>
+    userHttpHandler.me(request, response)
+  );
 
   return router;
 }

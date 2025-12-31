@@ -23,9 +23,15 @@ export class InMemoryUserRepository implements UserRepository {
     this.items.set(user.id, user);
   }
 
-  async findAll(): Promise<User[]> {
-    return Array.from(this.items.values());
-  }
+    async findById(id: string): Promise<User | null> {
+        return this.items.get(id) ?? null
+    }
+
+    async findAll(): Promise<User[]> {
+        return Array.from(this.items.values())
+    }
+
+
 
   async setEmailVerified(userId: string, verifiedAt: Date): Promise<void> {
     const user = this.items.get(userId);
@@ -64,9 +70,5 @@ export class InMemoryUserRepository implements UserRepository {
     return Array.from(this.items.values()).filter(
       (user) => user.role.getValue() === role
     );
-  }
-  async findById(userId: string): Promise<User | null> {
-    const user = this.items.get(userId);
-    return user || null;
   }
 }
