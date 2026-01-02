@@ -87,18 +87,23 @@ export class AccountNotFoundError extends NotFoundError {
   }
 }
 export class TransferCreationFailedError extends UnprocessableError {
-    constructor(message: string = "Le transfert n'a pas pu être créé.") {
-        super(message); 
-    }
+  constructor(message: string = "Le transfert n'a pas pu être créé.") {
+    super(message);
+  }
 }
 
 export class ConnectedError extends UnauthorizedError {
-    constructor(message: string = "L'utilisateur n'est pas connecté.") {
-        super(message);
-    }
+  constructor(message: string = "L'utilisateur n'est pas connecté.") {
+    super(message);
+  }
 }
 export class CannotBeClosedError extends UnauthorizedError {
-    constructor(message: string = "Cannot close account: balance is not zero") {
-        super(message);
-    }
+  constructor(message: string = "Cannot close account: balance is not zero") {
+    super(message);
+  }
+}
+export class ForbiddenError extends ApplicationError {
+  constructor(message: string = "Forbidden", details?: ApplicationErrorDetail) {
+    super("FORBIDDEN", message, details);
+  }
 }

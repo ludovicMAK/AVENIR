@@ -8,6 +8,10 @@ import { ensureSecuritiesPositionsTable } from "@express/src/db/migrations/secur
 import { ensureTransferTable } from "./migrations/transfer";
 import { ensureTransactionsTable } from "./migrations/transaction";
 import { ensureSessionsTable } from "./migrations/sessions";
+import { ensureConversationsTable } from "./migrations/conversations";
+import { ensureMessagesTable } from "./migrations/messages";
+import { ensureParticipantConversationsTable } from "./migrations/participantConversations";
+import { ensureTransferConversationsTable } from "./migrations/transferConversations";
 
 export async function ensureSchema(): Promise<void> {
   await ensureUsersTable();
@@ -20,4 +24,8 @@ export async function ensureSchema(): Promise<void> {
   await ensureSecuritiesPositionsTable();
   await ensureTransferTable();
   await ensureTransactionsTable();
+  await ensureConversationsTable();
+  await ensureMessagesTable();
+  await ensureParticipantConversationsTable();
+  await ensureTransferConversationsTable();
 }

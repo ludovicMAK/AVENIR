@@ -33,6 +33,18 @@ import { PostgresUnitOfWork } from "@adapters/services/PostgresUnitOfWork";
 import { SessionRepository } from "@application/repositories/session";
 import { PostgresSessionRepository } from "@adapters/repositories/sql/PostgresSessionRepository";
 import { InMemorySessionRepository } from "@adapters/repositories/memory/InMemorySessionRepository";
+import { ConversationRepository } from "@application/repositories/conversation";
+import { MessageRepository } from "@application/repositories/message";
+import { ParticipantConversationRepository } from "@application/repositories/participantConversation";
+import { TransferConversationRepository } from "@application/repositories/transferConversation";
+import { InMemoryConversationRepository } from "@adapters/repositories/memory/InMemoryConversationRepository";
+import { InMemoryMessageRepository } from "@adapters/repositories/memory/InMemoryMessageRepository";
+import { InMemoryParticipantConversationRepository } from "@adapters/repositories/memory/InMemoryParticipantConversationRepository";
+import { InMemoryTransferConversationRepository } from "@adapters/repositories/memory/InMemoryTransferConversationRepository";
+import { PostgresConversationRepository } from "@adapters/repositories/sql/PostgresConversationRepository";
+import { PostgresMessageRepository } from "@adapters/repositories/sql/PostgresMessageRepository";
+import { PostgresParticipantConversationRepository } from "@adapters/repositories/sql/PostgresParticipantConversationRepository";
+import { PostgresTransferConversationRepository } from "@adapters/repositories/sql/PostgresTransferConversationRepository";
 
 function resolveRepositoryDriver(): RepositoryDriver {
   const driver = (process.env.DATA_DRIVER ?? "memory").toLowerCase();
@@ -104,7 +116,9 @@ function buildSecuritiesPositionRepository(
 
   return new InMemorySecuritiesPositionRepository();
 }
-function buildTransactionRepository(driver: RepositoryDriver): TransactionRepository {
+function buildTransactionRepository(
+  driver: RepositoryDriver
+): TransactionRepository {
   if (driver === "postgres") {
     return new PostgresTransactionRepository(getPool());
   }
@@ -132,6 +146,44 @@ function buildSessionRepository(driver: RepositoryDriver): SessionRepository {
   return new InMemorySessionRepository();
 }
 
+function buildConversationRepository(
+  driver: RepositoryDriver
+): ConversationRepository {
+  if (driver === "postgres") {
+    return new PostgresConversationRepository(getPool());
+  }
+
+  return new InMemoryConversationRepository();
+}
+
+function buildMessageRepository(driver: RepositoryDriver): MessageRepository {
+  if (driver === "postgres") {
+    return new PostgresMessageRepository(getPool());
+  }
+
+  return new InMemoryMessageRepository();
+}
+
+function buildParticipantConversationRepository(
+  driver: RepositoryDriver
+): ParticipantConversationRepository {
+  if (driver === "postgres") {
+    return new PostgresParticipantConversationRepository(getPool());
+  }
+
+  return new InMemoryParticipantConversationRepository();
+}
+
+function buildTransferConversationRepository(
+  driver: RepositoryDriver
+): TransferConversationRepository {
+  if (driver === "postgres") {
+    return new PostgresTransferConversationRepository(getPool());
+  }
+
+  return new InMemoryTransferConversationRepository();
+}
+
 export const repositoryDriver: RepositoryDriver = resolveRepositoryDriver();
 process.stdout.write(`Repository driver: ${repositoryDriver}\n`);
 export const userRepository: UserRepository =
@@ -152,7 +204,14 @@ export const transactionRepository: TransactionRepository =
   buildTransactionRepository(repositoryDriver);
 export const transferRepository: TransferRepository =
   buildTransferRepository(repositoryDriver);
-export const unitOfWork: UnitOfWork = 
-  buildUnitOfWork(repositoryDriver);
+export const unitOfWork: UnitOfWork = buildUnitOfWork(repositoryDriver);
 export const sessionRepository: SessionRepository =
   buildSessionRepository(repositoryDriver);
+export const conversationRepository: ConversationRepository =
+  buildConversationRepository(repositoryDriver);
+export const messageRepository: MessageRepository =
+  buildMessageRepository(repositoryDriver);
+export const participantConversationRepository: ParticipantConversationRepository =
+  buildParticipantConversationRepository(repositoryDriver);
+export const transferConversationRepository: TransferConversationRepository =
+  buildTransferConversationRepository(repositoryDriver);

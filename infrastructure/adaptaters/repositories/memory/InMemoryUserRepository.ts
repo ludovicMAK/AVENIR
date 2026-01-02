@@ -1,59 +1,68 @@
-import { UserRepository } from "@application/repositories/users"
-import { User } from "@domain/entities/users"
-import { UserInfoConnected } from "@domain/values/userInfoConnected"
+import { UserRepository } from "@application/repositories/users";
+import { User } from "@domain/entities/users";
+import { UserInfoConnected } from "@domain/values/userInfoConnected";
 
 export class InMemoryUserRepository implements UserRepository {
-    private readonly items: Map<string, User> = new Map()
+  private readonly items: Map<string, User> = new Map();
 
-    async findByEmail(email: string): Promise<User | null> {
-        for (const item of this.items.values()) {
-            if (item.email === email) return item
-        }
-        return null
+  async findByEmail(email: string): Promise<User | null> {
+    for (const item of this.items.values()) {
+      if (item.email === email) return item;
     }
+    return null;
+  }
 
-    async findUnverifiedByEmail(email: string): Promise<User | null> {
-        for (const item of this.items.values()) {
-            if (item.email === email && !item.isEmailVerified()) return item
-        }
-        return null
+  async findUnverifiedByEmail(email: string): Promise<User | null> {
+    for (const item of this.items.values()) {
+      if (item.email === email && !item.isEmailVerified()) return item;
     }
+    return null;
+  }
 
-    async save(user: User): Promise<void> {
-        this.items.set(user.id, user)
-    }
+  async save(user: User): Promise<void> {
+    this.items.set(user.id, user);
+  }
 
-    async findAll(): Promise<User[]> {
-        return Array.from(this.items.values())
-    }
+  async findAll(): Promise<User[]> {
+    return Array.from(this.items.values());
+  }
 
-    async setEmailVerified(userId: string, verifiedAt: Date): Promise<void> {
-        const user = this.items.get(userId)
-        if (user) {
-            const updatedUser = new User(
-                user.id,
-                user.lastname,
-                user.firstname,
-                user.email,
-                user.role,
-                user.password,
-                user.status,
-                verifiedAt,
-            )
-            this.items.set(userId, updatedUser)
-        }
+  async setEmailVerified(userId: string, verifiedAt: Date): Promise<void> {
+    const user = this.items.get(userId);
+    if (user) {
+      const updatedUser = new User(
+        user.id,
+        user.lastname,
+        user.firstname,
+        user.email,
+        user.role,
+        user.password,
+        user.status,
+        verifiedAt
+      );
+      this.items.set(userId, updatedUser);
     }
-    async getInformationUserConnected(userId: string, token: string): Promise<UserInfoConnected | null> {
-        const user = this.items.get(userId)
-        if (user) {
-            return new UserInfoConnected(
-                user.lastname,
-                user.firstname,
-                user.email,
-                user.role,
-                user.status,
-            )
-        }
-        return null
+  }
+  async getInformationUserConnected(
+    userId: string,
+    token: string
+  ): Promise<UserInfoConnected | null> {
+    const user = this.items.get(userId);
+    if (user) {
+      return new UserInfoConnected(
+        user.lastname,
+        user.firstname,
+        user.email,
+        user.role,
+        user.status
+      );
     }
+    return null;
+  }
+
+  async findByRole(role: string): Promise<User[]> {
+    return Array.from(this.items.values()).filter(
+      (user) => user.role.getValue() === role
+    );
+  }
 }
