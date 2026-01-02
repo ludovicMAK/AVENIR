@@ -4,37 +4,56 @@ import { sendSuccess } from "../responses/success";
 import { mapErrorToHttpResponse } from "../responses/error";
 import { TransactionInput } from "@application/requests/transaction";
 import { CreateTransactionSchema } from "@express/schemas/CreateTransactionSchema";
+import { UnauthorizedError, ValidationError } from "@application/errors";
 
 export class TransactionHttpHandler {
   constructor(private readonly controller: TransactionController) {}
   public async createTransaction(request: Request, response: Response) {
     try {
-      const parsed = CreateTransactionSchema.safeParse(request.body);
-      if (!parsed.success) {
-        const issues = parsed.error.issues
-          .map((issue) => issue.message)
-          .join(", ");
-        throw new Error(issues || "Invalid payload.");
+      const result = CreateTransactionSchema.safeParse(request.body);
+      
+     if (!result.success) {
+        const fieldErrors = result.error.flatten().fieldErrors;
+        const errorMessages = Object.entries(fieldErrors)
+          .map(([field, messages]) => `${field}: ${messages?.join(", ")}`)
+          .join(" | ");
+        
+        throw new ValidationError("Données de transaction invalides" + (errorMessages ? ` - ${errorMessages}` : "")
+      );
       }
+
+      const { amount, description, accountIBANFrom, accountIBANTo, direction } = result.data;
+
+      const userId = request.headers["x-user-id"] as string;
+      const authHeader = request.headers.authorization as string;
+      const token = authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : authHeader;
+
+      if (!userId || !token) {
+        throw new UnauthorizedError("Identification manquante (ID ou Token).");
+      }
+
       const input: TransactionInput = {
-        description: request.body.description,
-        amount: request.body.amount,
-        accountIBANFrom: request.body.accountIBANFrom,
-        accountIBANTo: request.body.accountIBANTo,
-        direction: request.body.direction,
-        dateExecuted: new Date(request.body.dateExecuted),
+        idUser: userId,
+        token: token,
+        description,
+        amount,
+        accountIBANFrom,
+        accountIBANTo,
+        direction,
+        dateExecuted: new Date(),
       };
 
       await this.controller.createTransaction(input);
 
       return sendSuccess(response, {
-        status: 200,
+        status: 201, 
         code: "TRANSACTION_PENDING",
         message: "Transaction registration is pending.",
       });
+
     } catch (error) {
-      console.log(error);
+      console.error("[CreateTransactionHandler] Error:", error);
       return mapErrorToHttpResponse(response, error);
     }
-  }
+}
 }

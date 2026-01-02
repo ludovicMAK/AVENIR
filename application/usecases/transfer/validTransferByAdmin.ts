@@ -3,7 +3,7 @@ import { Transaction } from "@domain/entities/transaction";
 import { TransferRepository } from "@application/repositories/transfer";
 import { Transfer } from "@domain/entities/transfer";
 import { StatusTransaction } from "@domain/values/statusTransaction";
-import { TransferCreationFailedError } from "@application/errors/index";
+import { ConnectedError, TransferCreationFailedError } from "@application/errors/index";
 import { UnitOfWork } from "@application/services/UnitOfWork";
 import { StatusTransfer } from "@domain/values/statusTransfer";
 import { UserRepository } from "@application/repositories/users";
@@ -20,6 +20,9 @@ export class ValidTransferByAdmin {
   async execute(input: confirmTransfer): Promise<void> {
     
     const userInformationConnected = await this.userRepository.getInformationUserConnected(input.userId, input.token);
+    if (!userInformationConnected) {
+      throw new ConnectedError("authentication failed: User not found.");
+    }
     const transfer = await this.transferRepository.findById(input.idTransfer);
     if (!transfer) {
       throw new TransferCreationFailedError("Transfer not found.");

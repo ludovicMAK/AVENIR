@@ -37,7 +37,8 @@ export class CreateAccount {
       request.overdraftFees,
       StatusAccount.OPEN,
       request.idOwner,
-      0 
+      0, 
+      0
     );
 
     await this.accountRepository.save(account);

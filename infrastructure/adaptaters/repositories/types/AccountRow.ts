@@ -1,6 +1,6 @@
 export type AccountRow = {
   id: string;
-  IBAN: string;
+  iban: string;
   account_type: string;
   account_name: string;
   authorized_overdraft: boolean;
@@ -9,4 +9,5 @@ export type AccountRow = {
   status: string;
   balance: number;
   id_owner: string;
+  available_balance: number;
 };

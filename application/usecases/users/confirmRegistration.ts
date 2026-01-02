@@ -48,6 +48,7 @@ export class ConfirmRegistration {
       0,
       StatusAccount.OPEN,
       confirmationToken.userId,
+      0,
       0
     );
     await this.accountRepository.save(account);

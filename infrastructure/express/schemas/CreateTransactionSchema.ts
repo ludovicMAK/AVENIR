@@ -1,6 +1,7 @@
 import zod from "zod"
 
 export const CreateTransactionSchema = zod.object({
+    
     description: zod.string().min(1, { message: "Description is required." }),
     amount: zod.number({ message: "Amount must be a number." }),
     accountIBANFrom: zod.string().min(1, { message: "Source account IBAN is required." }),

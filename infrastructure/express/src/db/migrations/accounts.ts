@@ -11,11 +11,12 @@ export async function ensureAccountsTable(): Promise<void> {
                 account_type VARCHAR(50) NOT NULL,
                 account_name VARCHAR(255) NOT NULL,
                 authorized_overdraft BOOLEAN NOT NULL DEFAULT false,
-                overdraft_limit DECIMAL(15, 2) NOT NULL DEFAULT 0,
-                overdraft_fees DECIMAL(15, 2) NOT NULL DEFAULT 0,
+                balance BIGINT NOT NULL DEFAULT 0,
+                overdraft_limit BIGINT NOT NULL DEFAULT 0,
+                overdraft_fees BIGINT NOT NULL DEFAULT 0,
                 status VARCHAR(50) NOT NULL,
-                balance DECIMAL(15, 2) NOT NULL DEFAULT 0,
                 id_owner UUID NOT NULL,
+                available_balance BIGINT NOT NULL DEFAULT 0,
                 FOREIGN KEY (id_owner) REFERENCES users(id)
             )
         `);
