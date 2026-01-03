@@ -5,5 +5,8 @@
     { "path": "./domain" },
     { "path": "./application" },
     { "path": "./infrastructure/express" }
-  ]
+  ],
+  "compilerOptions": {
+    "ignoreDeprecations": "6.0"
+  }
 }

@@ -9,11 +9,6 @@ import { PasswordHasher } from "../../services/PasswordHasher";
 import { UuidGenerator } from "../../services/UuidGenerator";
 import { TokenGenerator } from "../../services/TokenGenerator";
 import { EmailSender } from "../../services/EmailSender";
-import { AccountRepository } from "@application/repositories/account";
-import { IBANGenerator } from "@application/services/IBANGenreator";
-import { Account } from "@domain/entities/account";
-import { AccountType } from "@domain/values/accountType";
-import { StatusAccount } from "@domain/values/statusAccount";
 
 export class RegisterUser {
   constructor(

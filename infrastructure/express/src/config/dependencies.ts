@@ -18,6 +18,17 @@ import { PlaceOrder } from "@application/usecases/shares/placeOrder";
 import { CancelOrder } from "@application/usecases/shares/cancelOrder";
 import { GetClientPositions } from "@application/usecases/shares/getClientPositions";
 import { GetOrdersByCustomer } from "@application/usecases/shares/getOrdersByCustomer";
+
+// Conversations use cases
+import { CreateConversation } from "@application/usecases/conversations/createConversation";
+import { CreateGroupConversation } from "@application/usecases/conversations/createGroupConversation";
+import { SendMessage } from "@application/usecases/conversations/sendMessage";
+import { TransferConversationUseCase } from "@application/usecases/conversations/transferConversation";
+import { CloseConversation } from "@application/usecases/conversations/closeConversation";
+import { GetConversationMessages } from "@application/usecases/conversations/getConversationMessages";
+import { GetCustomerConversations } from "@application/usecases/conversations/getCustomerConversations";
+import { GetAdvisorConversations } from "@application/usecases/conversations/getAdvisorConversations";
+import { AddParticipant } from "@application/usecases/conversations/addParticipant";
 import {
   userRepository,
   emailConfirmationTokenRepository,
@@ -29,7 +40,11 @@ import {
   transactionRepository,
   transferRepository,
   unitOfWork,
-  sessionRepository
+  sessionRepository,
+  conversationRepository,
+  messageRepository,
+  participantConversationRepository,
+  transferConversationRepository,
 } from "@express/src/config/repositories";
 import {
   emailSender,
@@ -41,9 +56,11 @@ import {
 import { UserController } from "@express/controllers/UserController";
 import { AccountController } from "@express/controllers/AccountController";
 import { ShareController } from "@express/controllers/ShareController";
+import { ConversationController } from "@express/controllers/ConversationController";
 import { UserHttpHandler } from "@express/src/http/UserHttpHandler";
 import { AccountHttpHandler } from "@express/src/http/AccountHttpHandler";
 import { ShareHttpHandler } from "@express/src/http/ShareHttpHandler";
+import { ConversationHttpHandler } from "@express/src/http/ConversationHttpHandler";
 import { createHttpRouter } from "@express/src/routes/index";
 import { TransactionHttpHandler } from "../http/TransactionHttpHandler";
 import { TransactionController } from "@express/controllers/TansactionController";
@@ -61,7 +78,13 @@ const registerUser = new RegisterUser(
   tokenGenerator,
   emailSender
 );
-const loginUser = new LoginUser(userRepository, passwordHasher,uuidGenerator, tokenGenerator, sessionRepository);
+const loginUser = new LoginUser(
+  userRepository,
+  passwordHasher,
+  uuidGenerator,
+  tokenGenerator,
+  sessionRepository
+);
 const getAllUsers = new GetAllUsers(userRepository);
 const confirmRegistration = new ConfirmRegistration(
   userRepository,
@@ -85,8 +108,14 @@ const createAccount = new CreateAccount(
   ibanGenerator
 );
 const getAccountById = new GetAccountById(accountRepository);
-const closeOwnAccount = new CloseOwnAccount(accountRepository, sessionRepository);
-const updateNameAccount = new UpdateNameAccount(sessionRepository, accountRepository);
+const closeOwnAccount = new CloseOwnAccount(
+  accountRepository,
+  sessionRepository
+);
+const updateNameAccount = new UpdateNameAccount(
+  sessionRepository,
+  accountRepository
+);
 const accountController = new AccountController(
   getAccountsFromOwnerId,
   createAccount,
@@ -123,8 +152,7 @@ const createTransaction = new CreateTransaction(
   uuidGenerator,
   transferRepository,
   accountRepository,
-  unitOfWork,
-  sessionRepository,
+  unitOfWork
 );
 
 const validateTransferByAdmin = new ValidTransferByAdmin(
@@ -136,11 +164,100 @@ const validateTransferByAdmin = new ValidTransferByAdmin(
 const transactionController = new TransactionController(createTransaction);
 const transferController = new TransferController(validateTransferByAdmin);
 
+// Conversation use cases
+const createConversation = new CreateConversation(
+  conversationRepository,
+  messageRepository,
+  participantConversationRepository,
+  sessionRepository,
+  userRepository,
+  uuidGenerator,
+  undefined // WebSocket service will be set after initialization
+);
+const createGroupConversation = new CreateGroupConversation(
+  conversationRepository,
+  messageRepository,
+  participantConversationRepository,
+  sessionRepository,
+  userRepository,
+  uuidGenerator,
+  undefined
+);
+const sendMessage = new SendMessage(
+  conversationRepository,
+  messageRepository,
+  participantConversationRepository,
+  sessionRepository,
+  userRepository,
+  uuidGenerator,
+  undefined
+);
+const transferConversation = new TransferConversationUseCase(
+  conversationRepository,
+  participantConversationRepository,
+  transferConversationRepository,
+  sessionRepository,
+  userRepository,
+  uuidGenerator,
+  undefined
+);
+const closeConversation = new CloseConversation(
+  conversationRepository,
+  participantConversationRepository,
+  sessionRepository,
+  userRepository,
+  undefined
+);
+const getConversationMessages = new GetConversationMessages(
+  conversationRepository,
+  messageRepository,
+  participantConversationRepository,
+  sessionRepository,
+  userRepository
+);
+const getCustomerConversations = new GetCustomerConversations(
+  conversationRepository,
+  sessionRepository,
+  userRepository
+);
+const getAdvisorConversations = new GetAdvisorConversations(
+  conversationRepository,
+  participantConversationRepository,
+  sessionRepository,
+  userRepository
+);
+
+const addParticipant = new AddParticipant(
+  conversationRepository,
+  participantConversationRepository,
+  userRepository,
+  sessionRepository,
+  uuidGenerator,
+  undefined
+);
+
+const conversationController = new ConversationController(
+  createConversation,
+  createGroupConversation,
+  sendMessage,
+  transferConversation,
+  closeConversation,
+  getConversationMessages,
+  getCustomerConversations,
+  getAdvisorConversations,
+  addParticipant
+);
+
 const userHttpHandler = new UserHttpHandler(userController);
 const accountHttpHandler = new AccountHttpHandler(accountController);
 const shareHttpHandler = new ShareHttpHandler(shareController);
-const transactionHttpHandler = new TransactionHttpHandler(transactionController);
+const transactionHttpHandler = new TransactionHttpHandler(
+  transactionController
+);
 const transferHttpHandler = new TransferHttpHandler(transferController);
+const conversationHttpHandler = new ConversationHttpHandler(
+  conversationController
+);
 
 export const httpRouter = createHttpRouter(
   userHttpHandler,
@@ -148,5 +265,15 @@ export const httpRouter = createHttpRouter(
   shareHttpHandler,
   transactionHttpHandler,
   transferHttpHandler,
-
+  conversationHttpHandler
 );
+
+export {
+  conversationController,
+  createConversation,
+  createGroupConversation,
+  sendMessage,
+  transferConversation,
+  closeConversation,
+  addParticipant,
+};

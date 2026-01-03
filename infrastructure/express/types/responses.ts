@@ -27,11 +27,42 @@ export type UserResponseData = { user: UserView };
 
 export type UserListResponseData = { users: UserView[] };
 
+export type ConversationView = {
+  id: string;
+  status: string;
+  type: string;
+  dateOuverture: Date;
+  customerId: string | null;
+};
+
+export type MessageView = {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  senderRole: string;
+  text: string;
+  sendDate: Date;
+};
+
+export type ConversationResponseData = { conversation: ConversationView };
+
+export type ConversationsListResponseData = {
+  conversations: ConversationView[];
+};
+
+export type MessageResponseData = { message: MessageView };
+
+export type MessagesListResponseData = { messages: MessageView[] };
+
 export type SuccessData =
   | UserResponseData
   | UserListResponseData
   | AccountResponseData
   | SingleAccountResponseData
+  | ConversationResponseData
+  | ConversationsListResponseData
+  | MessageResponseData
+  | MessagesListResponseData
   | undefined;
 
 export type SuccessPayload<ResponseData extends SuccessData = SuccessData> = {
