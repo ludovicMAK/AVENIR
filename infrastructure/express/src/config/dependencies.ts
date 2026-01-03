@@ -152,7 +152,8 @@ const createTransaction = new CreateTransaction(
   uuidGenerator,
   transferRepository,
   accountRepository,
-  unitOfWork
+  unitOfWork,
+  sessionRepository
 );
 
 const validateTransferByAdmin = new ValidTransferByAdmin(
