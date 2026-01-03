@@ -1,12 +1,32 @@
 import * as React from "react"
+import Link from "next/link"
 
-export const Card = ({ className, ...props }: React.ComponentProps<"div">) => (
-    <div
-        data-slot="card"
-        className={`bg-secondary text-card-foreground flex flex-col gap-6 rounded-xl py-8 shadow-sm${className ? ` ${className}` : ""}`}
-        {...props}
-    />
-)
+type CardProps = React.ComponentProps<"div"> & {
+    asLink?: boolean
+    linkProps?: React.ComponentProps<typeof Link>
+}
+
+export const Card = ({ className, asLink, linkProps, ...props }: CardProps) => {
+    const content = (
+        <div
+            data-slot="card"
+            className={`bg-secondary text-card-foreground flex flex-col gap-6 rounded-lg py-8 shadow-sm${className ? ` ${className}` : ""}`}
+            {...props}
+        />
+    )
+
+    if (!asLink) return content
+
+    return (
+        <Link
+            href="#account"
+            {...linkProps}
+            className={`block text-left w-full rounded-lg border border-transparent hover:border-white transition hover:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white${linkProps?.className ? ` ${linkProps.className}` : ""}`}
+        >
+            {content}
+        </Link>
+    )
+}
 
 export const CardHeader = ({ className, ...props }: React.ComponentProps<"div">) => (
     <div

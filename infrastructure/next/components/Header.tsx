@@ -69,13 +69,13 @@ export default function Header({ initialUser }: HeaderProps) {
         router.refresh()
     }
 
-    const accountLinks: NavItem[] = [
+    const userLinks: NavItem[] = [
         {
             label: currentUser ? `${currentUser.firstname} ${currentUser.lastname}` : undefined,
-            href: '#account',
-            icon: <IconUser className="h-5 w-5" stroke={2.5} />,
+            href: '#user',
+            icon: <IconUser stroke={2.5} />,
         },
-        { href: '#logout', icon: <IconPower className="h-5 w-5" stroke={2.5} />, mobileLabel: 'Deconnexion' },
+        { href: '#logout', icon: <IconPower stroke={2.5} />, mobileLabel: 'Deconnexion' },
     ]
 
     return (
@@ -86,7 +86,7 @@ export default function Header({ initialUser }: HeaderProps) {
                 } transition-[height] duration-700 ease-in-out overflow-hidden`}
             >
                 <ul className="flex flex-col md:flex-row items-start md:items-center w-full h-full gap-6 md:gap-0">
-                    <li className={`shrink-0 flex flex-row justify-between w-full md:w-auto md:mb-0 mx-0 md:mr-auto 2xl:mx-16 4xl:mx-22 ${minHeight}`}>
+                    <li className={`w-full flex flex-row justify-between mx-0 ${minHeight}`}>
                         <Link
                             href="/"
                             className="h-full flex items-center hover:text-white italic font-semibold text-2xl"
@@ -113,7 +113,7 @@ export default function Header({ initialUser }: HeaderProps) {
                                     <li className="w-full md:w-auto flex items-center">
                                         <Link
                                             href={link.href}
-                                            className="hover:text-white block"
+                                            className="hover:text-white block overflow-hidden text-ellipsis whitespace-nowrap max-w-[120px] md:max-w-[160px]"
                                             onClick={closeSideLinks}
                                         >
                                             <span className="flex items-center gap-2">
@@ -124,18 +124,18 @@ export default function Header({ initialUser }: HeaderProps) {
                                     </li>
                                     {index < mainLinks.length - 1 && (
                                         <li className="hidden md:flex items-center" aria-hidden>
-                                            <span className="h-6 border-l border-white/70 mx-3" />
+                                            <span className="h-6 border-l border-white mx-3" />
                                         </li>
                                     )}
                                 </React.Fragment>
                             ))}
 
                             <li className="flex items-center w-full md:w-auto" aria-hidden>
-                                <span className="w-full border-t border-white/40 md:w-px md:h-6 md:border-l md:border-t-0 md:mx-3 md:border-white/70" />
+                                <span className="w-full border-t border-white md:w-px md:h-6 md:border-l md:border-t-0 md:mx-3 md:border-white" />
                             </li>
 
-                            {accountLinks.map((link, index) => (
-                                <React.Fragment key={link.label || `account-${index}`}>
+                            {userLinks.map((link, index) => (
+                                <React.Fragment key={link.label || `user-${index}`}>
                                     <li className="w-full md:w-auto flex items-center">
                                         {link.href === '#logout' ? (
                                         <button
@@ -146,7 +146,9 @@ export default function Header({ initialUser }: HeaderProps) {
                                         >
                                                 <span className="flex md:flex-row items-center gap-2">
                                                     {link.icon}
-                                                    {link.label && <span>{link.label}</span>}
+                                                    {link.label && (
+                                                        <span className="whitespace-nowrap overflow-hidden text-ellipsis max-w-[160px] md:max-w-[200px]">{link.label}</span>
+                                                    )}
                                                     {link.mobileLabel && <span className="md:hidden">{link.mobileLabel}</span>}
                                                 </span>
                                             </button>
@@ -158,15 +160,17 @@ export default function Header({ initialUser }: HeaderProps) {
                                             >
                                                 <span className="flex md:flex-row items-center gap-2">
                                                     {link.icon}
-                                                    {link.label && <span>{link.label}</span>}
+                                                    {link.label && (
+                                                        <span className="whitespace-nowrap overflow-hidden text-ellipsis max-w-[160px] md:max-w-[200px]">{link.label}</span>
+                                                    )}
                                                     {link.mobileLabel && <span className="md:hidden">{link.mobileLabel}</span>}
                                                 </span>
                                             </Link>
                                         )}
                                     </li>
-                                    {index < accountLinks.length - 1 && (
+                                    {index < userLinks.length - 1 && (
                                         <li className="hidden md:flex items-center" aria-hidden>
-                                            <span className="h-6 border-l border-white/70 mx-3" />
+                                            <span className="h-6 border-l border-white mx-3" />
                                         </li>
                                     )}
                                 </React.Fragment>

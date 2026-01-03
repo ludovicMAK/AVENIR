@@ -17,7 +17,7 @@
     }
 
     h1 {
-        @apply text-2xl sm:text-6xl font-bold;
+        @apply text-2xl font-bold;
     }
     h2 {
         @apply text-xl font-bold;
@@ -29,6 +29,6 @@
 
 @layer components {
     .layout {
-        @apply w-full px-5 md:px-8 2xl:px-60 max-w-[77.5rem] mx-auto;
+        @apply w-full px-5 md:px-16 2xl:px-0 max-w-400 mx-auto;
     }
 }
