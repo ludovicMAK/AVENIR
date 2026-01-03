@@ -65,4 +65,8 @@ export class InMemoryUserRepository implements UserRepository {
       (user) => user.role.getValue() === role
     );
   }
+  async findById(userId: string): Promise<User | null> {
+    const user = this.items.get(userId);
+    return user || null;
+  }
 }

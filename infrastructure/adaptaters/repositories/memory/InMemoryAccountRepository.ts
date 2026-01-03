@@ -44,7 +44,27 @@ export class InMemoryAccountRepository implements AccountRepository {
         account.overdraftFees,
         account.status,
         account.idOwner,
-        newBalance
+        newBalance,
+        account.availableBalance
+      );
+      this.items.set(accountId, updatedAccount);
+    }
+  }
+  async updateBalanceAvailable(accountId: string, newAvailableBalance: number): Promise<void> {
+    const account = this.items.get(accountId);
+    if (account) {
+      const updatedAccount = new Account(
+        account.id,
+        account.accountType,
+        account.IBAN,
+        account.accountName,
+        account.authorizedOverdraft,
+        account.overdraftLimit,
+        account.overdraftFees,
+        account.status,
+        account.idOwner,
+        account.balance,
+        newAvailableBalance
       );
       this.items.set(accountId, updatedAccount);
     }
@@ -66,7 +86,8 @@ export class InMemoryAccountRepository implements AccountRepository {
         account.overdraftFees,
         StatusAccount.from(status),
         account.idOwner,
-        account.balance
+        account.balance,
+        account.availableBalance
       );
       this.items.set(accountId, updatedAccount);
     }
@@ -95,7 +116,8 @@ export class InMemoryAccountRepository implements AccountRepository {
         account.overdraftFees,
         account.status,
         account.idOwner,
-        account.balance
+        account.balance,
+        account.availableBalance
       );
       this.items.set(accountId, updatedAccount);
       return true;

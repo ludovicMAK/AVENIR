@@ -1,5 +1,6 @@
 import { AccountType } from "@domain/values/accountType";
 import { StatusAccount } from "@domain/values/statusAccount";
+import { read } from "fs";
 
 export class Account {
   constructor(
@@ -12,8 +13,13 @@ export class Account {
     readonly overdraftFees: number,
     readonly status: StatusAccount,
     readonly idOwner: string,
-    readonly balance: number = 0
+    readonly balance: number = 0,
+    readonly availableBalance: number = 0
   ) {}
+  canAfford(amount: number): boolean {
+    const totalPower = this.availableBalance + (this.authorizedOverdraft ? this.overdraftLimit : 0);
+    return totalPower >= amount;
+  }
 
   isOpen(): boolean {
     return this.status.getValue() === "open";
@@ -41,4 +47,5 @@ export class Account {
   canWithdraw(amount: number): boolean {
     return this.getAvailableBalance() >= amount;
   }
+  
 }
