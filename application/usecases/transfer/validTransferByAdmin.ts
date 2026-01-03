@@ -8,17 +8,19 @@ import { UnitOfWork } from "@application/services/UnitOfWork";
 import { StatusTransfer } from "@domain/values/statusTransfer";
 import { UserRepository } from "@application/repositories/users";
 import { confirmTransfer } from "@application/requests/transfer";
+import { AccountRepository } from "@application/repositories/account";
+import { TransactionDirection } from "@domain/values/transactionDirection";
 
 export class ValidTransferByAdmin {
   constructor(
     private readonly transactionRepository: TransactionRepository,
     private readonly transferRepository: TransferRepository,
     private readonly userRepository: UserRepository,
-    private readonly unitOfWork: UnitOfWork
+    private readonly unitOfWork: UnitOfWork,
+    private readonly accountRepository: AccountRepository
   ) {}
   
   async execute(input: confirmTransfer): Promise<void> {
-    
     const userInformationConnected = await this.userRepository.getInformationUserConnected(input.userId, input.token);
     if (!userInformationConnected) {
       throw new ConnectedError("authentication failed: User not found.");
@@ -26,9 +28,6 @@ export class ValidTransferByAdmin {
     const transfer = await this.transferRepository.findById(input.idTransfer);
     if (!transfer) {
       throw new TransferCreationFailedError("Transfer not found.");
-    }
-    if (!userInformationConnected) {
-      throw new TransferCreationFailedError("authentication failed: User not found.");
     }
     
     if (userInformationConnected.role.getValue() !== "bankManager" && userInformationConnected.role.getValue() !== "bankAdvisor") {
@@ -55,6 +54,15 @@ export class ValidTransferByAdmin {
       const transactions = await this.transactionRepository.getAllTransactionsByTransferId(transfer.id);
 
       for (const transaction of transactions) {
+        const account = await this.accountRepository.findByIBAN(transaction.accountIBAN);
+        if (!account) {
+          throw new TransferCreationFailedError(`Account with IBAN ${transaction.accountIBAN} not found.`);
+        }
+        const adjustment = transaction.transactionDirection === TransactionDirection.DEBIT 
+                           ? -transaction.amount 
+                           : transaction.amount;
+                           
+        await this.accountRepository.updateBalance(account.id, adjustment, this.unitOfWork);
         const updatedTransaction = new Transaction(
           transaction.id,
           transaction.accountIBAN,

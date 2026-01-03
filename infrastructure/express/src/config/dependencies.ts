@@ -160,7 +160,8 @@ const validateTransferByAdmin = new ValidTransferByAdmin(
   transactionRepository,
   transferRepository,
   userRepository,
-  unitOfWork
+  unitOfWork,
+  accountRepository
 );
 const transactionController = new TransactionController(createTransaction);
 const transferController = new TransferController(validateTransferByAdmin);

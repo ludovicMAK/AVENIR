@@ -42,7 +42,6 @@ export class CreateTransaction {
     throw new UnprocessableError("L'un des comptes n'est pas actif.");
 }
 
-
     if (!accountFrom.canAfford(input.amount)) {
     throw new UnprocessableError("Solde disponible insuffisant (incluant le découvert).");
 }

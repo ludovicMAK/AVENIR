@@ -169,6 +169,25 @@ export class PostgresUserRepository implements UserRepository {
       this.handleDatabaseError(error);
     }
   }
+  async findById(userId: string): Promise<User | null> {
+    try {
+      const result = await this.pool.query<UserRow>(
+        `
+                    SELECT id, lastname, firstname, email, role, password, status, email_verified_at
+                    FROM users
+                    WHERE id = $1
+                    LIMIT 1
+                `,
+        [userId]
+      );
+      if (result.rowCount === 0) {
+        return null;
+      }
+      return this.mapRowToUser(result.rows[0]);
+    } catch (error) {
+      this.handleDatabaseError(error);
+    }
+  }
 
   private handleDatabaseError(unknownError: unknown): never {
     const error = ensureError(unknownError, "Unexpected database error");
@@ -177,4 +196,5 @@ export class PostgresUserRepository implements UserRepository {
       "Database unavailable. Please try again later."
     );
   }
+  
 }

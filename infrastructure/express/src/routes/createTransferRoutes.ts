@@ -6,7 +6,7 @@ export function createTransferRoutes(
 ): Router {
   const router = Router();
 
-  router.post("/transfers/validate", (request, response) =>
+  router.patch("/transfers/validate", (request, response) =>
     transferHttpHandler.validateTransferByAdmin(request, response)
   );
   
