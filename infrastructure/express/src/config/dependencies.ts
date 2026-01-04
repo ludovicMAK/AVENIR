@@ -48,6 +48,7 @@ import {
   participantConversationRepository,
   transferConversationRepository,
   creditRepository,
+  dueDateRepository,
 } from "@express/src/config/repositories";
 import {
   emailSender,
@@ -273,6 +274,7 @@ const grantCredit = new GrantCredit(
   userRepository,
   accountRepository,
   creditRepository,
+  dueDateRepository,
   unitOfWork,
   uuidGenerator
 );

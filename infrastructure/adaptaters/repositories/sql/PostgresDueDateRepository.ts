@@ -5,13 +5,17 @@ import { ensureError } from "@application/utils/errors";
 import { DueDate } from "@domain/entities/dueDate";
 import { DueDateRow } from "../types/DueDateRow";
 import { DueDateStatus } from "@domain/values/dueDateStatus";
+import { PostgresUnitOfWork } from "@adapters/services/PostgresUnitOfWork";
 
 export class PostgresDueDateRepository implements DueDateRepository {
   constructor(private readonly pool: Pool) {}
 
-  async save(dueDate: DueDate): Promise<void> {
+  async save(dueDate: DueDate, unitOfWork?: PostgresUnitOfWork): Promise<void> {
     try {
-      await this.pool.query(
+      const client = unitOfWork instanceof PostgresUnitOfWork ? unitOfWork.getClient() : null;
+      const executor: any = client || this.pool;
+
+      await executor.query(
         `
           INSERT INTO due_dates (id, due_date, total_amount, share_interest, share_insurance, repayment_portion, status, credit_id, payment_date, transaction_id)
           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
@@ -26,7 +30,7 @@ export class PostgresDueDateRepository implements DueDateRepository {
           dueDate.status.getValue(),
           dueDate.creditId,
           dueDate.paymentDate || null,
-          dueDate.transactionId || null
+          dueDate.transactionId || null,
         ]
       );
     } catch (error) {
@@ -109,9 +113,12 @@ export class PostgresDueDateRepository implements DueDateRepository {
     }
   }
 
-  async update(dueDate: DueDate): Promise<void> {
+  async update(dueDate: DueDate, unitOfWork?: PostgresUnitOfWork): Promise<void> {
     try {
-      await this.pool.query(
+      const client = unitOfWork instanceof PostgresUnitOfWork ? unitOfWork.getClient() : null;
+      const executor: any = client || this.pool;
+
+      await executor.query(
         `
           UPDATE due_dates
           SET due_date = $2, total_amount = $3, share_interest = $4, share_insurance = $5, repayment_portion = $6, status = $7, credit_id = $8, payment_date = $9, transaction_id = $10, updated_at = CURRENT_TIMESTAMP
@@ -127,7 +134,7 @@ export class PostgresDueDateRepository implements DueDateRepository {
           dueDate.status.getValue(),
           dueDate.creditId,
           dueDate.paymentDate || null,
-          dueDate.transactionId || null
+          dueDate.transactionId || null,
         ]
       );
     } catch (error) {
