@@ -11,4 +11,5 @@ export interface AccountRepository {
   delete(accountId: string): Promise<void>;
   updateNameAccount(accountId: string, newName: string): Promise<boolean>;
   updateBalanceAvailable(accountId: string, newAvailableBalance: number, unitOfWork?: UnitOfWork): Promise<void>;
+  findCurrentAccountByCustomerId(customerId: string): Promise<Account | null>;
 }

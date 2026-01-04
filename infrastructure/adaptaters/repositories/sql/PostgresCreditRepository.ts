@@ -5,13 +5,17 @@ import { ensureError } from "@application/utils/errors";
 import { Credit } from "@domain/entities/credit";
 import { CreditRow } from "../types/CreditRow";
 import { CreditStatus } from "@domain/values/creditStatus";
+import { PostgresUnitOfWork } from "@adapters/services/PostgresUnitOfWork";
 
 export class PostgresCreditRepository implements CreditRepository {
   constructor(private readonly pool: Pool) {}
 
-  async save(credit: Credit): Promise<void> {
+  async save(credit: Credit, unitOfWork?: PostgresUnitOfWork): Promise<void> {
     try {
-      await this.pool.query(
+      const client = unitOfWork instanceof PostgresUnitOfWork ? unitOfWork.getClient() : null;
+      const executor: any = client || this.pool;
+
+      await executor.query(
         `
           INSERT INTO credits (id, amount_borrowed, annual_rate, insurance_rate, duration_in_months, start_date, status, customer_id)
           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
@@ -24,7 +28,7 @@ export class PostgresCreditRepository implements CreditRepository {
           credit.durationInMonths,
           credit.startDate,
           credit.status.getValue(),
-          credit.customerId
+          credit.customerId,
         ]
       );
     } catch (error) {

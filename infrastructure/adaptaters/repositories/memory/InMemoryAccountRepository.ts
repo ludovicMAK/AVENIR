@@ -103,6 +103,14 @@ export class InMemoryAccountRepository implements AccountRepository {
     }
     return null;
   }
+  async findCurrentAccountByCustomerId(customerId: string): Promise<Account | null> {
+    for (const account of this.items.values()) {
+      if (account.idOwner === customerId && account.accountType.getValue() === "current") {
+        return account;
+      }
+    }
+    return null;
+  }
   async updateNameAccount(accountId: string, newName: string): Promise<boolean> {
     const account = this.items.get(accountId);
     if (account) {

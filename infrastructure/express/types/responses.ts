@@ -1,3 +1,6 @@
+import { CreditDetails } from "@application/usecases/credits/calculateCreditDetails";
+import { Credit } from "@domain/entities/credit";
+
 export type UserView = {
   id: string;
   firstname: string;
@@ -17,6 +20,27 @@ export type AccountView = {
   status: string;
   balance: number;
   idOwner: string;
+};
+export type CreditView = {
+  id: string;
+  amountBorrowed: number;
+  annualRate: number;
+  insuranceRate: number;
+  durationInMonths: number;
+  startDate: Date;
+  status: string;
+  customerId: string;
+  monthlyPayment: number;
+  totalAmountToPay: number;
+  loanCost: number;
+};
+
+export type CreditResponseData = { credit: Credit };
+
+export type CreditsResponseData = { credits: Credit[] };
+
+export type CreditDetailsResponseData = {
+  details: CreditDetails;
 };
 
 export type AccountResponseData = { accounts: AccountView[] };
@@ -63,6 +87,9 @@ export type SuccessData =
   | ConversationsListResponseData
   | MessageResponseData
   | MessagesListResponseData
+  | CreditResponseData
+  | CreditsResponseData
+  | CreditDetailsResponseData
   | undefined;
 
 export type SuccessPayload<ResponseData extends SuccessData = SuccessData> = {
