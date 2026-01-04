@@ -39,7 +39,6 @@ export async function ensureDueDatesTable(): Promise<void> {
       CREATE INDEX IF NOT EXISTS idx_due_dates_transaction_id ON due_dates(transaction_id)
     `);
 
-    console.log("✓ Due dates table ensured");
   } catch (error) {
     console.error("Failed to ensure due_dates table", error);
     throw new InfrastructureError(

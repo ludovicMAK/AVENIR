@@ -56,6 +56,7 @@ import {
   uuidGenerator,
   tokenGenerator,
   ibanGenerator,
+  nodeGenerateAmortizationService,
 } from "@express/src/config/services";
 import { UserController } from "@express/controllers/UserController";
 import { AccountController } from "@express/controllers/AccountController";
@@ -275,6 +276,7 @@ const grantCredit = new GrantCredit(
   accountRepository,
   creditRepository,
   dueDateRepository,
+  nodeGenerateAmortizationService,
   unitOfWork,
   uuidGenerator
 );

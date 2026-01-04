@@ -32,7 +32,6 @@ export async function ensureCreditsTable(): Promise<void> {
       CREATE INDEX IF NOT EXISTS idx_credits_start_date ON credits(start_date)
     `);
 
-    console.log("✓ Credits table ensured");
   } catch (error) {
     console.error("Failed to ensure credits table", error);
     throw new InfrastructureError(

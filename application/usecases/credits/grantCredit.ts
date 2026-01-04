@@ -8,7 +8,7 @@ import { UnitOfWork } from "@application/services/UnitOfWork";
 import { UuidGenerator } from "@application/services/UuidGenerator";
 import { GrantCreditRequest } from "@application/requests/credit";
 import { ConnectedError, UnauthorizedError, NotFoundError } from "@application/errors";
-import { GenerateAmortizationSchedule } from "@application/usecases/credits/generateAmortizationSchedule";
+import { GenerateAmortizationService } from "@application/services/GenerateAmortizationService";
 import { DueDate } from "@domain/entities/dueDate";
 import { DueDateStatus } from "@domain/values/dueDateStatus";
 import { DueDateRepository } from "@application/repositories/dueDate";
@@ -20,6 +20,7 @@ export class GrantCredit {
     private readonly accountRepository: AccountRepository,
     private readonly creditRepository: CreditRepository,
     private readonly dueDateRepository: DueDateRepository,
+    private readonly amortizationService: GenerateAmortizationService,
     private readonly unitOfWork: UnitOfWork,
     private readonly uuidGenerator: UuidGenerator
   ) {}
@@ -52,8 +53,7 @@ export class GrantCredit {
     try {
       await this.creditRepository.save(credit, this.unitOfWork);
 
-      const generator = new GenerateAmortizationSchedule();
-      const schedule = generator.execute(
+      const schedule = this.amortizationService.generate(
         request.amountBorrowed,
         request.annualRate,
         request.insuranceRate,
