@@ -43,6 +43,25 @@ export class ShareHttpHandler {
 
   async placeOrder(request: Request, response: Response) {
     try {
+      const userId = request.headers["x-user-id"] as string;
+      const authHeader = request.headers.authorization as string;
+      const token = authHeader?.startsWith("Bearer ")
+        ? authHeader.split(" ")[1]
+        : authHeader;
+
+      if (!userId) {
+        return response.status(400).send({
+          code: "MISSING_USER_ID",
+          message: "L'ID de l'utilisateur est requis.",
+        });
+      }
+      if (!token) {
+        return response.status(400).send({
+          code: "MISSING_AUTH_TOKEN",
+          message: "Le token d'authentification est requis.",
+        });
+      }
+
       const payload: PlaceOrderInput = request.body;
       const order = await this.controller.order(payload);
       response.status(201).json(order);
@@ -53,6 +72,25 @@ export class ShareHttpHandler {
 
   async cancelOrder(request: Request, response: Response) {
     try {
+      const userId = request.headers["x-user-id"] as string;
+      const authHeader = request.headers.authorization as string;
+      const token = authHeader?.startsWith("Bearer ")
+        ? authHeader.split(" ")[1]
+        : authHeader;
+
+      if (!userId) {
+        return response.status(400).send({
+          code: "MISSING_USER_ID",
+          message: "L'ID de l'utilisateur est requis.",
+        });
+      }
+      if (!token) {
+        return response.status(400).send({
+          code: "MISSING_AUTH_TOKEN",
+          message: "Le token d'authentification est requis.",
+        });
+      }
+
       const payload: CancelOrderInput = {
         orderId: request.params.orderId,
         customerId: request.body.customerId,
@@ -66,6 +104,25 @@ export class ShareHttpHandler {
 
   async getPositions(request: Request, response: Response) {
     try {
+      const userId = request.headers["x-user-id"] as string;
+      const authHeader = request.headers.authorization as string;
+      const token = authHeader?.startsWith("Bearer ")
+        ? authHeader.split(" ")[1]
+        : authHeader;
+
+      if (!userId) {
+        return response.status(400).send({
+          code: "MISSING_USER_ID",
+          message: "L'ID de l'utilisateur est requis.",
+        });
+      }
+      if (!token) {
+        return response.status(400).send({
+          code: "MISSING_AUTH_TOKEN",
+          message: "Le token d'authentification est requis.",
+        });
+      }
+
       const payload: GetPositionsInput = {
         customerId: request.params.customerId,
       };
@@ -78,6 +135,25 @@ export class ShareHttpHandler {
 
   async getOrders(request: Request, response: Response) {
     try {
+      const userId = request.headers["x-user-id"] as string;
+      const authHeader = request.headers.authorization as string;
+      const token = authHeader?.startsWith("Bearer ")
+        ? authHeader.split(" ")[1]
+        : authHeader;
+
+      if (!userId) {
+        return response.status(400).send({
+          code: "MISSING_USER_ID",
+          message: "L'ID de l'utilisateur est requis.",
+        });
+      }
+      if (!token) {
+        return response.status(400).send({
+          code: "MISSING_AUTH_TOKEN",
+          message: "Le token d'authentification est requis.",
+        });
+      }
+
       const customerId = request.params.customerId;
       const orders = await this.controller.getOrders(customerId);
       response.status(200).json(orders);
