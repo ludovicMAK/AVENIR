@@ -80,6 +80,7 @@ import { GrantCredit } from "@application/usecases/credits/grantCredit";
 import { GetCustomerCredits } from "@application/usecases/credits/getCustomerCredits";
 import { GetCreditById } from "@application/usecases/credits/getCreditById";
 import { CalculateCreditDetails } from "@application/usecases/credits/calculateCreditDetails";
+import { PayInstallment } from "@application/usecases/credits/payInstallment";
 
 const registerUser = new RegisterUser(
   userRepository,
@@ -289,10 +290,20 @@ const getCustomerCreditsUsecase = new GetCustomerCredits(
   creditRepository,
 );
 const calculateCreditDetailsUsecase = new CalculateCreditDetails();
+const payInstallmentUsecase = new PayInstallment(
+  sessionRepository,
+  dueDateRepository,
+  accountRepository,
+  transactionRepository,
+  transferRepository,
+  creditRepository,
+  unitOfWork,
+  uuidGenerator
+);
 
 
 
-const creditController = new CreditController(grantCredit, getCreditByIdUsecase, getCustomerCreditsUsecase,calculateCreditDetailsUsecase);
+const creditController = new CreditController(grantCredit, getCreditByIdUsecase, getCustomerCreditsUsecase, calculateCreditDetailsUsecase, payInstallmentUsecase);
 const creditHttpHandler = new CreditHttpHandler(creditController);
 
 export const httpRouter = createHttpRouter(

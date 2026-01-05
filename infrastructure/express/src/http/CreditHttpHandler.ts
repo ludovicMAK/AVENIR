@@ -3,7 +3,7 @@ import { CreditController } from "@express/controllers/CreditController";
 import { sendSuccess } from "../responses/success";
 import { mapErrorToHttpResponse } from "../responses/error";
 import { ValidationError } from "@application/errors";
-import { GrantCreditRequest, CalculateCreditDetailsRequest } from "@application/requests/credit";
+import { GrantCreditRequest, CalculateCreditDetailsRequest, PayInstallmentRequest } from "@application/requests/credit";
 
 export class CreditHttpHandler {
   constructor(private readonly controller: CreditController) {}
@@ -130,6 +130,40 @@ export class CreditHttpHandler {
         code: "CREDIT_DETAILS_CALCULATED",
         message: "Credit details calculated successfully.",
         data: { details },
+      });
+    } catch (error) {
+      return mapErrorToHttpResponse(response, error);
+    }
+  }
+
+  public async payInstallment(request: Request, response: Response) {
+    try {
+      const userId = request.headers["x-user-id"] as string;
+      const authHeader = request.headers["authorization"];
+      const token = authHeader && authHeader.split(" ")[1];
+      const { dueDateId } = request.params;
+
+      if (!userId || !token) {
+        throw new ValidationError("Authentication required");
+      }
+
+      if (!dueDateId) {
+        throw new ValidationError("Due date ID is required");
+      }
+
+      const payInstallmentRequest: PayInstallmentRequest = {
+        token: token || "",
+        customerId: userId,
+        dueDateId,
+      };
+
+      const paidDueDate = await this.controller.payInstallment(payInstallmentRequest);
+
+      return sendSuccess(response, {
+        status: 200,
+        code: "INSTALLMENT_PAID",
+        message: "Installment paid successfully.",
+        data: { dueDate: paidDueDate },
       });
     } catch (error) {
       return mapErrorToHttpResponse(response, error);

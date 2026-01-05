@@ -25,3 +25,9 @@ export type CalculateCreditDetailsRequest = {
   insuranceRate: number; 
   durationInMonths: number;
 };
+
+export type PayInstallmentRequest = {
+  token: string;
+  customerId: string;
+  dueDateId: string;
+};
