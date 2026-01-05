@@ -81,6 +81,7 @@ import { GetCustomerCredits } from "@application/usecases/credits/getCustomerCre
 import { GetCreditById } from "@application/usecases/credits/getCreditById";
 import { CalculateCreditDetails } from "@application/usecases/credits/calculateCreditDetails";
 import { PayInstallment } from "@application/usecases/credits/payInstallment";
+import { EnvironmentBankConfiguration } from "@adapters/services/EnvironmentBankConfiguration";
 
 const registerUser = new RegisterUser(
   userRepository,
@@ -289,6 +290,7 @@ const getCustomerCreditsUsecase = new GetCustomerCredits(
   sessionRepository,
   creditRepository,
 );
+const bankConfiguration = new EnvironmentBankConfiguration();
 const calculateCreditDetailsUsecase = new CalculateCreditDetails();
 const payInstallmentUsecase = new PayInstallment(
   sessionRepository,
@@ -298,7 +300,8 @@ const payInstallmentUsecase = new PayInstallment(
   transferRepository,
   creditRepository,
   unitOfWork,
-  uuidGenerator
+  uuidGenerator,
+  bankConfiguration
 );
 
 

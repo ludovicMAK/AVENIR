@@ -7,7 +7,7 @@ import { AccountRepository } from "@application/repositories/account";
 import { UnitOfWork } from "@application/services/UnitOfWork"; 
 import { UuidGenerator } from "@application/services/UuidGenerator";
 import { GrantCreditRequest } from "@application/requests/credit";
-import { ConnectedError, UnauthorizedError, NotFoundError } from "@application/errors";
+import { ConnectedError, UnauthorizedError, NotFoundError, ValidationError } from "@application/errors";
 import { GenerateAmortizationService } from "@application/services/GenerateAmortizationService";
 import { DueDate } from "@domain/entities/dueDate";
 import { DueDateStatus } from "@domain/values/dueDateStatus";
@@ -34,8 +34,16 @@ export class GrantCredit {
       throw new UnauthorizedError("Only advisors can grant credits");
     }
 
-    const customerAccount = await this.accountRepository.findCurrentAccountByCustomerId(request.customerId);
-    if (!customerAccount) throw new NotFoundError("Customer main account not found");
+    const customerAccount = await this.accountRepository.findById(request.accountId);
+    if (!customerAccount) throw new NotFoundError("Account not found");
+    
+    if (customerAccount.idOwner !== request.customerId) {
+      throw new UnauthorizedError("Account does not belong to the specified customer");
+    }
+    
+    if (!customerAccount.isOpen()) {
+      throw new ValidationError("Account must be open to receive credit");
+    }
 
     const creditId = this.uuidGenerator.generate();
     const credit = new Credit(

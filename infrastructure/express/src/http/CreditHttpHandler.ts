@@ -18,15 +18,16 @@ export class CreditHttpHandler {
         throw new ValidationError("Authentication required");
       }
 
-      const { customerId, amountBorrowed, annualRate, insuranceRate, durationInMonths } = request.body;
+      const { customerId, accountId, amountBorrowed, annualRate, insuranceRate, durationInMonths } = request.body;
 
-      if (!customerId || !amountBorrowed || !annualRate || !insuranceRate || !durationInMonths) {
-        throw new ValidationError("Missing required fields: customerId, amountBorrowed, annualRate, insuranceRate, durationInMonths");
+      if (!customerId || !accountId || !amountBorrowed || !annualRate || !insuranceRate || !durationInMonths) {
+        throw new ValidationError("Missing required fields: customerId, accountId, amountBorrowed, annualRate, insuranceRate, durationInMonths");
       }
 
       const grantCreditRequest: GrantCreditRequest = {
         token: token || "",
         customerId,
+        accountId,
         amountBorrowed,
         annualRate,
         insuranceRate,

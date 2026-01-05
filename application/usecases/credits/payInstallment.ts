@@ -8,6 +8,7 @@ import { TransferRepository } from "@application/repositories/transfer";
 import { CreditRepository } from "@application/repositories/credit";
 import { UnitOfWork } from "@application/services/UnitOfWork";
 import { UuidGenerator } from "@application/services/UuidGenerator";
+import { BankConfiguration } from "@application/services/BankConfiguration";
 import { PayInstallmentRequest } from "@application/requests/credit";
 import { ConnectedError, NotFoundError, ValidationError } from "@application/errors";
 import { Transfer } from "@domain/entities/transfer";
@@ -25,7 +26,8 @@ export class PayInstallment {
     private readonly transferRepository: TransferRepository,
     private readonly creditRepository: CreditRepository,
     private readonly unitOfWork: UnitOfWork,
-    private readonly uuidGenerator: UuidGenerator
+    private readonly uuidGenerator: UuidGenerator,
+    private readonly bankConfiguration: BankConfiguration
   ) {}
 
   async execute(request: PayInstallmentRequest): Promise<DueDate> {
@@ -45,11 +47,12 @@ export class PayInstallment {
     if (credit.customerId !== request.customerId) {
       throw new ValidationError("This due date does not belong to the customer");
     }
-
     const customerAccount = await this.accountRepository.findCurrentAccountByCustomerId(request.customerId);
     if (!customerAccount) throw new NotFoundError("Customer main account not found");
 
-    const bankAccount = await this.accountRepository.findByIBAN("BANK_ACCOUNT_IBAN");
+    const bankAccountIBAN = this.bankConfiguration.getBankAccountIBAN();
+    const bankAccount = await this.accountRepository.findByIBAN(bankAccountIBAN);
+    if (!bankAccount) throw new NotFoundError("Bank account not found");
     if (!bankAccount) throw new NotFoundError("Bank account not found");
 
     if (customerAccount.availableBalance < dueDate.totalAmount) {

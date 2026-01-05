@@ -1,6 +1,7 @@
 export type GrantCreditRequest = {
   token: string;
   customerId: string;
+  accountId: string;
   amountBorrowed: number; 
   annualRate: number; 
   insuranceRate: number; 
