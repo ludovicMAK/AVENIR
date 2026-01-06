@@ -8,7 +8,7 @@ export type DueDateRow = {
   status: string;
   credit_id: string;
   payment_date: Date | null;
-  transaction_id: string | null;
+  transfer_id: string | null;
   created_at: Date;
   updated_at: Date;
 };

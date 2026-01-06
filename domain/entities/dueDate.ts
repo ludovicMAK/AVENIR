@@ -11,7 +11,7 @@ export class DueDate {
     readonly status: DueDateStatus,
     readonly creditId: string,
     readonly paymentDate?: Date,
-    readonly transactionId?: string
+    readonly transferId?: string
   ) {}
 
   isPayable(): boolean {
@@ -30,13 +30,14 @@ export class DueDate {
     return this.status.equals(DueDateStatus.PAYABLE) || this.status.equals(DueDateStatus.OVERDUE);
   }
 
+
   isOverdueNow(): boolean {
     const now = new Date();
     return this.status.equals(DueDateStatus.PAYABLE) && this.dueDate < now;
   }
 
-  hasTransaction(): boolean {
-    return this.transactionId !== undefined;
+  hasTransfer(): boolean {
+    return this.transferId !== undefined;
   }
 
   getDaysUntilDue(): number {

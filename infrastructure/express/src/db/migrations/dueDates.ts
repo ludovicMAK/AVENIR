@@ -15,11 +15,11 @@ export async function ensureDueDatesTable(): Promise<void> {
         status VARCHAR(50) NOT NULL,
         credit_id UUID NOT NULL,
         payment_date TIMESTAMP,
-        transaction_id UUID,
+        transfer_id UUID,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (credit_id) REFERENCES credits(id) ON DELETE CASCADE,
-        FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE SET NULL
+        FOREIGN KEY (transfer_id) REFERENCES transfers(id) ON DELETE SET NULL
       )
     `);
 
@@ -36,7 +36,7 @@ export async function ensureDueDatesTable(): Promise<void> {
     `);
 
     await client.query(`
-      CREATE INDEX IF NOT EXISTS idx_due_dates_transaction_id ON due_dates(transaction_id)
+      CREATE INDEX IF NOT EXISTS idx_due_dates_transfer_id ON due_dates(transfer_id)
     `);
 
   } catch (error) {

@@ -17,7 +17,7 @@ export class PostgresDueDateRepository implements DueDateRepository {
 
       await executor.query(
         `
-          INSERT INTO due_dates (id, due_date, total_amount, share_interest, share_insurance, repayment_portion, status, credit_id, payment_date, transaction_id)
+          INSERT INTO due_dates (id, due_date, total_amount, share_interest, share_insurance, repayment_portion, status, credit_id, payment_date, transfer_id)
           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         `,
         [
@@ -30,7 +30,7 @@ export class PostgresDueDateRepository implements DueDateRepository {
           dueDate.status.getValue(),
           dueDate.creditId,
           dueDate.paymentDate || null,
-          dueDate.transactionId || null,
+          dueDate.transferId || null,
         ]
       );
     } catch (error) {
@@ -42,7 +42,7 @@ export class PostgresDueDateRepository implements DueDateRepository {
     try {
       const result = await this.pool.query<DueDateRow>(
         `
-          SELECT id, due_date, total_amount, share_interest, share_insurance, repayment_portion, status, credit_id, payment_date, transaction_id
+          SELECT id, due_date, total_amount, share_interest, share_insurance, repayment_portion, status, credit_id, payment_date, transfer_id
           FROM due_dates
           WHERE id = $1
         `,
@@ -63,7 +63,7 @@ export class PostgresDueDateRepository implements DueDateRepository {
     try {
       const result = await this.pool.query<DueDateRow>(
         `
-          SELECT id, due_date, total_amount, share_interest, share_insurance, repayment_portion, status, credit_id, payment_date, transaction_id
+          SELECT id, due_date, total_amount, share_interest, share_insurance, repayment_portion, status, credit_id, payment_date, transfer_id
           FROM due_dates
           WHERE credit_id = $1
           ORDER BY due_date ASC
@@ -81,7 +81,7 @@ export class PostgresDueDateRepository implements DueDateRepository {
     try {
       const result = await this.pool.query<DueDateRow>(
         `
-          SELECT id, due_date, total_amount, share_interest, share_insurance, repayment_portion, status, credit_id, payment_date, transaction_id
+          SELECT id, due_date, total_amount, share_interest, share_insurance, repayment_portion, status, credit_id, payment_date, transfer_id
           FROM due_dates
           WHERE status = $1
           ORDER BY due_date ASC
@@ -99,7 +99,7 @@ export class PostgresDueDateRepository implements DueDateRepository {
     try {
       const result = await this.pool.query<DueDateRow>(
         `
-          SELECT id, due_date, total_amount, share_interest, share_insurance, repayment_portion, status, credit_id, payment_date, transaction_id
+          SELECT id, due_date, total_amount, share_interest, share_insurance, repayment_portion, status, credit_id, payment_date, transfer_id
           FROM due_dates
           WHERE status = $1 AND due_date < CURRENT_TIMESTAMP
           ORDER BY due_date ASC
@@ -121,7 +121,7 @@ export class PostgresDueDateRepository implements DueDateRepository {
       await executor.query(
         `
           UPDATE due_dates
-          SET due_date = $2, total_amount = $3, share_interest = $4, share_insurance = $5, repayment_portion = $6, status = $7, credit_id = $8, payment_date = $9, transaction_id = $10, updated_at = CURRENT_TIMESTAMP
+          SET due_date = $2, total_amount = $3, share_interest = $4, share_insurance = $5, repayment_portion = $6, status = $7, credit_id = $8, payment_date = $9, transfer_id = $10, updated_at = CURRENT_TIMESTAMP
           WHERE id = $1
         `,
         [
@@ -134,7 +134,7 @@ export class PostgresDueDateRepository implements DueDateRepository {
           dueDate.status.getValue(),
           dueDate.creditId,
           dueDate.paymentDate || null,
-          dueDate.transactionId || null,
+          dueDate.transferId || null,
         ]
       );
     } catch (error) {
@@ -167,7 +167,7 @@ export class PostgresDueDateRepository implements DueDateRepository {
       DueDateStatus.from(row.status),
       row.credit_id,
       row.payment_date ? new Date(row.payment_date) : undefined,
-      row.transaction_id || undefined
+      row.transfer_id || undefined
     );
   }
 

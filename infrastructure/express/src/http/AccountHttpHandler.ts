@@ -57,9 +57,19 @@ export class AccountHttpHandler {
 
   public async create(request: Request, response: Response) {
     try {
+      const userId = request.headers["x-user-id"] as string; 
+      const authHeader = request.headers.authorization as string;
+      const token = authHeader?.startsWith("Bearer ") 
+        ? authHeader.split(" ")[1] 
+        : authHeader;
+
+      if (!userId || !token) {
+        throw new ValidationError("Authentication required");
+      }
+
       const accountData = request.body;
 
-      const account = await this.controller.create(accountData);
+      const account = await this.controller.create({ ...accountData, idOwner: userId, token: token });
 
       return sendSuccess(response, {
         status: 201,
