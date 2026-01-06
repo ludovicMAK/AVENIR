@@ -27,6 +27,8 @@ export type UserResponseData = { user: UserView };
 
 export type UserListResponseData = { users: UserView[] };
 
+export type UserRegistrationResponseData = { userId: string };
+
 export type ConversationView = {
   id: string;
   status: string;
@@ -57,6 +59,7 @@ export type MessagesListResponseData = { messages: MessageView[] };
 export type SuccessData =
   | UserResponseData
   | UserListResponseData
+  | UserRegistrationResponseData
   | AccountResponseData
   | SingleAccountResponseData
   | ConversationResponseData

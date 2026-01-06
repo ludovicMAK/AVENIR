@@ -17,7 +17,7 @@ export class PostgresAccountRepository implements AccountRepository {
     try {
       await this.pool.query(
         `
-                    INSERT INTO accounts (id, IBAN, account_type, account_name, authorized_overdraft, overdraft_limit, overdraft_fees, status, balance, id_owner, available_balance)
+                    INSERT INTO accounts (id, iban, account_type, account_name, authorized_overdraft, overdraft_limit, overdraft_fees, status, balance, id_owner, available_balance)
                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
                 `,
         [
@@ -31,7 +31,7 @@ export class PostgresAccountRepository implements AccountRepository {
           account.status.getValue(),
           account.balance,
           account.idOwner,
-          account.availableBalance
+          account.availableBalance,
         ]
       );
     } catch (error) {
@@ -43,9 +43,9 @@ export class PostgresAccountRepository implements AccountRepository {
     try {
       const result = await this.pool.query<AccountRow>(
         `
-                    SELECT id, IBAN, account_type, account_name, authorized_overdraft, overdraft_limit, overdraft_fees, status, balance, id_owner, available_balance
-                    FROM accounts
-                    WHERE id = $1
+                SELECT id, iban, account_type, account_name, authorized_overdraft, overdraft_limit, overdraft_fees, status, balance, id_owner, available_balance
+                FROM accounts
+                WHERE id = $1
                 `,
         [id]
       );
@@ -65,9 +65,9 @@ export class PostgresAccountRepository implements AccountRepository {
     try {
       const result = await this.pool.query<AccountRow>(
         `
-                    SELECT id, IBAN, account_type, account_name, authorized_overdraft, overdraft_limit, overdraft_fees, status, balance, id_owner, available_balance
+                    SELECT id, iban, account_type, account_name, authorized_overdraft, overdraft_limit, overdraft_fees, status, balance, id_owner, available_balance
                     FROM accounts
-                    WHERE IBAN = $1
+                    WHERE iban = $1
                 `,
         [IBAN]
       );
@@ -87,9 +87,9 @@ export class PostgresAccountRepository implements AccountRepository {
     try {
       const result = await this.pool.query<AccountRow>(
         `
-                    SELECT id, IBAN, account_type, account_name, authorized_overdraft, overdraft_limit, overdraft_fees, status, balance, id_owner, available_balance
-                    FROM accounts
-                    WHERE id_owner = $1
+                SELECT id, iban, account_type, account_name, authorized_overdraft, overdraft_limit, overdraft_fees, status, balance, id_owner, available_balance
+                FROM accounts
+                WHERE id_owner = $1
                 `,
         [ownerId]
       );
@@ -100,41 +100,38 @@ export class PostgresAccountRepository implements AccountRepository {
     }
   }
 
-async updateBalance(
-  accountId: string, 
-  amountToAdd: number, 
-  unitOfWork?: UnitOfWork
-): Promise<void> {
-  try {
-
-    const client = unitOfWork instanceof PostgresUnitOfWork
-                    ? unitOfWork.getClient()
-                    : null;
-    const query = `
+  async updateBalance(
+    accountId: string,
+    amountToAdd: number,
+    unitOfWork?: UnitOfWork
+  ): Promise<void> {
+    try {
+      const client =
+        unitOfWork instanceof PostgresUnitOfWork
+          ? unitOfWork.getClient()
+          : null;
+      const query = `
                 UPDATE accounts
         SET balance = balance + $1
         WHERE id = $2 AND status = 'open'
             `;
 
-            const params = [
-               amountToAdd, accountId
-            ];
+      const params = [amountToAdd, accountId];
 
-            if (client) {
-                await client.query(query, params);
-            } else {
-                await this.pool.query(query, params);
-            }
-
-  } catch (error) {
-    this.handleDatabaseError(error);
+      if (client) {
+        await client.query(query, params);
+      } else {
+        await this.pool.query(query, params);
+      }
+    } catch (error) {
+      this.handleDatabaseError(error);
+    }
   }
-}
   async findByIdAndUserId(id: string, userId: string): Promise<Account | null> {
     try {
       const result = await this.pool.query<AccountRow>(
         `
-                    SELECT id, IBAN, account_type, account_name, authorized_overdraft, overdraft_limit, overdraft_fees, status, balance, id_owner, available_balance
+                    SELECT id, iban, account_type, account_name, authorized_overdraft, overdraft_limit, overdraft_fees, status, balance, id_owner, available_balance
                     FROM accounts
                     WHERE id = $1 AND id_owner = $2
                 `,
@@ -178,62 +175,64 @@ async updateBalance(
       this.handleDatabaseError(error);
     }
   }
-  async updateNameAccount(accountId: string, newName: string): Promise<boolean> {
-  try {
-    const result = await this.pool.query(
-      `UPDATE accounts 
+  async updateNameAccount(
+    accountId: string,
+    newName: string
+  ): Promise<boolean> {
+    try {
+      const result = await this.pool.query(
+        `UPDATE accounts 
        SET account_name = $1 
-       WHERE id = $2 AND status != 'CLOSED'`, 
-      [newName, accountId]
-    );
+       WHERE id = $2 AND status != 'CLOSED'`,
+        [newName, accountId]
+      );
 
-    return (result.rowCount ?? 0) > 0; 
-  } catch (error) {
-    return this.handleDatabaseError(error);
+      return (result.rowCount ?? 0) > 0;
+    } catch (error) {
+      return this.handleDatabaseError(error);
+    }
   }
-}
   async updateBalanceAvailable(
-    accountId: string, 
-    amountToAdd: number, 
+    accountId: string,
+    amountToAdd: number,
     unitOfWork?: UnitOfWork
   ): Promise<void> {
     try {
-      const client = unitOfWork instanceof PostgresUnitOfWork
-                      ? unitOfWork.getClient()
-                      : null;
+      const client =
+        unitOfWork instanceof PostgresUnitOfWork
+          ? unitOfWork.getClient()
+          : null;
       const query = `
                   UPDATE accounts
           SET available_balance = available_balance + $1
           WHERE id = $2 AND status = 'open'
               `;
-              const params = [
-                amountToAdd, accountId
-              ];
-              if (client) {
-                  await client.query(query, params);
-              } else {
-                  await this.pool.query(query, params);
-              }
+      const params = [amountToAdd, accountId];
+      if (client) {
+        await client.query(query, params);
+      } else {
+        await this.pool.query(query, params);
+      }
     } catch (error) {
       this.handleDatabaseError(error);
     }
   }
 
   private mapRowToAccount(row: AccountRow): Account {
-  return new Account(
-    row.id,
-    AccountType.from(row.account_type),
-    row.iban, 
-    row.account_name,
-    row.authorized_overdraft,
-    parseInt(row.overdraft_limit.toString(), 10),
-    parseInt(row.overdraft_fees.toString(), 10),
-    StatusAccount.from(row.status),
-    row.id_owner,
-    parseInt(row.balance.toString(), 10),
-    parseInt(row.available_balance.toString(), 10)
-  );
-}
+    return new Account(
+      row.id,
+      AccountType.from(row.account_type),
+      row.iban,
+      row.account_name,
+      row.authorized_overdraft,
+      parseInt(row.overdraft_limit.toString(), 10),
+      parseInt(row.overdraft_fees.toString(), 10),
+      StatusAccount.from(row.status),
+      row.id_owner,
+      parseInt(row.balance.toString(), 10),
+      parseInt(row.available_balance.toString(), 10)
+    );
+  }
 
   private handleDatabaseError(unknownError: unknown): never {
     const error = ensureError(unknownError, "Unexpected database error");
