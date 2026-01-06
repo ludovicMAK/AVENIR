@@ -17,7 +17,9 @@ export class Account {
     readonly availableBalance: number = 0
   ) {}
   canAfford(amount: number): boolean {
-    const totalPower = this.availableBalance + (this.authorizedOverdraft ? this.overdraftLimit : 0);
+    const totalPower =
+      this.availableBalance +
+      (this.authorizedOverdraft ? this.overdraftLimit : 0);
     return totalPower >= amount;
   }
 
@@ -47,5 +49,16 @@ export class Account {
   canWithdraw(amount: number): boolean {
     return this.getAvailableBalance() >= amount;
   }
-  
+
+  getBlockedAmount(): number {
+    return this.balance - this.availableBalance;
+  }
+
+  canBlockFunds(amount: number): boolean {
+    return this.availableBalance >= amount;
+  }
+
+  hasEnoughAvailableBalance(amount: number): boolean {
+    return this.availableBalance >= amount;
+  }
 }

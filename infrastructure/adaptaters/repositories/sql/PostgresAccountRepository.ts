@@ -218,6 +218,58 @@ export class PostgresAccountRepository implements AccountRepository {
     }
   }
 
+  async blockFunds(
+    accountId: string,
+    amount: number,
+    unitOfWork?: UnitOfWork
+  ): Promise<void> {
+    try {
+      const client =
+        unitOfWork instanceof PostgresUnitOfWork
+          ? unitOfWork.getClient()
+          : null;
+      const query = `
+        UPDATE accounts
+        SET available_balance = available_balance - $1
+        WHERE id = $2 AND status = 'open'
+      `;
+      const params = [amount, accountId];
+      if (client) {
+        await client.query(query, params);
+      } else {
+        await this.pool.query(query, params);
+      }
+    } catch (error) {
+      this.handleDatabaseError(error);
+    }
+  }
+
+  async unblockFunds(
+    accountId: string,
+    amount: number,
+    unitOfWork?: UnitOfWork
+  ): Promise<void> {
+    try {
+      const client =
+        unitOfWork instanceof PostgresUnitOfWork
+          ? unitOfWork.getClient()
+          : null;
+      const query = `
+        UPDATE accounts
+        SET available_balance = available_balance + $1
+        WHERE id = $2 AND status = 'open'
+      `;
+      const params = [amount, accountId];
+      if (client) {
+        await client.query(query, params);
+      } else {
+        await this.pool.query(query, params);
+      }
+    } catch (error) {
+      this.handleDatabaseError(error);
+    }
+  }
+
   private mapRowToAccount(row: AccountRow): Account {
     return new Account(
       row.id,

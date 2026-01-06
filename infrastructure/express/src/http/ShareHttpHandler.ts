@@ -6,6 +6,10 @@ import {
   CancelOrderInput,
   GetPositionsInput,
   GetShareInput,
+  GetShareTransactionHistoryInput,
+  GetOrderBookInput,
+  CalculateSharePriceInput,
+  ExecuteMatchingOrdersInput,
 } from "@application/requests/shares";
 import { mapErrorToHttpResponse } from "@express/src/responses/error";
 
@@ -157,6 +161,54 @@ export class ShareHttpHandler {
       const customerId = request.params.customerId;
       const orders = await this.controller.getOrders(customerId);
       response.status(200).json(orders);
+    } catch (error) {
+      return mapErrorToHttpResponse(response, error);
+    }
+  }
+
+  async getTransactionHistory(request: Request, response: Response) {
+    try {
+      const payload: GetShareTransactionHistoryInput = {
+        shareId: request.params.shareId,
+      };
+      const transactions = await this.controller.getTransactionHistory(payload);
+      response.status(200).json(transactions);
+    } catch (error) {
+      return mapErrorToHttpResponse(response, error);
+    }
+  }
+
+  async getOrderBook(request: Request, response: Response) {
+    try {
+      const payload: GetOrderBookInput = {
+        shareId: request.params.shareId,
+      };
+      const orderBook = await this.controller.getOrderBook(payload);
+      response.status(200).json(orderBook);
+    } catch (error) {
+      return mapErrorToHttpResponse(response, error);
+    }
+  }
+
+  async calculatePrice(request: Request, response: Response) {
+    try {
+      const payload: CalculateSharePriceInput = {
+        shareId: request.params.shareId,
+      };
+      const priceCalculation = await this.controller.calculatePrice(payload);
+      response.status(200).json(priceCalculation);
+    } catch (error) {
+      return mapErrorToHttpResponse(response, error);
+    }
+  }
+
+  async executeMatching(request: Request, response: Response) {
+    try {
+      const payload: ExecuteMatchingOrdersInput = {
+        shareId: request.params.shareId,
+      };
+      const result = await this.controller.executeMatching(payload);
+      response.status(200).json(result);
     } catch (error) {
       return mapErrorToHttpResponse(response, error);
     }
