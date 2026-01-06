@@ -137,6 +137,32 @@ export class CreditHttpHandler {
     }
   }
 
+  public simulateAmortizationSchedule(request: Request, response: Response) {
+    try {
+      const { amountBorrowed, annualRate, insuranceRate, durationInMonths } = request.body;
+
+      if (!amountBorrowed || !annualRate || !insuranceRate || !durationInMonths) {
+        throw new ValidationError("Missing required fields: amountBorrowed, annualRate, insuranceRate, durationInMonths");
+      }
+
+      const schedule = this.controller.simulateAmortizationSchedule({
+        amountBorrowed,
+        annualRate,
+        insuranceRate,
+        durationInMonths,
+      });
+
+      return sendSuccess(response, {
+        status: 200,
+        code: "AMORTIZATION_SCHEDULE_SIMULATED",
+        message: "Amortization schedule simulated successfully.",
+        data: { schedule },
+      });
+    } catch (error) {
+      return mapErrorToHttpResponse(response, error);
+    }
+  }
+
   public async payInstallment(request: Request, response: Response) {
     try {
       const userId = request.headers["x-user-id"] as string;

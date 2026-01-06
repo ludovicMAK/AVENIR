@@ -2,6 +2,7 @@ import { GrantCredit } from "@application/usecases/credits/grantCredit";
 import { GetCreditById } from "@application/usecases/credits/getCreditById";
 import { GetCustomerCredits } from "@application/usecases/credits/getCustomerCredits";
 import { CalculateCreditDetails, CreditDetails } from "@application/usecases/credits/calculateCreditDetails";
+import { SimulateAmortizationSchedule, AmortizationSchedule } from "@application/usecases/credits/simulateAmortizationSchedule";
 import { PayInstallment } from "@application/usecases/credits/payInstallment";
 import { GrantCreditRequest, GetCreditByIdRequest, GetCustomerCreditsRequest, CalculateCreditDetailsRequest, PayInstallmentRequest } from "@application/requests/credit";
 import { Credit } from "@domain/entities/credit";
@@ -13,6 +14,7 @@ export class CreditController {
     private readonly getCreditByIdUsecase: GetCreditById,
     private readonly getCustomerCreditsUsecase: GetCustomerCredits,
     private readonly calculateCreditDetailsUsecase: CalculateCreditDetails,
+    private readonly simulateAmortizationScheduleUsecase: SimulateAmortizationSchedule,
     private readonly payInstallmentUsecase: PayInstallment
   ) {}
 
@@ -30,6 +32,10 @@ export class CreditController {
 
   public async calculateCreditDetails(request: CalculateCreditDetailsRequest): Promise<CreditDetails> {
     return this.calculateCreditDetailsUsecase.execute(request);
+  }
+
+  public simulateAmortizationSchedule(request: CalculateCreditDetailsRequest): AmortizationSchedule {
+    return this.simulateAmortizationScheduleUsecase.execute(request);
   }
 
   public async payInstallment(request: PayInstallmentRequest): Promise<DueDate> {

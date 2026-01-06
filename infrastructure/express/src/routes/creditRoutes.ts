@@ -21,6 +21,10 @@ export function createCreditRoutes(creditHttpHandler: CreditHttpHandler): Router
     creditHttpHandler.calculateCreditDetails(request, response)
   );
 
+  router.post("/credits/simulate-schedule", (request, response) =>
+    creditHttpHandler.simulateAmortizationSchedule(request, response)
+  );
+
   router.post("/due-dates/:dueDateId/pay", (request, response) =>
     creditHttpHandler.payInstallment(request, response)
   );
