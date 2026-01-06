@@ -58,6 +58,13 @@ export class PlaceOrder {
         input.priceLimit,
         input.quantity
       );
+
+      if (!tradingAccount.canBlockFunds(blockedAmount)) {
+        throw new ValidationError("Insufficient funds for buy order");
+      }
+
+      // Bloquer les fonds sur le compte trading
+      await this.accountRepository.blockFunds(tradingAccount.id, blockedAmount);
     } else {
       const position =
         await this.securitiesPositionRepository.findByCustomerIdAndShareId(
@@ -72,6 +79,13 @@ export class PlaceOrder {
       blockedAmount = Order.calculateBlockedAmountForSell(
         share.getCurrentPrice(),
         input.quantity
+      );
+
+      // Bloquer les titres dans la position
+      await this.securitiesPositionRepository.updateQuantities(
+        position.id,
+        position.totalQuantity,
+        position.blockedQuantity + input.quantity
       );
     }
 

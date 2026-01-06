@@ -26,5 +26,18 @@ export function createShareRoutes(shareHttpHandler: ShareHttpHandler): Router {
     shareHttpHandler.getOrders(request, response)
   );
 
+  router.get("/shares/:shareId/transactions", (request, response) =>
+    shareHttpHandler.getTransactionHistory(request, response)
+  );
+  router.get("/shares/:shareId/order-book", (request, response) =>
+    shareHttpHandler.getOrderBook(request, response)
+  );
+  router.get("/shares/:shareId/price", (request, response) =>
+    shareHttpHandler.calculatePrice(request, response)
+  );
+  router.post("/shares/:shareId/execute", (request, response) =>
+    shareHttpHandler.executeMatching(request, response)
+  );
+
   return router;
 }
