@@ -20,7 +20,7 @@ export class RegisterUser {
     private readonly emailSender: EmailSender
   ) {}
 
-  async execute(input: RegisterUserInput): Promise<void> {
+  async execute(input: RegisterUserInput): Promise<{ userId: string }> {
     const normalizedEmail = input.email.trim().toLowerCase();
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
@@ -73,5 +73,7 @@ export class RegisterUser {
       input.firstname.trim(),
       input.lastname.trim()
     );
+
+    return { userId };
   }
 }

@@ -1,0 +1,1080 @@
+{
+  "info": {
+    "name": "AVENIR Banking API",
+    "description": "Collection complète pour tester l'API de la banque AVENIR - Clean Architecture",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Authentication & Users",
+      "item": [
+        {
+          "name": "Register User (Customer)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 200\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    ",
+                  "    // Structure: { ok: true, code: '...', message: '...', data: { userId: '...' } }",
+                  "    if (jsonData.data && jsonData.data.userId) {",
+                  "        pm.environment.set(\"customerId\", jsonData.data.userId);",
+                  "        pm.environment.set(\"userId\", jsonData.data.userId);",
+                  "        console.log(\"User ID saved:\", jsonData.data.userId);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lastname\": \"Dupont\",\n  \"firstname\": \"Jean\",\n  \"email\": \"jean.dupont@avenir.com\",\n  \"password\": \"SecurePassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "register"]
+            }
+          }
+        },
+        {
+          "name": "Register User (Advisor)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.userId) {",
+                  "        pm.environment.set(\"advisorId\", jsonData.data.userId);",
+                  "        console.log(\"Advisor ID saved:\", jsonData.data.userId);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lastname\": \"Martin\",\n  \"firstname\": \"Sophie\",\n  \"email\": \"sophie.martin@avenir.com\",\n  \"password\": \"AdvisorPass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "register"]
+            }
+          }
+        },
+        {
+          "name": "Register User (Director)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.userId) {",
+                  "        pm.environment.set(\"directorId\", jsonData.data.userId);",
+                  "        console.log(\"Director ID saved:\", jsonData.data.userId);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lastname\": \"Leblanc\",\n  \"firstname\": \"Pierre\",\n  \"email\": \"pierre.leblanc@avenir.com\",\n  \"password\": \"DirectorPass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "register"]
+            }
+          }
+        },
+        {
+          "name": "Confirm Registration",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/confirm-registration?token={{confirmToken}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "confirm-registration"],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "{{confirmToken}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    ",
+                  "    // Structure: { ok: true, code: 'LOGIN_SUCCESS', message: '...', data: { user: {...}, token: '...' } }",
+                  "    if (jsonData.data && jsonData.data.token) {",
+                  "        pm.environment.set(\"authToken\", jsonData.data.token);",
+                  "        console.log(\"Auth Token saved:\", jsonData.data.token);",
+                  "    }",
+                  "    ",
+                  "    if (jsonData.data && jsonData.data.user && jsonData.data.user.id) {",
+                  "        pm.environment.set(\"userId\", jsonData.data.user.id);",
+                  "        pm.environment.set(\"customerId\", jsonData.data.user.id);",
+                  "        console.log(\"User ID saved:\", jsonData.data.user.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"jean.dupont@avenir.com\",\n  \"password\": \"SecurePassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["login"]
+            }
+          }
+        },
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Accounts",
+      "item": [
+        {
+          "name": "Create Account (Current)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    ",
+                  "    // Structure: { ok: true, code: 'ACCOUNT_CREATED', message: '...', data: { account: {...} } }",
+                  "    if (jsonData.data && jsonData.data.account) {",
+                  "        pm.environment.set(\"accountId\", jsonData.data.account.id);",
+                  "        pm.environment.set(\"iban\", jsonData.data.account.iban);",
+                  "        console.log(\"Account ID saved:\", jsonData.data.account.id);",
+                  "        console.log(\"IBAN saved:\", jsonData.data.account.iban);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idOwner\": \"{{customerId}}\",\n  \"accountType\": \"current\",\n  \"accountName\": \"Mon Compte Courant\",\n  \"authorizedOverdraft\": true,\n  \"overdraftLimit\": 50000,\n  \"overdraftFees\": 500\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/accounts",
+              "host": ["{{baseUrl}}"],
+              "path": ["accounts"]
+            }
+          }
+        },
+        {
+          "name": "Create Account (Savings)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    ",
+                  "    if (jsonData.data && jsonData.data.account) {",
+                  "        pm.environment.set(\"savingsAccountId\", jsonData.data.account.id);",
+                  "        console.log(\"Savings Account ID saved:\", jsonData.data.account.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idOwner\": \"{{customerId}}\",\n  \"accountType\": \"savings\",\n  \"accountName\": \"Livret Épargne\",\n  \"authorizedOverdraft\": false,\n  \"overdraftLimit\": 0,\n  \"overdraftFees\": 0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/accounts",
+              "host": ["{{baseUrl}}"],
+              "path": ["accounts"]
+            }
+          }
+        },
+        {
+          "name": "Create Account (Trading)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    ",
+                  "    if (jsonData.data && jsonData.data.account) {",
+                  "        pm.environment.set(\"tradingAccountId\", jsonData.data.account.id);",
+                  "        console.log(\"Trading Account ID saved:\", jsonData.data.account.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idOwner\": \"{{customerId}}\",\n  \"accountType\": \"trading\",\n  \"accountName\": \"Compte Titres\",\n  \"authorizedOverdraft\": false,\n  \"overdraftLimit\": 0,\n  \"overdraftFees\": 0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/accounts",
+              "host": ["{{baseUrl}}"],
+              "path": ["accounts"]
+            }
+          }
+        },
+        {
+          "name": "Get User Accounts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{customerId}}/accounts",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{customerId}}", "accounts"]
+            }
+          }
+        },
+        {
+          "name": "Get Account by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/accounts/{{accountId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["accounts", "{{accountId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Account Name",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"accountName\": \"Compte Principal Renommé\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/accounts/{{accountId}}/name",
+              "host": ["{{baseUrl}}"],
+              "path": ["accounts", "{{accountId}}", "name"]
+            }
+          }
+        },
+        {
+          "name": "Close Account",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              },
+              {
+                "key": "x-user-id",
+                "value": "{{userId}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/accounts/{{accountId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["accounts", "{{accountId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Shares & Orders",
+      "item": [
+        {
+          "name": "Create Share - Apple",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.shareId) {",
+                  "        pm.environment.set(\"shareId\", jsonData.shareId);",
+                  "    }",
+                  "    if (jsonData.data && jsonData.data.shareId) {",
+                  "        pm.environment.set(\"shareId\", jsonData.data.shareId);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Apple Inc.\",\n  \"totalNumberOfParts\": 1000000,\n  \"initialPrice\": 15000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/shares",
+              "host": ["{{baseUrl}}"],
+              "path": ["shares"]
+            }
+          }
+        },
+        {
+          "name": "Create Share - Microsoft",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Microsoft Corporation\",\n  \"totalNumberOfParts\": 800000,\n  \"initialPrice\": 37500\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/shares",
+              "host": ["{{baseUrl}}"],
+              "path": ["shares"]
+            }
+          }
+        },
+        {
+          "name": "Get All Shares",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/shares",
+              "host": ["{{baseUrl}}"],
+              "path": ["shares"]
+            }
+          }
+        },
+        {
+          "name": "Get Share by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/shares/{{shareId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["shares", "{{shareId}}"]
+            }
+          }
+        },
+        {
+          "name": "Place Order (Buy)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.orderId) {",
+                  "        pm.environment.set(\"orderId\", jsonData.orderId);",
+                  "    }",
+                  "    if (jsonData.data && jsonData.data.orderId) {",
+                  "        pm.environment.set(\"orderId\", jsonData.data.orderId);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              },
+              {
+                "key": "x-user-id",
+                "value": "{{userId}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"shareId\": \"{{shareId}}\",\n  \"direction\": \"buy\",\n  \"quantity\": 10,\n  \"priceLimit\": 15500,\n  \"validity\": \"day\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders"]
+            }
+          }
+        },
+        {
+          "name": "Place Order (Sell)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              },
+              {
+                "key": "x-user-id",
+                "value": "{{userId}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"shareId\": \"{{shareId}}\",\n  \"direction\": \"sell\",\n  \"quantity\": 5,\n  \"priceLimit\": 14800,\n  \"validity\": \"until_cancelled\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders"]
+            }
+          }
+        },
+        {
+          "name": "Get Customer Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              },
+              {
+                "key": "x-user-id",
+                "value": "{{userId}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/customers/{{customerId}}/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["customers", "{{customerId}}", "orders"]
+            }
+          }
+        },
+        {
+          "name": "Get Customer Positions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              },
+              {
+                "key": "x-user-id",
+                "value": "{{userId}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/customers/{{customerId}}/positions",
+              "host": ["{{baseUrl}}"],
+              "path": ["customers", "{{customerId}}", "positions"]
+            }
+          }
+        },
+        {
+          "name": "Cancel Order",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              },
+              {
+                "key": "x-user-id",
+                "value": "{{userId}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "{{orderId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Conversations",
+      "item": [
+        {
+          "name": "Create Conversation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.conversationId) {",
+                  "        pm.environment.set(\"conversationId\", jsonData.conversationId);",
+                  "    }",
+                  "    if (jsonData.data && jsonData.data.conversationId) {",
+                  "        pm.environment.set(\"conversationId\", jsonData.data.conversationId);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              },
+              {
+                "key": "x-user-id",
+                "value": "{{userId}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"assignedAdvisorId\": \"{{advisorId}}\",\n  \"initialMessage\": \"Bonjour, j'ai besoin d'aide\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/conversations",
+              "host": ["{{baseUrl}}"],
+              "path": ["conversations"]
+            }
+          }
+        },
+        {
+          "name": "Create Group Conversation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              },
+              {
+                "key": "x-user-id",
+                "value": "{{userId}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"creatorId\": \"{{advisorId}}\",\n  \"initialMessage\": \"Nouvelle conversation de groupe\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/conversations/group",
+              "host": ["{{baseUrl}}"],
+              "path": ["conversations", "group"]
+            }
+          }
+        },
+        {
+          "name": "Send Message (Customer)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              },
+              {
+                "key": "x-user-id",
+                "value": "{{userId}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"conversationId\": \"{{conversationId}}\",\n  \"senderId\": \"{{customerId}}\",\n  \"text\": \"Bonjour, j'aimerais obtenir des informations sur les comptes épargne disponibles.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/conversations/messages",
+              "host": ["{{baseUrl}}"],
+              "path": ["conversations", "messages"]
+            }
+          }
+        },
+        {
+          "name": "Send Message (Advisor)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              },
+              {
+                "key": "x-user-id",
+                "value": "{{userId}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"conversationId\": \"{{conversationId}}\",\n  \"senderId\": \"{{advisorId}}\",\n  \"text\": \"Bonjour, je serais ravi de vous aider. Nous proposons plusieurs types de comptes épargne.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/conversations/messages",
+              "host": ["{{baseUrl}}"],
+              "path": ["conversations", "messages"]
+            }
+          }
+        },
+        {
+          "name": "Get Conversation Messages",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              },
+              {
+                "key": "x-user-id",
+                "value": "{{userId}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/conversations/{{conversationId}}/messages",
+              "host": ["{{baseUrl}}"],
+              "path": ["conversations", "{{conversationId}}", "messages"]
+            }
+          }
+        },
+        {
+          "name": "Get Customer Conversations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              },
+              {
+                "key": "x-user-id",
+                "value": "{{userId}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/customers/{{customerId}}/conversations",
+              "host": ["{{baseUrl}}"],
+              "path": ["customers", "{{customerId}}", "conversations"]
+            }
+          }
+        },
+        {
+          "name": "Get Advisor Conversations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              },
+              {
+                "key": "x-user-id",
+                "value": "{{userId}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/advisors/{{advisorId}}/conversations",
+              "host": ["{{baseUrl}}"],
+              "path": ["advisors", "{{advisorId}}", "conversations"]
+            }
+          }
+        },
+        {
+          "name": "Add Participant",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              },
+              {
+                "key": "x-user-id",
+                "value": "{{userId}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"participantId\": \"{{advisorId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/conversations/{{conversationId}}/participants",
+              "host": ["{{baseUrl}}"],
+              "path": ["conversations", "{{conversationId}}", "participants"]
+            }
+          }
+        },
+        {
+          "name": "Transfer Conversation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              },
+              {
+                "key": "x-user-id",
+                "value": "{{userId}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"conversationId\": \"{{conversationId}}\",\n  \"fromAdvisorId\": \"{{advisorId}}\",\n  \"toAdvisorId\": \"{{advisorId}}\",\n  \"reason\": \"Spécialisation dans le domaine boursier\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/conversations/transfer",
+              "host": ["{{baseUrl}}"],
+              "path": ["conversations", "transfer"]
+            }
+          }
+        },
+        {
+          "name": "Close Conversation",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              },
+              {
+                "key": "x-user-id",
+                "value": "{{userId}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/conversations/{{conversationId}}/close",
+              "host": ["{{baseUrl}}"],
+              "path": ["conversations", "{{conversationId}}", "close"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Transactions & Transfers",
+      "item": [
+        {
+          "name": "Create Transaction",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              },
+              {
+                "key": "x-user-id",
+                "value": "{{userId}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Virement bancaire\",\n  \"amount\": 10000,\n  \"accountIBANFrom\": \"{{iban}}\",\n  \"accountIBANTo\": \"FR7630006000011234567890189\",\n  \"direction\": \"debit\",\n  \"dateExecuted\": \"2026-01-06T10:00:00.000Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/transaction",
+              "host": ["{{baseUrl}}"],
+              "path": ["transaction"]
+            }
+          }
+        },
+        {
+          "name": "Validate Transfer",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              },
+              {
+                "key": "x-user-id",
+                "value": "{{userId}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"transferId\": \"{{transferId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/transfers/validate",
+              "host": ["{{baseUrl}}"],
+              "path": ["transfers", "validate"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Vérifier que le baseUrl est défini",
+          "if (!pm.environment.get(\"baseUrl\")) {",
+          "    pm.environment.set(\"baseUrl\", \"http://localhost:3000\");",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Tests globaux",
+          "pm.test(\"Response time is less than 3000ms\", function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+          "});",
+          "",
+          "// Vérifier si la réponse est JSON",
+          "if (pm.response.headers.get(\"Content-Type\") && pm.response.headers.get(\"Content-Type\").includes(\"application/json\")) {",
+          "    pm.test(\"Content-Type is application/json\", function () {",
+          "        pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+          "    });",
+          "}"
+        ]
+      }
+    }
+  ]
+}

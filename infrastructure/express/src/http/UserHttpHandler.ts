@@ -5,7 +5,10 @@ import { LoginUserSchema } from "@express/schemas/LoginUserSchema";
 import { ValidationError } from "@application/errors";
 import { mapErrorToHttpResponse } from "@express/src/responses/error";
 import { sendSuccess } from "@express/src/responses/success";
-import { UserView } from "@express/types/responses";
+import {
+  UserView,
+  UserRegistrationResponseData,
+} from "@express/types/responses";
 import { User } from "@domain/entities/users";
 
 export class UserHttpHandler {
@@ -21,11 +24,12 @@ export class UserHttpHandler {
         throw new ValidationError(issues || "Invalid payload.");
       }
 
-      await this.controller.register(parsed.data);
-      return sendSuccess(response, {
+      const result = await this.controller.register(parsed.data);
+      return sendSuccess<UserRegistrationResponseData>(response, {
         status: 201,
         code: "REGISTRATION_PENDING",
         message: "Registration successful. Please check your email to confirm.",
+        data: { userId: result.userId },
       });
     } catch (error) {
       return mapErrorToHttpResponse(response, error);
@@ -60,12 +64,15 @@ export class UserHttpHandler {
         throw new ValidationError(issues || "Invalid payload.");
       }
 
-      const authenticatedUser = await this.controller.login(parsed.data);
+      const { user, token } = await this.controller.login(parsed.data);
       return sendSuccess(response, {
         status: 200,
         code: "LOGIN_SUCCESS",
         message: "Login successful.",
-        data: { user: this.toUserView(authenticatedUser) },
+        data: {
+          user: this.toUserView(user),
+          token,
+        },
       });
     } catch (error) {
       return mapErrorToHttpResponse(response, error);
