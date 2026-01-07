@@ -54,8 +54,4 @@ export class PostgresUnitOfWork implements UnitOfWork {
     return this.client;
   }
 
-
-  isTransactionActive(): boolean {
-    return this.isActive && this.client !== null;
-  }
 }

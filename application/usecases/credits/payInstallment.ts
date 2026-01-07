@@ -1,5 +1,7 @@
 import { DueDate } from "@domain/entities/dueDate";
 import { DueDateStatus } from "@domain/values/dueDateStatus";
+import { CreditStatus } from "@domain/values/creditStatus";
+import { Credit } from "@domain/entities/credit";
 import { SessionRepository } from "@application/repositories/session";
 import { DueDateRepository } from "@application/repositories/dueDate";
 import { AccountRepository } from "@application/repositories/account";
@@ -120,6 +122,25 @@ export class PayInstallment {
       await this.accountRepository.updateBalanceAvailable(customerAccount.id, -dueDate.totalAmount, this.unitOfWork);
       await this.accountRepository.updateBalance(bankAccount.id, dueDate.totalAmount, this.unitOfWork);
       await this.accountRepository.updateBalanceAvailable(bankAccount.id, dueDate.totalAmount, this.unitOfWork);
+
+      // Vérifier si toutes les échéances sont payées pour clôturer le crédit
+      const allDueDates = await this.dueDateRepository.findByCreditId(credit.id);
+      const allPaid = allDueDates.every((dd) => dd.id === paidDueDate.id ? true : dd.isPaid());
+
+      if (allPaid) {
+        // Toutes les échéances sont payées, clôturer le crédit
+        const completedCredit = new Credit(
+          credit.id,
+          credit.amountBorrowed,
+          credit.annualRate,
+          credit.insuranceRate,
+          credit.durationInMonths,
+          credit.startDate,
+          CreditStatus.COMPLETED,
+          credit.customerId
+        );
+        await this.creditRepository.update(completedCredit, this.unitOfWork);
+      }
 
       await this.unitOfWork.commit();
       return paidDueDate;

@@ -6,6 +6,6 @@ export interface CreditRepository {
   findById(id: string): Promise<Credit | null>;
   findByCustomerId(customerId: string): Promise<Credit[]>;
   findByStatus(status: string): Promise<Credit[]>;
-  update(credit: Credit): Promise<void>;
+  update(credit: Credit, unitOfWork?: UnitOfWork): Promise<void>;
   delete(creditId: string): Promise<void>;
 }

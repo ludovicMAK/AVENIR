@@ -7,6 +7,7 @@ import { CreditRow } from "../types/CreditRow";
 import { CreditStatus } from "@domain/values/creditStatus";
 import { PostgresUnitOfWork } from "@adapters/services/PostgresUnitOfWork";
 
+
 export class PostgresCreditRepository implements CreditRepository {
   constructor(private readonly pool: Pool) {}
 
@@ -93,9 +94,10 @@ export class PostgresCreditRepository implements CreditRepository {
     }
   }
 
-  async update(credit: Credit): Promise<void> {
+  async update(credit: Credit, unitOfWork?: PostgresUnitOfWork): Promise<void> {
     try {
-      await this.pool.query(
+      const client = unitOfWork ? unitOfWork.getClient() : this.pool;
+      await client.query(
         `
           UPDATE credits
           SET amount_borrowed = $2, annual_rate = $3, insurance_rate = $4, duration_in_months = $5, start_date = $6, status = $7, customer_id = $8, updated_at = CURRENT_TIMESTAMP
