@@ -67,6 +67,32 @@ export class PostgresTransactionRepository implements TransactionRepository {
             this.handleDatabaseError(error)
         }
     }
+    async findByAccountIban(accountIban: string): Promise<Transaction[]> {
+        try {
+            const result = await this.pool.query(
+                `
+                    SELECT id, account_iban, transaction_direction, amount, reason, account_date, status, transfer_id
+                    FROM transactions
+                    WHERE account_iban = $1
+                    ORDER BY account_date DESC
+                `,
+                [accountIban]
+            );
+
+            return result.rows.map(row => new Transaction(
+                row.id,
+                row.account_iban,
+                TransactionDirection.from(row.transaction_direction),
+                row.amount,
+                row.reason,
+                row.account_date,
+                StatusTransaction.from(row.status),
+                row.transfer_id
+            ));
+        } catch (error) {
+            this.handleDatabaseError(error)
+        }
+    }
     async update(transaction: Transaction, unitOfWork?: UnitOfWork): Promise<void> {
         try {
             const client = unitOfWork instanceof PostgresUnitOfWork

@@ -1,6 +1,5 @@
 import { request } from "./client"
 import { Account, AccountStatusValue, AccountTypeValue } from "@/types/accounts"
-import { getCurrentUser } from "@/lib/users/server"
 import { ApiError } from "@/lib/errors"
 import { isJsonObject } from "@/lib/json"
 import { JsonValue } from "@/types/json"
@@ -8,6 +7,12 @@ import { JsonValue } from "@/types/json"
 type AccountsResponseBody = {
     data?: {
         accounts?: JsonValue
+    }
+}
+
+type AccountResponseBody = {
+    data?: {
+        account?: JsonValue
     }
 }
 
@@ -78,9 +83,26 @@ const extractAccounts = (response: JsonValue): Account[] => {
     return accountsJson.map(toAccount)
 }
 
+const extractAccount = (response: JsonValue): Account => {
+    if (!isJsonObject(response)) throw invalidAccountsResponseError()
+
+    const data = response.data
+    if (!isJsonObject(data)) throw invalidAccountsResponseError()
+
+    const accountJson = (data as AccountResponseBody["data"])?.account
+    if (!accountJson) throw invalidAccountsResponseError()
+
+    return toAccount(accountJson)
+}
+
 export const accountsApi = {
     async getAccountsByUserId(userId: string) {
         const response = await request(`/users/${userId}/accounts`)
         return extractAccounts(response)
+    },
+
+    async getAccountById(accountId: string) {
+        const response = await request(`/accounts/${accountId}`)
+        return extractAccount(response)
     }
 }

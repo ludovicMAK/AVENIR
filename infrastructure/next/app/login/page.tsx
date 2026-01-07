@@ -78,13 +78,14 @@ export default function Page() {
 
         try {
             const response = await authApi.login(data)
-            const userToken = response?.data?.user?.id
+            const token = response?.data?.token
+            const userId = response?.data?.user?.id
 
-            if (!userToken) {
+            if (!token || !userId) {
                 throw new ApiError("INFRASTRUCTURE_ERROR", "Invalid authentication response.")
             }
 
-            persistAuthentication(userToken)
+            persistAuthentication(token, userId)
 
             const redirectPath = sanitizeRedirectPath(getRedirectHint())
             clearRedirectHint()
@@ -105,7 +106,7 @@ export default function Page() {
     }
 
     return (
-        <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
+        <div className="h-main flex w-full items-center justify-center py-12">
             <div className="w-full max-w-sm">
                 <div className="flex flex-col gap-6">
                     <Card>

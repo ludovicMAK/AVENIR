@@ -1,4 +1,5 @@
 import { AccountRepository } from "@application/repositories/account";
+import { UnitOfWork } from "@application/services/UnitOfWork";
 import { Account } from "@domain/entities/account";
 
 export class InMemoryAccountRepository implements AccountRepository {
@@ -31,9 +32,10 @@ export class InMemoryAccountRepository implements AccountRepository {
     return accounts;
   }
 
-  async updateBalance(accountId: string, newBalance: number): Promise<void> {
+  async updateBalance(accountId: string, newAvailableBalance: number, _unitOfWork?: UnitOfWork): Promise<void> {
     const account = this.items.get(accountId);
     if (account) {
+      const nextBalance = account.balance + newAvailableBalance;
       const updatedAccount = new Account(
         account.id,
         account.accountType,
@@ -44,18 +46,20 @@ export class InMemoryAccountRepository implements AccountRepository {
         account.overdraftFees,
         account.status,
         account.idOwner,
-        newBalance,
+        nextBalance,
         account.availableBalance
       );
       this.items.set(accountId, updatedAccount);
     }
   }
+
   async updateBalanceAvailable(
     accountId: string,
     newAvailableBalance: number
   ): Promise<void> {
     const account = this.items.get(accountId);
     if (account) {
+      const nextAvailableBalance = account.availableBalance + newAvailableBalance;
       const updatedAccount = new Account(
         account.id,
         account.accountType,
@@ -67,7 +71,7 @@ export class InMemoryAccountRepository implements AccountRepository {
         account.status,
         account.idOwner,
         account.balance,
-        newAvailableBalance
+        nextAvailableBalance
       );
       this.items.set(accountId, updatedAccount);
     }

@@ -7,6 +7,9 @@ export function createTransactionRoutes(transactionHttpHandler: TransactionHttpH
   router.post("/transaction", (request, response) =>
     transactionHttpHandler.createTransaction(request, response)
   );
+  router.get("/accounts/:accountId/transactions", (request, response) =>
+    transactionHttpHandler.getTransactionsByAccount(request, response)
+  );
   
 
   return router;

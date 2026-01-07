@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
-import { TransactionController } from "@express/controllers/TansactionController";
-import { sendSuccess } from "../responses/success";
+import { TransactionController } from "@express/controllers/TransactionController";
 import { mapErrorToHttpResponse } from "../responses/error";
 import { TransactionInput } from "@application/requests/transaction";
 import { CreateTransactionSchema } from "@express/schemas/CreateTransactionSchema";
@@ -18,7 +17,7 @@ export class TransactionHttpHandler {
           .map(([field, messages]) => `${field}: ${messages?.join(", ")}`)
           .join(" | ");
         
-        throw new ValidationError("Données de transaction invalides" + (errorMessages ? ` - ${errorMessages}` : "")
+        throw new ValidationError("Invalid transaction data" + (errorMessages ? ` - ${errorMessages}` : "")
       );
       }
 
@@ -28,8 +27,11 @@ export class TransactionHttpHandler {
       const authHeader = request.headers.authorization as string;
       const token = authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : authHeader;
 
-      if (!userId || !token) {
-        throw new UnauthorizedError("Identification manquante (ID ou Token).");
+      if (!userId) {
+        throw new UnauthorizedError("Missing userId header.");
+      }
+      if (!token) {
+        throw new UnauthorizedError("Missing authorization token.");
       }
 
       const input: TransactionInput = {
@@ -43,12 +45,13 @@ export class TransactionHttpHandler {
         dateExecuted: new Date(),
       };
 
-      await this.controller.createTransaction(input);
+      const transferId = await this.controller.createTransaction(input);
 
-      return sendSuccess(response, {
-        status: 201, 
+      return response.status(201).json({
+        ok: true,
         code: "TRANSACTION_PENDING",
         message: "Transaction registration is pending.",
+        transferId,
       });
 
     } catch (error) {
@@ -56,4 +59,41 @@ export class TransactionHttpHandler {
       return mapErrorToHttpResponse(response, error);
     }
 }
+
+  public async getTransactionsByAccount(request: Request, response: Response) {
+    try {
+      const accountId = request.params.accountId;
+      const userId = request.headers["x-user-id"] as string;
+      const authHeader = request.headers.authorization as string;
+      const token = authHeader?.startsWith("Bearer ")
+        ? authHeader.split(" ")[1]
+        : authHeader;
+
+      if (!accountId) {
+        throw new ValidationError("Account identifier is required.");
+      }
+      if (!userId) {
+        throw new UnauthorizedError("Missing userId header.");
+      }
+      if (!token) {
+        throw new UnauthorizedError("Missing authorization token.");
+      }
+
+      const transactions = await this.controller.getTransactionsByAccount({
+        accountId,
+        userId,
+        token,
+      });
+
+      return response.status(200).json({
+        ok: true,
+        code: "TRANSACTION_HISTORY",
+        message: "Transactions successfully retrieved.",
+        transactions,
+      });
+    } catch (error) {
+      console.error("[GetTransactionsByAccountHandler] Error:", error);
+      return mapErrorToHttpResponse(response, error);
+    }
+  }
 }

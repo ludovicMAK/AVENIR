@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { IconPower, IconUser } from "@tabler/icons-react"
 import { clearAuthentication } from "@/lib/auth/client"
 import { UserSummary } from "@/types/users"
+import { getCssVar } from "@/lib/utils"
 
 type HeaderProps = {
     initialUser: UserSummary | null
@@ -24,7 +25,7 @@ const mainLinks: NavItem[] = [
     { label: "News", href: "#news" },
 ]
 
-const minHeight = "h-10"
+const minHeight = 'h-[calc(var(--spacing-header)/2)]'
 const maxHeight = "h-screen"
 
 const HamburgerBar = ({ className = '' }: { className?: string }) => (
@@ -32,7 +33,7 @@ const HamburgerBar = ({ className = '' }: { className?: string }) => (
 )
 
 export default function Header({ initialUser }: HeaderProps) {
-    const [sideLinksVisible, setSideLinksVisible] = useState(true)
+    const [linksVisible, setLinksVisible] = useState(true)
     const [currentUser, setCurrentUser] = useState<UserSummary | null>(initialUser)
     const router = useRouter()
 
@@ -41,10 +42,10 @@ export default function Header({ initialUser }: HeaderProps) {
     }, [initialUser])
 
     useEffect(() => {
-        const mediaQuery = window.matchMedia('(min-width: 768px)')
+        const mediaQuery = window.matchMedia(`(min-width: ${getCssVar("--breakpoint-md")})`)
         const handleChange = (event: MediaQueryListEvent | MediaQueryList) => {
             if (event.matches) {
-                setSideLinksVisible(true)
+                setLinksVisible(true)
             }
         }
 
@@ -54,14 +55,14 @@ export default function Header({ initialUser }: HeaderProps) {
     }, [])
 
     useEffect(() => {
-        document.body.style.overflow = sideLinksVisible ? '' : 'hidden'
+        document.body.style.overflow = linksVisible ? '' : 'hidden'
         return () => {
             document.body.style.overflow = ''
         }
-    }, [sideLinksVisible])
+    }, [linksVisible])
 
-    const toggleSideLinks = () => setSideLinksVisible((prev) => !prev)
-    const closeSideLinks = () => setSideLinksVisible(true)
+    const toggleSideLinks = () => setLinksVisible((prev) => !prev)
+    const closeSideLinks = () => setLinksVisible(true)
     const handleLogout = () => {
         clearAuthentication()
         closeSideLinks()
@@ -79,10 +80,10 @@ export default function Header({ initialUser }: HeaderProps) {
     ]
 
     return (
-        <header className="fixed top-0 left-0 flex items-center w-full z-50 bg-primary text-white border-b border-white shadow-md">
+        <header className="fixed top-0 left-0 flex items-center w-full z-50 bg-secondary text-white border-b border-white shadow-md">
             <nav
                 className={`layout flex flex-row items-center justify-center my-4 ${
-                    sideLinksVisible ? minHeight : maxHeight
+                    linksVisible ? minHeight : maxHeight
                 } transition-[height] duration-700 ease-in-out overflow-hidden`}
             >
                 <ul className="flex flex-col md:flex-row items-start md:items-center w-full h-full gap-6 md:gap-0">
@@ -95,14 +96,14 @@ export default function Header({ initialUser }: HeaderProps) {
                             AVENIR
                         </Link>
                         <button
-                            className="flex flex-col h-auto justify-between my-2 cursor-pointer md:hidden"
+                            className="flex flex-col h-auto justify-between my-1 cursor-pointer md:hidden"
                             onClick={toggleSideLinks}
                             aria-label="Toggle menu"
-                            aria-expanded={!sideLinksVisible}
+                            aria-expanded={!linksVisible}
                         >
-                            <HamburgerBar className={sideLinksVisible ? 'opacity-100' : 'opacity-0'} />
-                            <HamburgerBar className={sideLinksVisible ? 'rotate-0' : '-rotate-45'} />
-                            <HamburgerBar className={sideLinksVisible ? 'rotate-0' : 'rotate-45 -translate-y-2.5'} />
+                            <HamburgerBar className={linksVisible ? 'opacity-100' : 'opacity-0'} />
+                            <HamburgerBar className={linksVisible ? 'rotate-0' : '-rotate-45'} />
+                            <HamburgerBar className={linksVisible ? 'rotate-0' : 'rotate-45 -translate-y-2.5'} />
                         </button>
                     </li>
 
@@ -124,14 +125,14 @@ export default function Header({ initialUser }: HeaderProps) {
                                     </li>
                                     {index < mainLinks.length - 1 && (
                                         <li className="hidden md:flex items-center" aria-hidden>
-                                            <span className="h-6 border-l border-white mx-3" />
+                                            <span className="w-px h-6 bg-white mx-3" />
                                         </li>
                                     )}
                                 </React.Fragment>
                             ))}
 
                             <li className="flex items-center w-full md:w-auto" aria-hidden>
-                                <span className="w-full border-t border-white md:w-px md:h-6 md:border-l md:border-t-0 md:mx-3 md:border-white" />
+                                <span className="w-full border-t border-white md:w-px h-0 md:h-6 md:border-l md:border-t-0 md:mx-3 md:border-white" />
                             </li>
 
                             {userLinks.map((link, index) => (
@@ -170,7 +171,7 @@ export default function Header({ initialUser }: HeaderProps) {
                                     </li>
                                     {index < userLinks.length - 1 && (
                                         <li className="hidden md:flex items-center" aria-hidden>
-                                            <span className="h-6 border-l border-white mx-3" />
+                                            <span className="border-l border-white h-6 mx-3" />
                                         </li>
                                     )}
                                 </React.Fragment>

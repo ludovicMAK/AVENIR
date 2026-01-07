@@ -72,8 +72,9 @@ import { ShareHttpHandler } from "@express/src/http/ShareHttpHandler";
 import { ConversationHttpHandler } from "@express/src/http/ConversationHttpHandler";
 import { createHttpRouter } from "@express/src/routes/index";
 import { TransactionHttpHandler } from "../http/TransactionHttpHandler";
-import { TransactionController } from "@express/controllers/TansactionController";
+import { TransactionController } from "@express/controllers/TransactionController";
 import { CreateTransaction } from "@application/usecases/transactions/createTransaction";
+import { GetTransactionsByAccount } from "@application/usecases/transactions/getTransactionsByAccount";
 import { TransferHttpHandler } from "../http/TransferHttpHandler";
 import { TransferController } from "@express/controllers/TransferController";
 import { ValidTransferByAdmin } from "@application/usecases/transfer/validTransferByAdmin";
@@ -198,6 +199,11 @@ const createTransaction = new CreateTransaction(
   unitOfWork,
   sessionRepository
 );
+const getTransactionsByAccount = new GetTransactionsByAccount(
+  transactionRepository,
+  accountRepository,
+  sessionRepository
+);
 
 const validateTransferByAdmin = new ValidTransferByAdmin(
   transactionRepository,
@@ -206,7 +212,10 @@ const validateTransferByAdmin = new ValidTransferByAdmin(
   unitOfWork,
   accountRepository
 );
-const transactionController = new TransactionController(createTransaction);
+const transactionController = new TransactionController(
+  createTransaction,
+  getTransactionsByAccount
+);
 const transferController = new TransferController(validateTransferByAdmin);
 
 const createConversation = new CreateConversation(
@@ -292,7 +301,7 @@ const conversationController = new ConversationController(
   addParticipant
 );
 
-const userHttpHandler = new UserHttpHandler(userController);
+const userHttpHandler = new UserHttpHandler(userController, sessionRepository);
 const accountHttpHandler = new AccountHttpHandler(accountController);
 const shareHttpHandler = new ShareHttpHandler(shareController);
 const transactionHttpHandler = new TransactionHttpHandler(

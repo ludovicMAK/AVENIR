@@ -10,7 +10,7 @@
       "@application/*": ["../../application/*"],
       "@domain/*": ["../../domain/*"]
     },
-    "ignoreDeprecations": "6.0",
+    "ignoreDeprecations": "5.0",
     "declaration": true,
     "emitDeclarationOnly": true
   },

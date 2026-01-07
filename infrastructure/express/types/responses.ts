@@ -53,6 +53,7 @@ export type AccountResponseData = { accounts: AccountView[] };
 export type SingleAccountResponseData = { account: AccountView };
 
 export type UserResponseData = { user: UserView };
+export type LoginResponseData = { user: UserView; token: string };
 
 export type UserListResponseData = { users: UserView[] };
 
@@ -98,6 +99,7 @@ export type PaymentHistoryItemData = {
 
 export type SuccessData =
   | UserResponseData
+  | LoginResponseData
   | UserListResponseData
   | UserRegistrationResponseData
   | AccountResponseData

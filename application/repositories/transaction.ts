@@ -4,5 +4,6 @@ import { UnitOfWork } from "@application/services/UnitOfWork";
 export interface TransactionRepository {
     createTransaction(transaction: Transaction, unitOfWork?: UnitOfWork): Promise<void>
     getAllTransactionsByTransferId(transferId: string): Promise<Transaction[]>
+    findByAccountIban(accountIban: string): Promise<Transaction[]>
     update(transaction: Transaction, unitOfWork?: UnitOfWork): Promise<void>
 }

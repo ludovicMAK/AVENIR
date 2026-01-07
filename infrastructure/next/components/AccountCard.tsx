@@ -1,7 +1,8 @@
-import { IconPencil } from "@tabler/icons-react";
-import { Button } from "@/components/Button";
+import * as React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Card";
+import EditableTitle from "@/components/EditableTitle";
 import Divider from "@/components/Divider";
+import { formatAmount, formatDate } from "@/lib/formatters"
 
 export type AmountLine = {
     label: string;
@@ -39,37 +40,8 @@ export type LoanCardProps = AccountCardBase<"loan"> & {
     status?: string;
 };
 
-export type AccountCardProps = CheckingAccountCardProps | SavingsAccountCardProps | LoanCardProps;
-
-const formatNumber = (value: number, decimals: number) =>
-    value.toLocaleString("fr-FR", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
-
-const formatAmount = (
-    value: number,
-    { showPlus = false, decimals }: { showPlus?: boolean; decimals?: number } = {},
-) => {
-    const resolvedDecimals = typeof decimals === "number" ? decimals : Number.isInteger(value) ? 0 : 2;
-    const prefix = value < 0 ? "- " : showPlus && value >= 0 ? "+ " : "";
-    return `${prefix}${formatNumber(Math.abs(value), resolvedDecimals)}€`;
-};
-
-const formatDate = (value: string) => {
-    const separator = value.includes("-") ? "-" : value.includes("/") ? "/" : null;
-    if (!separator) return value;
-
-    const parts = value.split(separator);
-    if (parts.length !== 3) return value;
-
-    const [year, month, day] =
-        separator === "-" ? parts.map(Number) : [Number(parts[2]), Number(parts[1]), Number(parts[0])];
-
-    if ([year, month, day].some(Number.isNaN)) return value;
-
-    const monthNames = ["jan.", "feb.", "mar.", "apr.", "may", "jun.", "jul.", "aug.", "sep.", "oct.", "nov.", "dec."];
-    const monthLabel = monthNames[month - 1];
-    if (!monthLabel) return value;
-
-    return `${day} ${monthLabel} ${year}`;
+export type AccountCardProps = (CheckingAccountCardProps | SavingsAccountCardProps | LoanCardProps) & {
+    href?: string;
 };
 
 const AmountRow = ({ label, amount, showPlus, decimals, date }: AmountLine) => (
@@ -81,57 +53,39 @@ const AmountRow = ({ label, amount, showPlus, decimals, date }: AmountLine) => (
     </div>
 );
 
-const EditableOwner = ({ owner, ariaLabel }: { owner: string; ariaLabel: string }) => (
-    <span className="flex items-center gap-3 text-sm font-semibold text-white sm:justify-end sm:self-start">
-        <span className="whitespace-nowrap">{owner}</span>
-        <span className="text-white" aria-hidden>
-            |
-        </span>
-        <Button
-            type="button"
-            unstyled
-            aria-label={`Edit account`}
-        >
-            <IconPencil stroke={2.5} size={18}/>
-        </Button>
-    </span>
-);
-
-const AccountCard = (props: AccountCardProps) => {
+const AccountCard = ({ href, ...props }: AccountCardProps) => {
     const titleAlignment = props.type === "checking" ? "sm:items-center" : "sm:items-start";
+    const linkHref = typeof href === "string" && href.length > 0 ? href : null;
 
     const renderHeader = () => {
         if (props.type === "checking") {
-            const { title, owner } = props;
+            const { title } = props;
             return (
-                <>
-                    <span>{title}</span>
-                    <EditableOwner owner={owner} ariaLabel="Modifier le compte" />
-                </>
+                <EditableTitle
+                    title={title}
+                    ariaLabel="Edit account"
+                    className="w-full"
+                />
             );
         }
 
         if (props.type === "savings") {
-            const { title, rate, owner } = props;
+            const { title, rate } = props;
             return (
-                <>
-                    <span className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">
-                        <span>{title}</span>
-                        <span>| {rate}</span>
-                    </span>
-                    <EditableOwner owner={owner} ariaLabel="Modifier l'épargne" />
-                </>
+                <EditableTitle
+                    title={`${title} | ${rate}`}
+                    ariaLabel="Edit savings account"
+                    className="w-full"
+                />
             );
         }
 
         const { title, amount } = props;
         return (
-            <>
-                <span>{title}</span>
-                <span className="text-lg font-semibold sm:self-start sm:text-right">
-                    {formatAmount(amount, { decimals: 0 })}
-                </span>
-            </>
+            <div className="w-full flex items-center justify-between">
+                <span className="truncate">{title}</span>
+                <span className="text-lg font-semibold">{formatAmount(amount, { decimals: 0 })}</span>
+            </div>
         );
     };
 
@@ -236,7 +190,7 @@ const AccountCard = (props: AccountCardProps) => {
     };
 
     return (
-        <Card asLink>
+        <Card asLink={Boolean(linkHref)} linkProps={linkHref ? { href: linkHref } : undefined}>
             <CardHeader className="gap-2">
                 <CardTitle className={`flex flex-col gap-2 sm:flex-row sm:justify-between sm:gap-4 ${titleAlignment}`}>
                     {renderHeader()}

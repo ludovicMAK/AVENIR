@@ -22,7 +22,7 @@ export class CreateTransaction {
     private readonly sessionRepository: SessionRepository
   ) {}
 
-  async execute(input: TransactionInput): Promise<void> {
+  async execute(input: TransactionInput): Promise<string> {
     const connect = await this.sessionRepository.isConnected(input.idUser, input.token);
     if (!connect) throw new ConnectedError();
 
@@ -30,20 +30,20 @@ export class CreateTransaction {
     const accountTo = await this.accountRepository.findByIBAN(input.accountIBANTo);
     
     if (!accountFrom || !accountTo) {
-        throw new NotFoundError("Compte source ou destination introuvable.");
+        throw new NotFoundError("Source or destination account not found.");
     }
 
 
     if (accountFrom.idOwner !== input.idUser) {
-        throw new UnauthorizedError("Vous n'êtes pas autorisé à débiter ce compte.");
+        throw new UnauthorizedError("You are not authorized to debit this account.");
     }
 
     if (!accountFrom.isOpen() || !accountTo.isOpen()) {
-    throw new UnprocessableError("L'un des comptes n'est pas actif.");
+    throw new UnprocessableError("One of the accounts is not active.");
 }
 
     if (!accountFrom.canAfford(input.amount)) {
-    throw new UnprocessableError("Solde disponible insuffisant (incluant le découvert).");
+    throw new UnprocessableError("Insufficient available balance (including overdraft).");
 }
 
 
@@ -72,6 +72,7 @@ export class CreateTransaction {
         await this.accountRepository.updateBalanceAvailable(accountTo.id, input.amount, this.unitOfWork);
 
         await this.unitOfWork.commit();
+        return transfer.id;
     } catch (error) {
         await this.unitOfWork.rollback();
         throw error;

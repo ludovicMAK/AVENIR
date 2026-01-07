@@ -67,10 +67,10 @@ export const usersApi = {
         return extractUsers(response)
     },
 
-    async me(authToken: string): Promise<UserSummary> {
+    async me(authToken: string, userId: string): Promise<UserSummary> {
         const response = await request<JsonValue>("/users/me", {
             method: "GET",
-            headers: { Authorization: `Bearer ${authToken}` },
+            headers: { Authorization: `Bearer ${authToken}`, "x-user-id": userId },
         })
 
         return extractUser(response)

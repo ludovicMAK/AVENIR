@@ -20,6 +20,11 @@ export class InMemoryTransactionRepository implements TransactionRepository {
     async getAllTransactionsByTransferId(transferId: string): Promise<Transaction[]> {
         return Array.from(this.items.values()).filter(transaction => transaction.transferId === transferId);
     }
+    async findByAccountIban(accountIban: string): Promise<Transaction[]> {
+        return Array.from(this.items.values())
+            .filter(transaction => transaction.accountIBAN === accountIban)
+            .sort((a, b) => b.accountDate.getTime() - a.accountDate.getTime());
+    }
     async update(transaction: Transaction, unitOfWork?: UnitOfWork): Promise<void> {
         if (unitOfWork instanceof InMemoryUnitOfWork) {
             unitOfWork.registerChange({

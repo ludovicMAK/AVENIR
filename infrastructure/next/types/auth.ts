@@ -17,6 +17,7 @@ export type LoginSuccessResponse = {
     message?: string
     data: {
         user: AuthenticatedUser
+        token: string
     }
 }
 

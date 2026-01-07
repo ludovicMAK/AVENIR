@@ -10,9 +10,10 @@ import {
     UserRegistrationResponseData,
 } from "@express/types/responses";
 import { User } from "@domain/entities/users";
+import { SessionRepository } from "@application/repositories/session"
 
 export class UserHttpHandler {
-    constructor(private readonly controller: UserController) {}
+    constructor(private readonly controller: UserController, private readonly sessionRepository: SessionRepository) {}
 
     public async register(request: Request, response: Response) {
         try {
@@ -113,17 +114,25 @@ export class UserHttpHandler {
 
     public async me(request: Request, response: Response) {
         try {
-            const authorization = request.headers.authorization;
-            if (!authorization) {
+            const authHeader = request.headers.authorization as string;
+            const token = authHeader?.startsWith("Bearer ")
+                ? authHeader.split(" ")[1]
+                : authHeader;
+            const userId = request.headers["x-user-id"] as string;
+
+            if (!token) {
                 throw new UnauthorizedError("Authentication required.");
             }
-
-            const [scheme, token] = authorization.split(" ");
-            if (!token || scheme?.toLowerCase() !== "bearer") {
-                throw new UnauthorizedError("Invalid authorization header.");
+            if (!userId) {
+                throw new UnauthorizedError("User identifier is required.");
             }
 
-            const user = await this.controller.findById(token);
+            const isConnected = await this.sessionRepository.isConnected(userId, token);
+            if (!isConnected) {
+                throw new UnauthorizedError("User is not connected.");
+            }
+
+            const user = await this.controller.findById(userId);
             return sendSuccess(response, {
                 status: 200,
                 code: "CURRENT_USER_FOUND",

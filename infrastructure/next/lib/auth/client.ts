@@ -5,6 +5,10 @@ import {
     AUTH_COOKIE_NAME,
     AUTH_COOKIE_PATH,
     AUTH_COOKIE_SAME_SITE,
+    AUTH_USER_ID_COOKIE_MAX_AGE_SECONDS,
+    AUTH_USER_ID_COOKIE_NAME,
+    AUTH_USER_ID_COOKIE_PATH,
+    AUTH_USER_ID_COOKIE_SAME_SITE,
     REDIRECT_COOKIE_NAME,
     REDIRECT_COOKIE_PATH,
     REDIRECT_COOKIE_SAME_SITE,
@@ -43,11 +47,16 @@ function readCookie(name: string): string | null {
     return null
 }
 
-export function persistAuthentication(userToken: string) {
+export function persistAuthentication(userToken: string, userId: string) {
     document.cookie = buildCookie(AUTH_COOKIE_NAME, userToken, {
         maxAge: AUTH_COOKIE_MAX_AGE_SECONDS,
         path: AUTH_COOKIE_PATH,
         sameSite: AUTH_COOKIE_SAME_SITE,
+    })
+    document.cookie = buildCookie(AUTH_USER_ID_COOKIE_NAME, userId, {
+        maxAge: AUTH_USER_ID_COOKIE_MAX_AGE_SECONDS,
+        path: AUTH_USER_ID_COOKIE_PATH,
+        sameSite: AUTH_USER_ID_COOKIE_SAME_SITE,
     })
 }
 
@@ -57,10 +66,19 @@ export function clearAuthentication() {
         path: AUTH_COOKIE_PATH,
         sameSite: AUTH_COOKIE_SAME_SITE,
     })
+    document.cookie = buildCookie(AUTH_USER_ID_COOKIE_NAME, "", {
+        maxAge: 0,
+        path: AUTH_USER_ID_COOKIE_PATH,
+        sameSite: AUTH_USER_ID_COOKIE_SAME_SITE,
+    })
 }
 
 export function getAuthenticationToken(): string | null {
     return readCookie(AUTH_COOKIE_NAME)
+}
+
+export function getAuthenticatedUserId(): string | null {
+    return readCookie(AUTH_USER_ID_COOKIE_NAME)
 }
 
 export function getRedirectHint(): string | null {
