@@ -57,24 +57,19 @@ export class AccountHttpHandler {
 
   public async create(request: Request, response: Response) {
     try {
-      const accountData = request.body;
+      const userId = request.headers["x-user-id"] as string; 
       const authHeader = request.headers.authorization as string;
-      const token = authHeader?.startsWith("Bearer ")
-        ? authHeader.split(" ")[1]
+      const token = authHeader?.startsWith("Bearer ") 
+        ? authHeader.split(" ")[1] 
         : authHeader;
 
-      if (!token) {
-        return response.status(401).send({
-          ok: false,
-          code: "MISSING_AUTH_TOKEN",
-          message: "Le token d'authentification est requis.",
-        });
+      if (!userId || !token) {
+        throw new ValidationError("Authentication required");
       }
 
-      const account = await this.controller.create({
-        ...accountData,
-        token,
-      });
+      const accountData = request.body;
+
+      const account = await this.controller.create({ ...accountData, idOwner: userId, token: token });
 
       return sendSuccess(response, {
         status: 201,

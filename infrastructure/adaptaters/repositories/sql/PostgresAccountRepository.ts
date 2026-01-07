@@ -269,6 +269,25 @@ export class PostgresAccountRepository implements AccountRepository {
       this.handleDatabaseError(error);
     }
   }
+  async findCurrentAccountByCustomerId(customerId: string): Promise<Account | null> {
+    try {
+      const result = await this.pool.query<AccountRow>(
+        `
+          SELECT id, IBAN, account_type, account_name, authorized_overdraft, overdraft_limit, overdraft_fees, status, balance, id_owner, available_balance
+          FROM accounts
+          WHERE id_owner = $1 AND account_type = 'current'
+        `,
+        [customerId]
+      );
+      if (result.rows.length === 0) {
+        return null;
+      }
+      const row = result.rows[0];
+      return this.mapRowToAccount(row);
+    } catch (error) {
+      this.handleDatabaseError(error);
+    }
+  }
 
   private mapRowToAccount(row: AccountRow): Account {
     return new Account(

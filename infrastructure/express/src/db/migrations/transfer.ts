@@ -12,7 +12,7 @@ export async function ensureTransferTable(): Promise<void> {
           CREATE TYPE status_transfer AS ENUM ('pending', 'validated', 'cancelled');
         END IF;
       END $$;
-            CREATE TABLE IF NOT EXISTS transfer (
+            CREATE TABLE IF NOT EXISTS transfers (
                 id UUID PRIMARY KEY,
                 amount int NOT NULL,
                 date_requested TIMESTAMP NOT NULL,

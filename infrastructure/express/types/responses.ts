@@ -1,3 +1,13 @@
+import { Credit } from "@domain/entities/credit";
+import { DueDate } from "@domain/entities/dueDate";
+import { AmortizationSchedule } from "@domain/types/AmortizationSchedule";
+import { CreditStatusData } from "@domain/types/CreditStatusData";
+import { CreditWithDueDates } from "@domain/types/CreditWithDueDates";
+import { MarkOverdueResult } from "@domain/types/MarkOverdueResult";
+import { OverdueDueDateWithCredit } from "@domain/types/OverdueDueDateWithCredit";
+import { PaymentHistoryItem } from "@domain/types/PaymentHistoryItem";
+
+
 export type UserView = {
   id: string;
   firstname: string;
@@ -18,6 +28,25 @@ export type AccountView = {
   balance: number;
   idOwner: string;
 };
+export type CreditView = {
+  id: string;
+  amountBorrowed: number;
+  annualRate: number;
+  insuranceRate: number;
+  durationInMonths: number;
+  startDate: Date;
+  status: string;
+  customerId: string;
+  monthlyPayment: number;
+  totalAmountToPay: number;
+  loanCost: number;
+};
+
+export type CreditResponseData = { credit: Credit };
+
+export type CreditsResponseData = { credits: Credit[] };
+
+
 
 export type AccountResponseData = { accounts: AccountView[] };
 
@@ -28,6 +57,10 @@ export type UserResponseData = { user: UserView };
 export type UserListResponseData = { users: UserView[] };
 
 export type UserRegistrationResponseData = { userId: string };
+
+export type creditsWithDueDatesData = {
+  creditWithDueDates: CreditWithDueDates[];
+};
 
 export type ConversationView = {
   id: string;
@@ -45,16 +78,23 @@ export type MessageView = {
   text: string;
   sendDate: Date;
 };
+export type OverdueDueDateWithCreditData = { overdueDueDates: OverdueDueDateWithCredit[] };
+export type AmortizationScheduleResponseData = { schedule: AmortizationSchedule };
 
 export type ConversationResponseData = { conversation: ConversationView };
 
 export type ConversationsListResponseData = {
   conversations: ConversationView[];
 };
+export type CreditStatusResponseData = { creditStatusData: CreditStatusData };
+export type DueDateResponseData = { dueDate: DueDate };
 
 export type MessageResponseData = { message: MessageView };
 
 export type MessagesListResponseData = { messages: MessageView[] };
+export type PaymentHistoryItemData = {
+  payments: PaymentHistoryItem[];
+}
 
 export type SuccessData =
   | UserResponseData
@@ -66,6 +106,15 @@ export type SuccessData =
   | ConversationsListResponseData
   | MessageResponseData
   | MessagesListResponseData
+  | CreditResponseData
+  | CreditsResponseData
+  | DueDateResponseData
+  | AmortizationScheduleResponseData
+  |creditsWithDueDatesData
+  | CreditStatusResponseData
+  | PaymentHistoryItemData
+  | MarkOverdueResult
+  | OverdueDueDateWithCreditData
   | undefined;
 
 export type SuccessPayload<ResponseData extends SuccessData = SuccessData> = {

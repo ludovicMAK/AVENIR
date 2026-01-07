@@ -3,6 +3,7 @@ import { CreateAccount } from "@application/usecases/accounts/createAccount";
 import { GetAccountById } from "@application/usecases/accounts/getAccountById";
 import { CloseOwnAccount } from "@application/usecases/accounts/closeOwnAccount";
 import { UpdateNameAccount } from "@application/usecases/accounts/updateNameAccount";
+import {  CreateAccountRequest } from "@application/requests/accounts";
 
 export class AccountController {
   public constructor(
@@ -21,7 +22,7 @@ export class AccountController {
     return await this.getAccountById.execute({ id });
   }
 
-  public async create(accountData: any): Promise<any> {
+  public async create(accountData: CreateAccountRequest): Promise<any> {
     return await this.createAccount.execute(accountData);
   }
 

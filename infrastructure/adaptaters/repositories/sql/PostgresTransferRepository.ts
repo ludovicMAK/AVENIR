@@ -15,7 +15,7 @@ export class PostgresTransferRepository implements TransferRepository {
                 : null;
 
             const query = `
-                INSERT INTO transfer (id, amount, date_requested, date_executed, description, status)
+                INSERT INTO transfers (id, amount, date_requested, date_executed, description, status)
                 VALUES ($1, $2, $3, $4, $5, $6)
             `;
             
@@ -44,7 +44,7 @@ export class PostgresTransferRepository implements TransferRepository {
             const result = await this.pool.query(
                 `
                     SELECT id, amount, date_requested, date_executed, description, status
-                    FROM transfer
+                    FROM transfers
                     WHERE id = $1
                     LIMIT 1
                 `,
@@ -76,7 +76,7 @@ export class PostgresTransferRepository implements TransferRepository {
                 : null;
 
             const query = `
-                UPDATE transfer
+                UPDATE transfers
                 SET amount = $2, date_requested = $3, date_executed = $4, description = $5, status = $6
                 WHERE id = $1
             `;

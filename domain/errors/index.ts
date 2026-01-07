@@ -84,3 +84,21 @@ export class UnknownConversationTypeError extends DomainError {
     });
   }
 }
+
+export class UnknownCreditStatusError extends DomainError {
+  constructor(value: string) {
+    super("UNKNOWN_CREDIT_STATUS", `Unknown credit status: ${value}`, {
+      issue: "unknown_credit_status",
+      context: { value },
+    });
+  }
+}
+
+export class UnknownDueDateStatusError extends DomainError {
+  constructor(value: string) {
+    super("UNKNOWN_DUE_DATE_STATUS", `Unknown due date status: ${value}`, {
+      issue: "unknown_due_date_status",
+      context: { value },
+    });
+  }
+}

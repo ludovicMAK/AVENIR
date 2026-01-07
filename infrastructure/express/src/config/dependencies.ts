@@ -23,6 +23,8 @@ import { CalculateSharePrice } from "@application/usecases/shares/calculateShare
 import { GetOrderBook } from "@application/usecases/shares/getOrderBook";
 import { GetShareTransactionHistory } from "@application/usecases/shares/getShareTransactionHistory";
 
+
+
 // Conversations use cases
 import { CreateConversation } from "@application/usecases/conversations/createConversation";
 import { CreateGroupConversation } from "@application/usecases/conversations/createGroupConversation";
@@ -49,6 +51,8 @@ import {
   messageRepository,
   participantConversationRepository,
   transferConversationRepository,
+  creditRepository,
+  dueDateRepository,
 } from "@express/src/config/repositories";
 import {
   emailSender,
@@ -56,6 +60,7 @@ import {
   uuidGenerator,
   tokenGenerator,
   ibanGenerator,
+  nodeGenerateAmortizationService,
 } from "@express/src/config/services";
 import { UserController } from "@express/controllers/UserController";
 import { AccountController } from "@express/controllers/AccountController";
@@ -73,6 +78,19 @@ import { TransferHttpHandler } from "../http/TransferHttpHandler";
 import { TransferController } from "@express/controllers/TransferController";
 import { ValidTransferByAdmin } from "@application/usecases/transfer/validTransferByAdmin";
 import { UpdateNameAccount } from "@application/usecases/accounts/updateNameAccount";
+import { CreditHttpHandler } from "../http/CreditHttpHandler";
+import { CreditController } from "@express/controllers/CreditController";
+import { GrantCredit } from "@application/usecases/credits/grantCredit";
+import { GetCustomerCreditsWithDueDates } from "@application/usecases/credits/getCustomerCreditsWithDueDates";
+import { GetMyCredits } from "@application/usecases/credits/getMyCredits";
+import { GetCreditStatus } from "@application/usecases/credits/getCreditStatus";
+import { GetPaymentHistory } from "@application/usecases/credits/getPaymentHistory";
+import { EarlyRepayCredit } from "@application/usecases/credits/earlyRepayCredit";
+import { MarkOverdueDueDates } from "@application/usecases/credits/markOverdueDueDates";
+import { GetOverdueDueDates } from "@application/usecases/credits/getOverdueDueDates";
+import { SimulateAmortizationSchedule } from "@application/usecases/credits/simulateAmortizationSchedule";
+import { PayInstallment } from "@application/usecases/credits/payInstallment";
+import { EnvironmentBankConfiguration } from "@adapters/services/EnvironmentBankConfiguration";
 
 const registerUser = new RegisterUser(
   userRepository,
@@ -188,7 +206,6 @@ const validateTransferByAdmin = new ValidTransferByAdmin(
 const transactionController = new TransactionController(createTransaction);
 const transferController = new TransferController(validateTransferByAdmin);
 
-// Conversation use cases
 const createConversation = new CreateConversation(
   conversationRepository,
   messageRepository,
@@ -196,7 +213,7 @@ const createConversation = new CreateConversation(
   sessionRepository,
   userRepository,
   uuidGenerator,
-  undefined // WebSocket service will be set after initialization
+  undefined 
 );
 const createGroupConversation = new CreateGroupConversation(
   conversationRepository,
@@ -282,6 +299,77 @@ const transferHttpHandler = new TransferHttpHandler(transferController);
 const conversationHttpHandler = new ConversationHttpHandler(
   conversationController
 );
+const grantCredit = new GrantCredit(
+  sessionRepository,
+  userRepository,
+  accountRepository,
+  creditRepository,
+  dueDateRepository,
+  nodeGenerateAmortizationService,
+  unitOfWork,
+  uuidGenerator
+);
+const getCustomerCreditsWithDueDatesUsecase = new GetCustomerCreditsWithDueDates(
+  userRepository,
+  creditRepository,
+  dueDateRepository
+);
+const getMyCreditsUsecase = new GetMyCredits(
+  sessionRepository,
+  creditRepository,
+  dueDateRepository
+);
+const getCreditStatusUsecase = new GetCreditStatus(
+  sessionRepository,
+  creditRepository,
+  dueDateRepository
+);
+const getPaymentHistoryUsecase = new GetPaymentHistory(
+  sessionRepository,
+  creditRepository,
+  dueDateRepository
+);
+const bankConfiguration = new EnvironmentBankConfiguration();
+const simulateAmortizationScheduleUsecase = new SimulateAmortizationSchedule(
+  nodeGenerateAmortizationService
+);
+const payInstallmentUsecase = new PayInstallment(
+  sessionRepository,
+  dueDateRepository,
+  accountRepository,
+  transactionRepository,
+  transferRepository,
+  creditRepository,
+  unitOfWork,
+  uuidGenerator,
+  bankConfiguration
+);
+const earlyRepayCreditUsecase = new EarlyRepayCredit(
+  sessionRepository,
+  dueDateRepository,
+  accountRepository,
+  transactionRepository,
+  transferRepository,
+  creditRepository,
+  unitOfWork,
+  uuidGenerator,
+  bankConfiguration
+);
+const markOverdueDueDatesUsecase = new MarkOverdueDueDates(
+  sessionRepository,
+  userRepository,
+  dueDateRepository,
+  unitOfWork
+);
+const getOverdueDueDatesUsecase = new GetOverdueDueDates(
+  sessionRepository,
+  userRepository,
+  dueDateRepository,
+  creditRepository
+);
+
+const creditController = new CreditController(grantCredit, getCustomerCreditsWithDueDatesUsecase, getMyCreditsUsecase, getCreditStatusUsecase, getPaymentHistoryUsecase, earlyRepayCreditUsecase, markOverdueDueDatesUsecase, getOverdueDueDatesUsecase, simulateAmortizationScheduleUsecase, payInstallmentUsecase);
+const creditHttpHandler = new CreditHttpHandler(creditController);
 
 export const httpRouter = createHttpRouter(
   userHttpHandler,
@@ -289,7 +377,8 @@ export const httpRouter = createHttpRouter(
   shareHttpHandler,
   transactionHttpHandler,
   transferHttpHandler,
-  conversationHttpHandler
+  conversationHttpHandler,
+  creditHttpHandler
 );
 
 export {

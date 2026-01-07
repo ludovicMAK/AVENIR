@@ -21,3 +21,4 @@ export type UpdateNameAccountRequest = {
   token: string;
   idOwner: string;
 };
+
