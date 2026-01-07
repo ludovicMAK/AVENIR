@@ -48,7 +48,7 @@ export function createShareRoutes(shareHttpHandler: ShareHttpHandler): Router {
     shareHttpHandler.calculatePrice(request, response)
   );
   router.post("/shares/:shareId/execute", (request, response) =>
-    shareHttpHandler.executeMatching(request, response)
+    shareHttpHandler.executeMatchingOrders(request, response)
   );
 
   return router;
