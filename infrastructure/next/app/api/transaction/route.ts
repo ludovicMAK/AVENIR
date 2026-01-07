@@ -14,10 +14,42 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const transaction = await createTransaction.execute(body);
+    const {
+      description,
+      amount,
+      accountIBANFrom,
+      accountIBANTo,
+      direction,
+      dateExecuted,
+    } = body;
 
-    return NextResponse.json(transaction, { status: 201 });
+    if (
+      !description ||
+      !amount ||
+      !accountIBANFrom ||
+      !accountIBANTo ||
+      !dateExecuted
+    ) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    await createTransaction.execute({
+      idUser: userId,
+      token,
+      description,
+      amount,
+      accountIBANFrom,
+      accountIBANTo,
+      direction: direction || "debit",
+      dateExecuted: new Date(dateExecuted),
+    });
+
+    return NextResponse.json({ success: true }, { status: 201 });
   } catch (error: any) {
+    console.error("[POST /api/transaction] Error:", error);
     return NextResponse.json(
       { error: error.message || "Failed to create transaction" },
       { status: 400 }

@@ -184,13 +184,17 @@ export const accountsApi = {
       : `/accounts/${accountId}/transactions`;
 
     const response = await request(url);
-    if (!isJsonObject(response) || !isJsonObject(response.data)) {
+    if (
+      !isJsonObject(response) ||
+      !Array.isArray(response.transactions) ||
+      !isJsonObject(response.pagination)
+    ) {
       throw new ApiError(
         "INFRASTRUCTURE_ERROR",
         "Invalid transactions response"
       );
     }
-    return response.data as {
+    return response as {
       transactions: Array<{
         id: string;
         accountIBAN: string;

@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAccountsByOwner } from "@/hooks/useAccounts";
+import { useTransferHistory } from "@/hooks/useTransfers";
 import {
   Card,
   CardContent,
@@ -31,6 +32,8 @@ import {
   Wallet,
   CreditCard,
   PiggyBank,
+  ArrowDownLeft,
+  ArrowUpRight,
 } from "lucide-react";
 
 type DashboardClientProps = {
@@ -41,6 +44,7 @@ export default function DashboardClient({ userId }: DashboardClientProps) {
   const router = useRouter();
   const { accounts, isLoading, error, fetchAccounts } =
     useAccountsByOwner(userId);
+  const { transfers, isLoading: isLoadingTransfers } = useTransferHistory();
 
   useEffect(() => {
     fetchAccounts();
@@ -258,16 +262,103 @@ export default function DashboardClient({ userId }: DashboardClientProps) {
         </CardContent>
       </Card>
 
-      {/* Recent Activity Placeholder */}
+      {/* Recent Activity */}
       <Card>
         <CardHeader>
           <CardTitle>Activité récente</CardTitle>
           <CardDescription>Vos dernières transactions</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-12 text-muted-foreground">
-            <p>Les transactions s'afficheront ici prochainement</p>
-          </div>
+          {isLoadingTransfers ? (
+            <div className="space-y-4">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Skeleton key={i} className="h-16 w-full" />
+              ))}
+            </div>
+          ) : transfers.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <p>Aucune transaction récente</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {transfers.slice(0, 5).map((transaction) => {
+                const isDebit = transaction.transactionDirection === "debit";
+                const formatDate = (dateString: string) => {
+                  const date = new Date(dateString);
+                  return date.toLocaleDateString("fr-FR", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                  });
+                };
+
+                return (
+                  <div
+                    key={transaction.id}
+                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div
+                        className={`p-2 rounded-full ${
+                          isDebit
+                            ? "bg-red-100 text-red-600"
+                            : "bg-green-100 text-green-600"
+                        }`}
+                      >
+                        {isDebit ? (
+                          <ArrowUpRight className="h-4 w-4" />
+                        ) : (
+                          <ArrowDownLeft className="h-4 w-4" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium">
+                          {transaction.reason || "Virement"}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {formatDate(transaction.accountDate)}
+                          {transaction.counterpartyIBAN && (
+                            <> • {formatIBAN(transaction.counterpartyIBAN)}</>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p
+                        className={`font-semibold ${
+                          isDebit ? "text-red-600" : "text-green-600"
+                        }`}
+                      >
+                        {isDebit ? "-" : "+"}
+                        {formatAmount(transaction.amount)}
+                      </p>
+                      <Badge
+                        variant={
+                          transaction.status === "POSTED"
+                            ? "default"
+                            : "secondary"
+                        }
+                        className="text-xs"
+                      >
+                        {transaction.status === "POSTED"
+                          ? "Exécuté"
+                          : transaction.status}
+                      </Badge>
+                    </div>
+                  </div>
+                );
+              })}
+              {transfers.length > 5 && (
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => router.push("/dashboard/transfers")}
+                >
+                  Voir toutes les transactions
+                </Button>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

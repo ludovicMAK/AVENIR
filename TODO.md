@@ -44,172 +44,128 @@
 
 ## 🔴 PRIORITÉ 1 - FONCTIONNALITÉS CRITIQUES
 
-### 🏦 **Système de Transferts Complet**
+### 🏦 **Système de Transferts**
 
-**Statut** : ⚠️ Partiel (1/6 use cases)
+**Statut Backend** : ✅ Complet (5/5 use cases)
+**Statut Frontend** : ❌ Absent (0/2 pages)
 
-#### ❌ Use Cases Manquants
+#### ✅ Use Cases Implémentés (Backend)
 
-1. **`createTransfer`** - Créer un transfert entre comptes
+1. **`CreateTransaction`** - Créer un transfert entre comptes ✅
 
-   - Input : `sourceAccountIBAN`, `targetAccountIBAN`, `amount`, `description`
-   - Validation : vérifier que les deux comptes existent et appartiennent à la banque
-   - Créer Transfer avec status `PENDING`
-   - Ne pas exécuter immédiatement (attente validation)
-   - Output : Transfer créé
-
-2. **`executeTransfer`** - Exécuter un transfert validé
-
-   - Input : `transferId`
-   - Vérifier status = `PENDING`
-   - Créer 2 transactions (DEBIT source, CREDIT target)
-   - Mettre à jour les balances des comptes
-   - Changer status → `EXECUTED`
+   - Crée Transfer + 2 transactions (POSTED)
+   - Validation fonds disponibles
    - UnitOfWork pour atomicité
-   - Output : Transfer exécuté
+   - Route : `POST /transaction`
 
-3. **`getTransferHistory`** - Historique des transferts
+2. **`ValidTransferByAdmin`** - Valider un transfert ✅
 
-   - Par compte (IBAN)
-   - Par utilisateur (customerId)
-   - Filtres : date, status, montant
-   - Pagination recommandée
-   - Output : List<Transfer>
+   - Change status PENDING → VALIDATED
+   - Met à jour solde réel des comptes
+   - Route : `PATCH /transfers/validate`
 
-4. **`cancelTransfer`** - Annuler un transfert en attente
+3. **`CancelTransfer`** - Annuler un transfert ✅
 
-   - Input : `transferId`, `userId`
-   - Vérifier que l'utilisateur est propriétaire du compte source
-   - Vérifier status = `PENDING`
-   - Changer status → `CANCELLED`
-   - Output : void
+   - Annule transfert et transactions associées
+   - Route : `PATCH /transfers/cancel`
 
-5. **`getTransferById`** - Récupérer un transfert
+4. **`GetTransactionHistory`** - Historique des transactions ✅
 
-   - Input : `transferId`
-   - Output : Transfer | null
+   - Liste toutes les transactions utilisateur
+   - Route : `GET /transactions/history`
 
-6. **`getTransfersByAccount`** - Transferts d'un compte
-   - Input : `accountId` ou `IBAN`
-   - Inclure émis ET reçus
-   - Output : List<Transfer>
+5. **`GetAccountTransactionsByAdmin`** - Transactions d'un compte ✅
+   - Pour admins (conseiller/directeur)
+   - Route : `GET /transactions/account/:iban`
 
-#### 📊 Repositories à Étendre
+#### ❌ Frontend Manquant
 
-- ✅ `TransferRepository` existe déjà
-- ❌ Ajouter méthodes :
-  - `findByAccountId(accountId: string)`
-  - `findByCustomerId(customerId: string)`
-  - `findByStatus(status: StatusTransfer)`
-  - `findByDateRange(from: Date, to: Date)`
+- **Page `/dashboard/transfers`** - Liste des transferts
+
+  - Afficher historique (PENDING, EXECUTED, CANCELLED)
+  - Filtres par date, statut, montant
+  - Pagination
+
+- **Page `/dashboard/transfers/new`** - Créer un transfert
+  - Sélection compte source/destination
+  - Montant et description
+  - Validation avant envoi
 
 ---
 
-### **Crédits (Complètement Absent)**
+### 💰 **Crédits**
 
-**Statut** : ❌ 0% - Entités manquantes
+**Statut Backend** : ✅ Complet (10/10 use cases)
+**Statut Frontend** : ❌ Absent (0/2 pages)
 
-#### ❌ Entités à Créer
+#### ✅ Entités Existantes
 
-1. **`Credit`** (domain/entities/credit.ts)
+1. **`Credit`** ✅ - Crédits clients
+2. **`DueDate`** ✅ - Échéances de remboursement
 
-   ```typescript
-   class Credit {
-     id: string;
-     amountBorrowed: number;
-     annualRate: number;
-     insuranceRate: number;
-     durationInMonths: number;
-     startDate: Date;
-     status: CreditStatus; // IN_PROGRESS, COMPLETED
-     customerId: string;
-     advisorId: string;
-   }
-   ```
+#### ✅ Value Objects Existants
 
-2. **`DueDate`** (domain/entities/dueDate.ts)
-   ```typescript
-   class DueDate {
-     id: string;
-     dueDate: Date;
-     totalAmount: number;
-     interestShare: number;
-     insuranceShare: number;
-     repaymentPortion: number;
-     status: DueDateStatus; // PAYABLE, PAID, OVERDUE
-     paymentDate?: Date;
-     creditId: string;
-   }
-   ```
+- `CreditStatus` ✅ (IN_PROGRESS, COMPLETED)
+- `DueDateStatus` ✅ (PAYABLE, PAID, OVERDUE)
 
-#### ❌ Value Objects à Créer
+#### ✅ Repositories Implémentés
 
-- `CreditStatus` (IN_PROGRESS, COMPLETED)
-- `DueDateStatus` (PAYABLE, PAID, OVERDUE)
+- `CreditRepository` ✅
+- `DueDateRepository` ✅
 
-#### ❌ Repositories à Créer
+#### ✅ Use Cases Implémentés (Backend)
 
-1. **`CreditRepository`**
+1. **`grantCredit`** ✅ - Octroyer un crédit
 
-   - `save(credit: Credit)`
-   - `findById(id: string)`
-   - `findByCustomerId(customerId: string)`
-   - `findByAdvisorId(advisorId: string)`
-   - `findByStatus(status: CreditStatus)`
-   - `updateStatus(id: string, status: CreditStatus)`
+   - Route : `POST /credits/grant`
 
-2. **`DueDateRepository`**
-   - `save(dueDate: DueDate)`
-   - `findById(id: string)`
-   - `findByCreditId(creditId: string)`
-   - `findByStatus(status: DueDateStatus)`
-   - `findUpcoming(customerId: string, days: number)`
-   - `updateStatus(id: string, status: DueDateStatus)`
-   - `recordPayment(id: string, paymentDate: Date)`
+2. **`simulateAmortizationSchedule`** ✅ - Simuler échéancier
 
-#### ❌ Use Cases à Créer
+   - Route : `POST /credits/simulate-schedule`
 
-1. **`grantCredit`** - Octroyer un crédit (Conseiller)
+3. **`getCustomerCreditsWithDueDates`** ✅ - Crédits + échéances client
 
-   - Input : `customerId`, `amountBorrowed`, `annualRate`, `insuranceRate`, `durationInMonths`
-   - Vérifier que l'utilisateur est conseiller
-   - Créer Credit
-   - Générer tableau d'amortissement (DueDates)
-   - Créditer le compte client (Transaction)
-   - Output : Credit avec DueDates
+   - Route : `GET /credits/:customerId/credits-with-due-dates`
 
-2. **`calculateAmortizationSchedule`** - Calculer le tableau
+4. **`getMyCredits`** ✅ - Mes crédits
 
-   - Input : `amountBorrowed`, `annualRate`, `insuranceRate`, `durationInMonths`
-   - Formule : Mensualités constantes
-   - Assurance = taux fixe sur montant total
-   - Intérêts = calculés sur capital restant
-   - Output : List<DueDatePreview>
+   - Route : `GET /my-credits`
 
-3. **`getCreditsByCustomer`** - Crédits d'un client
+5. **`getCreditStatus`** ✅ - Statut d'un crédit
 
-   - Input : `customerId`
-   - Output : List<Credit>
+   - Route : `GET /credits/:creditId/status`
 
-4. **`payDueDate`** - Payer une échéance
+6. **`getPaymentHistory`** ✅ - Historique paiements
 
-   - Input : `dueDateId`, `accountId`
-   - Vérifier fonds disponibles
-   - Créer Transaction DEBIT
-   - Mettre à jour status → PAID
-   - Output : void
+   - Route : `GET /credits/:creditId/payment-history`
 
-5. **`getUpcomingDueDates`** - Échéances à venir
+7. **`payInstallment`** ✅ - Payer une échéance
 
-   - Input : `customerId`, `days` (ex: 30 jours)
-   - Output : List<DueDate>
+   - Route : `POST /due-dates/:dueDateId/pay`
 
-6. **`handleOverdueDueDate`** - Gérer les impayés
-   - Tâche CRON quotidienne
-   - Trouver toutes les DueDates PAYABLE avec date < aujourd'hui
-   - Changer status → OVERDUE
-   - Notifier le client (optionnel)
-   - Output : void
+8. **`earlyRepayCredit`** ✅ - Remboursement anticipé
+
+   - Route : `POST /credits/:creditId/early-repayment`
+
+9. **`markOverdueDueDates`** ✅ - Marquer impayés
+
+   - Route : `POST /credits/mark-overdue`
+
+10. **`getOverdueDueDates`** ✅ - Liste impayés
+    - Route : `GET /credits/overdue`
+
+#### ❌ Frontend Manquant
+
+- **Page `/dashboard/credits`** - Mes crédits
+
+  - Liste avec échéancier
+  - Statut et progression
+  - Bouton payer échéance
+
+- **Page `/dashboard/credits/[id]`** - Détail crédit
+  - Tableau d'amortissement complet
+  - Historique paiements
+  - Remboursement anticipé
 
 #### 🗄️ Schéma Base de Données
 
@@ -592,56 +548,61 @@ CREATE TABLE daily_interests (
 
 ## 📊 RÉSUMÉ DES EFFORTS
 
-| Catégorie                      | Entités | Use Cases | Repositories | Effort      |
-| ------------------------------ | ------- | --------- | ------------ | ----------- |
-| ✅ **Investissements Phase 1** | 0       | 4         | 0            | ✅ Complété |
-| 🔴 **Transferts**              | 0       | 6         | 0 (extend)   | 🟠 Moyen    |
-| 🔴 **Solde/Transactions**      | 0       | 3         | 0 (extend)   | 🟢 Faible   |
-| 🔴 **Crédits**                 | 2       | 6         | 2            | 🔴 Élevé    |
-| 🟠 **Épargne**                 | 2       | 6         | 2            | 🔴 Élevé    |
-| 🟡 **Directeur**               | 0       | 8         | 0 (extend)   | 🟠 Moyen    |
-| 🟡 **Notifications**           | 0       | 3         | 1            | 🟠 Moyen    |
-| 🟡 **Stats/Rapports**          | 0       | 4         | 0            | 🟠 Moyen    |
+| Catégorie               | Backend  | Frontend | Effort Frontend |
+| ----------------------- | -------- | -------- | --------------- |
+| ✅ **Authentification** | ✅ 6/6   | ✅ 2/2   | ✅ Complété     |
+| ✅ **Comptes**          | ✅ 8/8   | ⚠️ 3/5   | 🟢 Faible       |
+| ✅ **Transferts**       | ✅ 5/5   | ❌ 0/2   | 🟠 Moyen        |
+| ✅ **Transactions**     | ✅ 3/3   | ✅ OK    | ✅ Complété     |
+| ✅ **Investissements**  | ✅ 11/11 | ❌ 0/4   | 🔴 Élevé        |
+| ✅ **Crédits**          | ✅ 10/10 | ❌ 0/2   | 🟠 Moyen        |
+| ✅ **Conversations**    | ✅ 9/9   | ❌ 0/2   | 🟠 Moyen        |
+| 🔴 **Épargne**          | ❌ 0/6   | ❌ 0/2   | 🔴 Élevé        |
+| 🟡 **Directeur**        | ⚠️ 2/8   | ❌ 0/4   | 🟠 Moyen        |
+| 🟡 **Stats/Rapports**   | ❌ 0/4   | ❌ 0/4   | 🟠 Moyen        |
 
-**Total estimé** : ~40-50 use cases, 4 entités, 4 repositories, ~80-100h de dev
+**État actuel** : Backend ~85% complet | Frontend ~15% complet
+**Effort restant** : Épargne (backend) + Tout le frontend sauf comptes
 
 ---
 
 ## 🎯 ROADMAP SUGGÉRÉE
 
-### **Sprint 1 (Semaine 1)** - Fondations
+### **Sprint 1** - Épargne (Backend Critique)
 
-- ✅ ~~Investissements Phase 1~~
-- Système transferts complet
-- Calcul solde & transactions
+- ✅ ~~Backend comptes, transferts, investissements, crédits~~
+- ❌ Entités SavingsRate & DailyInterest
+- ❌ Repositories épargne
+- ❌ Use cases calcul intérêts
+- ❌ CRON job quotidien
 
-### **Sprint 2 (Semaine 2)** - Crédits
+### **Sprint 2** - Frontend Transferts
 
-- Entités Credit & DueDate
-- Repositories
-- Use cases crédits de base
-- Schéma BDD + migrations
+- ❌ Page `/dashboard/transfers` - Liste
+- ❌ Page `/dashboard/transfers/new` - Créer
+- ❌ API client transferts
+- ❌ Composants réutilisables
 
-### **Sprint 3 (Semaine 3)** - Épargne
+### **Sprint 3** - Frontend Investissements
 
-- Entités SavingsRate & DailyInterest
-- Repositories
-- Calcul intérêts journaliers
-- CRON jobs
+- ❌ Page `/dashboard/shares` - Liste actions
+- ❌ Page `/dashboard/shares/[id]` - Détail + carnet d'ordres
+- ❌ Page `/dashboard/portfolio` - Mon portefeuille
+- ❌ Page `/dashboard/orders` - Mes ordres
 
-### **Sprint 4 (Semaine 4)** - Directeur & Avancé
+### **Sprint 4** - Frontend Crédits & Messages
 
-- Gestion utilisateurs (ban/unban)
-- CRUD actions
-- Notifications
-- Dashboard
+- ❌ Page `/dashboard/credits` - Mes crédits
+- ❌ Page `/dashboard/credits/[id]` - Détail
+- ❌ Page `/dashboard/messages` - Conversations
+- ❌ Notifications temps réel
 
-### **Sprint 5 (Semaine 5)** - Polish & Tests
+### **Sprint 5** - Admin & Polish
 
-- Tests unitaires
-- Tests d'intégration
-- Documentation
-- Frontend manquant
+- ❌ Pages directeur (/admin/\*)
+- ❌ Pages conseiller (/advisor/\*)
+- ❌ Use cases directeur manquants
+- ❌ Tests & Documentation
 
 ---
 

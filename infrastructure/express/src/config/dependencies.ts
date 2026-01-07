@@ -242,10 +242,9 @@ const cancelTransferUsecase = new CancelTransfer(
 
 const getTransactionHistoryUsecase = new GetTransactionHistory(
   sessionRepository,
-  transactionRepository
+  transactionRepository,
+  accountRepository
 );
-
-
 
 const getAccountTransactionsByAdminUsecase = new GetAccountTransactionsByAdmin(
   transactionRepository,
@@ -254,11 +253,14 @@ const getAccountTransactionsByAdminUsecase = new GetAccountTransactionsByAdmin(
 );
 
 const transactionController = new TransactionController(
-  createTransaction, 
+  createTransaction,
   getTransactionHistoryUsecase,
   getAccountTransactionsByAdminUsecase
 );
-const transferController = new TransferController(validateTransferByAdmin, cancelTransferUsecase);
+const transferController = new TransferController(
+  validateTransferByAdmin,
+  cancelTransferUsecase
+);
 
 const createConversation = new CreateConversation(
   conversationRepository,
@@ -346,11 +348,13 @@ const conversationController = new ConversationController(
 const userHttpHandler = new UserHttpHandler(userController);
 const accountHttpHandler = new AccountHttpHandler(
   accountController,
-  sessionRepository
+  sessionRepository,
+  transactionRepository
 );
 const shareHttpHandler = new ShareHttpHandler(shareController);
 const transactionHttpHandler = new TransactionHttpHandler(
-  transactionController
+  transactionController,
+  transactionRepository
 );
 const transferHttpHandler = new TransferHttpHandler(transferController);
 const conversationHttpHandler = new ConversationHttpHandler(

@@ -10,6 +10,9 @@ import { CreateAccount } from "@application/usecases/accounts/createAccount";
 import { GetAccountById } from "@application/usecases/accounts/getAccountById";
 import { CloseOwnAccount } from "@application/usecases/accounts/closeOwnAccount";
 import { UpdateNameAccount } from "@application/usecases/accounts/updateNameAccount";
+import { GetAccountBalance } from "@application/usecases/accounts/getAccountBalance";
+import { GetAccountTransactions } from "@application/usecases/accounts/getAccountTransactions";
+import { GetAccountStatement } from "@application/usecases/accounts/getAccountStatement";
 
 // Shares use cases
 import { CreateShare } from "@application/usecases/shares/createShare";
@@ -26,6 +29,7 @@ import { GetShareTransactionHistory } from "@application/usecases/shares/getShar
 
 // Transactions use cases
 import { CreateTransaction } from "@application/usecases/transactions/createTransaction";
+import { GetTransactionHistory } from "@application/usecases/transactions/getTransactionHistory";
 
 // Transfer use cases
 import { ValidTransferByAdmin } from "@application/usecases/transfer/validTransferByAdmin";
@@ -119,6 +123,23 @@ export const updateNameAccount = new UpdateNameAccount(
   accountRepository
 );
 
+export const getAccountBalance = new GetAccountBalance(
+  accountRepository,
+  sessionRepository
+);
+
+export const getAccountTransactions = new GetAccountTransactions(
+  accountRepository,
+  transactionRepository,
+  sessionRepository
+);
+
+export const getAccountStatement = new GetAccountStatement(
+  accountRepository,
+  transactionRepository,
+  sessionRepository
+);
+
 // ===== Shares Use Cases =====
 export const createShare = new CreateShare(shareRepository, uuidGenerator);
 
@@ -168,6 +189,11 @@ export const createTransaction = new CreateTransaction(
   accountRepository,
   unitOfWork,
   sessionRepository
+);
+
+export const getTransactionHistory = new GetTransactionHistory(
+  sessionRepository,
+  transactionRepository
 );
 
 // ===== Transfer Use Cases =====
