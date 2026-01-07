@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { authApi } from "@/api/auth";
 import {
   clearRedirectHint,
@@ -112,14 +113,20 @@ export default function Page() {
   }
 
   return (
-    <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
+    <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10 bg-gradient-to-br from-background to-primary/10">
       <div className="w-full max-w-sm">
         <div className="flex flex-col gap-6">
-          <Card>
+          <Link
+            href="/"
+            className="text-sm text-muted-foreground hover:text-primary transition-colors text-center"
+          >
+            ← Retour à l'accueil
+          </Link>
+          <Card className="border-primary/20">
             <CardHeader>
-              <CardTitle>Login to your account</CardTitle>
+              <CardTitle>Connexion</CardTitle>
               <CardDescription>
-                Enter your credentials to access your account
+                Connectez-vous à votre compte AVENIR
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -127,7 +134,13 @@ export default function Page() {
                 <FieldGroup>
                   <Field>
                     <FieldLabel htmlFor="email">Email</FieldLabel>
-                    <Input id="email" name="email" type="email" required />
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      required
+                      className="border-primary/20"
+                    />
                     {fieldErrors.email && (
                       <FieldError
                         errors={fieldErrors.email.map((message) => ({
@@ -137,12 +150,13 @@ export default function Page() {
                     )}
                   </Field>
                   <Field>
-                    <FieldLabel htmlFor="password">Password</FieldLabel>
+                    <FieldLabel htmlFor="password">Mot de passe</FieldLabel>
                     <Input
                       id="password"
                       name="password"
                       type="password"
                       required
+                      className="border-primary/20"
                     />
                     {fieldErrors.password && (
                       <FieldError
