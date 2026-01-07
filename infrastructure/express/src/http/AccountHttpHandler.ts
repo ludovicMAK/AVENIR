@@ -57,10 +57,10 @@ export class AccountHttpHandler {
 
   public async create(request: Request, response: Response) {
     try {
-      const userId = request.headers["x-user-id"] as string; 
+      const userId = request.headers["x-user-id"] as string;
       const authHeader = request.headers.authorization as string;
-      const token = authHeader?.startsWith("Bearer ") 
-        ? authHeader.split(" ")[1] 
+      const token = authHeader?.startsWith("Bearer ")
+        ? authHeader.split(" ")[1]
         : authHeader;
 
       if (!userId || !token) {
@@ -69,7 +69,11 @@ export class AccountHttpHandler {
 
       const accountData = request.body;
 
-      const account = await this.controller.create({ ...accountData, idOwner: userId, token: token });
+      const account = await this.controller.create({
+        ...accountData,
+        idOwner: userId,
+        token: token,
+      });
 
       return sendSuccess(response, {
         status: 201,
@@ -155,6 +159,140 @@ export class AccountHttpHandler {
         status: 200,
         code: "ACCOUNT_UPDATED",
         message: "Le nom du compte a été mis à jour avec succès.",
+      });
+    } catch (error) {
+      return mapErrorToHttpResponse(response, error);
+    }
+  }
+
+  public async getBalance(request: Request, response: Response) {
+    try {
+      const { accountId } = request.params;
+      const userId = request.headers["x-user-id"] as string;
+      const authHeader = request.headers.authorization as string;
+      const token = authHeader?.startsWith("Bearer ")
+        ? authHeader.split(" ")[1]
+        : authHeader;
+
+      if (!accountId) {
+        return response.status(400).send({
+          code: "MISSING_ACCOUNT_ID",
+          message: "L'ID du compte est requis.",
+        });
+      }
+
+      if (!userId || !token) {
+        throw new ValidationError("Authentication required");
+      }
+
+      const balanceData = await this.controller.getBalance({
+        accountId,
+        userId,
+        token,
+      });
+
+      return sendSuccess(response, {
+        status: 200,
+        code: "BALANCE_RETRIEVED",
+        message: "Account balance successfully retrieved.",
+        data: balanceData,
+      });
+    } catch (error) {
+      return mapErrorToHttpResponse(response, error);
+    }
+  }
+
+  public async getTransactions(request: Request, response: Response) {
+    try {
+      const { accountId } = request.params;
+      const userId = request.headers["x-user-id"] as string;
+      const authHeader = request.headers.authorization as string;
+      const token = authHeader?.startsWith("Bearer ")
+        ? authHeader.split(" ")[1]
+        : authHeader;
+
+      if (!accountId) {
+        return response.status(400).send({
+          code: "MISSING_ACCOUNT_ID",
+          message: "L'ID du compte est requis.",
+        });
+      }
+
+      if (!userId || !token) {
+        throw new ValidationError("Authentication required");
+      }
+
+      // Récupérer les query params pour les filtres et la pagination
+      const { startDate, endDate, direction, status, page, limit } =
+        request.query;
+
+      const transactionsData = await this.controller.getTransactions({
+        accountId,
+        userId,
+        token,
+        startDate: startDate as string | undefined,
+        endDate: endDate as string | undefined,
+        direction: direction as string | undefined,
+        status: status as string | undefined,
+        page: page ? parseInt(page as string, 10) : undefined,
+        limit: limit ? parseInt(limit as string, 10) : undefined,
+      });
+
+      return sendSuccess(response, {
+        status: 200,
+        code: "TRANSACTIONS_RETRIEVED",
+        message: "Account transactions successfully retrieved.",
+        data: transactionsData,
+      });
+    } catch (error) {
+      return mapErrorToHttpResponse(response, error);
+    }
+  }
+
+  public async getStatement(request: Request, response: Response) {
+    try {
+      const { accountId } = request.params;
+      const userId = request.headers["x-user-id"] as string;
+      const authHeader = request.headers.authorization as string;
+      const token = authHeader?.startsWith("Bearer ")
+        ? authHeader.split(" ")[1]
+        : authHeader;
+
+      if (!accountId) {
+        return response.status(400).send({
+          code: "MISSING_ACCOUNT_ID",
+          message: "L'ID du compte est requis.",
+        });
+      }
+
+      if (!userId || !token) {
+        throw new ValidationError("Authentication required");
+      }
+
+      // Récupérer les query params pour les dates
+      const { fromDate, toDate } = request.query;
+
+      if (!fromDate || !toDate) {
+        return response.status(400).send({
+          code: "MISSING_DATES",
+          message:
+            "Les dates de début (fromDate) et de fin (toDate) sont requises.",
+        });
+      }
+
+      const statementData = await this.controller.getStatement({
+        accountId,
+        userId,
+        token,
+        fromDate: fromDate as string,
+        toDate: toDate as string,
+      });
+
+      return sendSuccess(response, {
+        status: 200,
+        code: "STATEMENT_RETRIEVED",
+        message: "Account statement successfully retrieved.",
+        data: statementData,
       });
     } catch (error) {
       return mapErrorToHttpResponse(response, error);
