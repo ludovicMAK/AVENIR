@@ -45,6 +45,12 @@ import { PostgresConversationRepository } from "@adapters/repositories/sql/Postg
 import { PostgresMessageRepository } from "@adapters/repositories/sql/PostgresMessageRepository";
 import { PostgresParticipantConversationRepository } from "@adapters/repositories/sql/PostgresParticipantConversationRepository";
 import { PostgresTransferConversationRepository } from "@adapters/repositories/sql/PostgresTransferConversationRepository";
+import { PostgresCreditRepository } from "@adapters/repositories/sql/PostgresCreditRepository";
+import { InMemoryCreditRepository } from "@adapters/repositories/memory/InMemoryCreditRepository";
+import { CreditRepository } from "@application/repositories/credit";
+import { PostgresDueDateRepository } from "@adapters/repositories/sql/PostgresDueDateRepository";
+import { InMemoryDueDateRepository } from "@adapters/repositories/memory/InMemoryDueDateRepository";
+import { DueDateRepository } from "@application/repositories/dueDate";
 
 function resolveRepositoryDriver(): RepositoryDriver {
   const driver = (process.env.DATA_DRIVER ?? "memory").toLowerCase();
@@ -183,6 +189,20 @@ function buildTransferConversationRepository(
 
   return new InMemoryTransferConversationRepository();
 }
+function buildCreditRepository(driver: RepositoryDriver): CreditRepository {
+  if (driver === "postgres") {
+    return new PostgresCreditRepository(getPool());
+  }
+  return new InMemoryCreditRepository();
+}
+
+function buildDueDateRepository(driver: RepositoryDriver): DueDateRepository {
+  if (driver === "postgres") {
+    return new PostgresDueDateRepository(getPool());
+  }
+
+  return new InMemoryDueDateRepository();
+}
 
 export const repositoryDriver: RepositoryDriver = resolveRepositoryDriver();
 process.stdout.write(`Repository driver: ${repositoryDriver}\n`);
@@ -215,3 +235,5 @@ export const participantConversationRepository: ParticipantConversationRepositor
   buildParticipantConversationRepository(repositoryDriver);
 export const transferConversationRepository: TransferConversationRepository =
   buildTransferConversationRepository(repositoryDriver);
+export const creditRepository: CreditRepository = buildCreditRepository(repositoryDriver);
+export const dueDateRepository: DueDateRepository = buildDueDateRepository(repositoryDriver);

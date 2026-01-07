@@ -10,6 +10,8 @@ import { SmtpEmailSender } from "@adapters/services/SmtpEmailSender"
 import { EmailDriver } from "@express/types/services"
 import { IBANGenerator } from "@application/services/IBANGenreator"
 import { NodeIBANGenerator } from "@adapters/services/NodeIBANGenerator"
+import { GenerateAmortizationService } from "@application/services/GenerateAmortizationService"
+import { NodeGenerateAmortizationService } from "@adapters/services/NodeGenerateAmortizationService"
 
 function resolveEmailDriver(): EmailDriver {
     const driver = (process.env.EMAIL_DRIVER || "console").toLowerCase()
@@ -37,4 +39,5 @@ export const passwordHasher: PasswordHasher = new CryptoPasswordHasher()
 export const uuidGenerator: UuidGenerator = new NodeUuidGenerator()
 export const tokenGenerator: TokenGenerator = new NodeTokenGenerator()
 export const ibanGenerator: IBANGenerator = new NodeIBANGenerator()
+export const nodeGenerateAmortizationService: GenerateAmortizationService = new NodeGenerateAmortizationService()
 

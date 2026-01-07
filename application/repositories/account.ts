@@ -29,4 +29,6 @@ export interface AccountRepository {
     amount: number,
     unitOfWork?: UnitOfWork
   ): Promise<void>;
+  updateBalanceAvailable(accountId: string, newAvailableBalance: number, unitOfWork?: UnitOfWork): Promise<void>;
+  findCurrentAccountByCustomerId(customerId: string): Promise<Account | null>;
 }

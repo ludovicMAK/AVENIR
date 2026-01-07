@@ -11,6 +11,8 @@ import { TransactionHttpHandler } from "@express/src/http/TransactionHttpHandler
 import { createTransferRoutes } from "./createTransferRoutes";
 import { TransferHttpHandler } from "../http/TransferHttpHandler";
 import { createConversationRoutes } from "./conversationRoutes";
+import { CreditHttpHandler } from "../http/CreditHttpHandler";
+import { createCreditRoutes } from "./creditRoutes";
 
 export function createHttpRouter(
   userHttpHandler: UserHttpHandler,
@@ -18,7 +20,8 @@ export function createHttpRouter(
   shareHttpHandler: ShareHttpHandler,
   transactionHttpHandler: TransactionHttpHandler,
   TransferHttpHandler: TransferHttpHandler,
-  conversationHttpHandler: ConversationHttpHandler
+  conversationHttpHandler: ConversationHttpHandler,
+  creditHttpHandler: CreditHttpHandler
 ): Router {
   const router = Router();
 
@@ -28,6 +31,7 @@ export function createHttpRouter(
   router.use(createTransactionRoutes(transactionHttpHandler));
   router.use(createTransferRoutes(TransferHttpHandler));
   router.use(createConversationRoutes(conversationHttpHandler));
+  router.use(createCreditRoutes(creditHttpHandler));
 
   return router;
 }

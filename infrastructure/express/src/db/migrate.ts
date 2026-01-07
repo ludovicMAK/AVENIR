@@ -12,6 +12,8 @@ import { ensureConversationsTable } from "./migrations/conversations";
 import { ensureMessagesTable } from "./migrations/messages";
 import { ensureParticipantConversationsTable } from "./migrations/participantConversations";
 import { ensureTransferConversationsTable } from "./migrations/transferConversations";
+import { ensureCreditsTable } from "./migrations/credits";
+import { ensureDueDatesTable } from "./migrations/dueDates";
 
 export async function ensureSchema(): Promise<void> {
   await ensureUsersTable();
@@ -28,4 +30,6 @@ export async function ensureSchema(): Promise<void> {
   await ensureMessagesTable();
   await ensureParticipantConversationsTable();
   await ensureTransferConversationsTable();
+  await ensureCreditsTable();
+  await ensureDueDatesTable();
 }
