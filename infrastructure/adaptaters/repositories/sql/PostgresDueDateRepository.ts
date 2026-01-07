@@ -104,7 +104,7 @@ export class PostgresDueDateRepository implements DueDateRepository {
           WHERE status = $1 AND due_date < CURRENT_TIMESTAMP
           ORDER BY due_date ASC
         `,
-        [DueDateStatus.PAYABLE.getValue()]
+        [DueDateStatus.OVERDUE.getValue()]
       );
 
       return result.rows.map((row) => this.rowToDueDate(row));

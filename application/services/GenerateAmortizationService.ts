@@ -1,10 +1,5 @@
-export interface AmortizationRow {
-  dueDate: Date;
-  totalAmount: number;
-  shareInterest: number;
-  shareInsurance: number;
-  repaymentPortion: number;
-}
+import { AmortizationRow } from "@domain/types/AmortizationRow";
+
 
 export interface GenerateAmortizationService {
   generate(

@@ -1,15 +1,9 @@
-import { Credit } from "@domain/entities/credit";
-import { DueDate } from "@domain/entities/dueDate";
 import { CreditRepository } from "@application/repositories/credit";
 import { DueDateRepository } from "@application/repositories/dueDate";
 import { GetCustomerCreditsWithDueDatesRequest } from "@application/requests/credit";
+import { CreditWithDueDates } from "@domain/types/CreditWithDueDates";
 import { ConnectedError } from "@application/errors";
 import { UserRepository } from "@application/repositories/users";
-
-export type CreditWithDueDates = {
-  credit: Credit;
-  dueDates: DueDate[];
-};
 
 export class GetCustomerCreditsWithDueDates {
   constructor(

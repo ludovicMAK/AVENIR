@@ -2,42 +2,8 @@ import { CreditRepository } from "@application/repositories/credit";
 import { DueDateRepository } from "@application/repositories/dueDate";
 import { SessionRepository } from "@application/repositories/session";
 import { GetCreditStatusRequest } from "@application/requests/credit";
+import { CreditStatusData } from "@domain/types/CreditStatusData";
 import { ConnectedError, NotFoundError, ValidationError } from "@application/errors";
-
-export type CreditStatusData = {
-  credit: {
-    id: string;
-    amountBorrowed: number;
-    annualRate: number;
-    insuranceRate: number;
-    durationInMonths: number;
-    startDate: Date;
-    status: string;
-    customerId: string;
-  };
-  progress: {
-    totalDueDates: number;
-    paidDueDates: number;
-    remainingDueDates: number;
-    totalAmountToPay: number;
-    totalAmountPaid: number;
-    totalAmountRemaining: number;
-    percentageCompleted: number;
-  };
-  nextDueDate?: {
-    id: string;
-    dueDate: Date;
-    totalAmount: number;
-    status: string;
-    daysUntilDue: number;
-  };
-  overdueDueDates: Array<{
-    id: string;
-    dueDate: Date;
-    totalAmount: number;
-    daysOverdue: number;
-  }>;
-};
 
 export class GetCreditStatus {
   constructor(

@@ -1,4 +1,5 @@
-import { GenerateAmortizationService, AmortizationRow } from "@application/services/GenerateAmortizationService";
+import { GenerateAmortizationService } from "@application/services/GenerateAmortizationService";
+import { AmortizationRow } from "@domain/types/AmortizationRow";
 
 export class NodeGenerateAmortizationService implements GenerateAmortizationService {
   generate(

@@ -1,11 +1,12 @@
 import { UnknownDueDateStatusError } from "@domain/errors"
 
 export class DueDateStatus {
-    private constructor(private readonly value: "payable" | "paid" | "overdue") {}
+    private constructor(private readonly value: "payable" | "paid" | "overdue" | "cancelled") {}
 
     static readonly PAYABLE: DueDateStatus = new DueDateStatus("payable")
     static readonly PAID: DueDateStatus = new DueDateStatus("paid")
     static readonly OVERDUE: DueDateStatus = new DueDateStatus("overdue")
+    static readonly CANCELLED: DueDateStatus = new DueDateStatus("cancelled")
     
     static from(value: string): DueDateStatus {
         switch (value) {
@@ -15,6 +16,8 @@ export class DueDateStatus {
                 return DueDateStatus.PAID
             case "overdue":
                 return DueDateStatus.OVERDUE
+            case "cancelled":
+                return DueDateStatus.CANCELLED
             default:
                 throw new UnknownDueDateStatusError(value)
         }

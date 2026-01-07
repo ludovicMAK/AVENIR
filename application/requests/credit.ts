@@ -38,3 +38,25 @@ export type GetCreditStatusRequest = {
   userId: string;
   token: string;
 };
+
+export type GetPaymentHistoryRequest = {
+  creditId: string;
+  userId: string;
+  token: string;
+};
+
+export type EarlyRepaymentRequest = {
+  creditId: string;
+  customerId: string;
+  token: string;
+};
+
+export type MarkOverdueRequest = {
+  token: string;
+  userId: string;
+};
+
+export type GetOverdueDueDatesRequest = {
+  token: string;
+  userId: string;
+};

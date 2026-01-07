@@ -1,15 +1,6 @@
-import { GenerateAmortizationService, AmortizationRow } from "@application/services/GenerateAmortizationService";
+import { GenerateAmortizationService } from "@application/services/GenerateAmortizationService";
 import { CalculateCreditDetailsRequest } from "@application/requests/credit";
-
-export type AmortizationSchedule = {
-  schedule: AmortizationRow[];
-  summary: {
-    monthlyPayment: number;
-    totalRepayment: number;
-    totalInterest: number;
-    totalInsurance: number;
-  };
-};
+import { AmortizationSchedule } from "@domain/types/AmortizationSchedule";
 
 export class SimulateAmortizationSchedule {
   constructor(
