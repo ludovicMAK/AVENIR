@@ -3,6 +3,7 @@ import { GetAllUsers } from "@application/usecases/users/getAllUsers";
 import { LoginUser } from "@application/usecases/users/loginUser";
 import { ConfirmRegistration } from "@application/usecases/users/confirmRegistration";
 import { GetUserById } from "@application/usecases/users/getUserById";
+import { GetUserByToken } from "@application/usecases/users/getUserByToken";
 import { RegisterUserInput, LoginUserInput } from "@application/requests/auth";
 import { User } from "@domain/entities/users";
 
@@ -13,6 +14,7 @@ export class UserController {
     private readonly getAllUsers: GetAllUsers,
     private readonly confirmRegistration: ConfirmRegistration,
     private readonly getUserById: GetUserById,
+    private readonly getUserByToken: GetUserByToken
   ) {}
 
   public async register(
@@ -37,5 +39,9 @@ export class UserController {
 
   public async findById(id: string): Promise<User> {
     return this.getUserById.execute(id);
+  }
+
+  public async findByToken(token: string): Promise<User> {
+    return this.getUserByToken.execute(token);
   }
 }

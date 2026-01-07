@@ -66,7 +66,7 @@ export default async function DashboardLayout({
             className="w-full justify-start hover:bg-primary/10 hover:text-primary"
             asChild
           >
-            <Link href="/accounts">
+            <Link href="/dashboard/accounts">
               <CreditCard className="mr-3 h-4 w-4" />
               Mes comptes
             </Link>

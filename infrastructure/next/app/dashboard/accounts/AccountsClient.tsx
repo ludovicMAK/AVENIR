@@ -120,7 +120,7 @@ export default function AccountsClient({ userId }: AccountsClientProps) {
             {formatAmount(totalBalance)}
           </p>
         </div>
-        <Button onClick={() => router.push("/accounts/new")}>
+        <Button onClick={() => router.push("/dashboard/accounts/new")}>
           <Plus className="mr-2 h-4 w-4" />
           Nouveau compte
         </Button>
@@ -192,7 +192,9 @@ export default function AccountsClient({ userId }: AccountsClientProps) {
                     : "Créez votre premier compte"}
                 </p>
                 {!searchQuery && (
-                  <Button onClick={() => router.push("/accounts/new")}>
+                  <Button
+                    onClick={() => router.push("/dashboard/accounts/new")}
+                  >
                     <Plus className="mr-2 h-4 w-4" />
                     Créer un compte
                   </Button>
@@ -209,7 +211,9 @@ export default function AccountsClient({ userId }: AccountsClientProps) {
                   <Card
                     key={account.id}
                     className="cursor-pointer hover:border-primary transition-colors"
-                    onClick={() => router.push(`/accounts/${account.id}`)}
+                    onClick={() =>
+                      router.push(`/dashboard/accounts/${account.id}`)
+                    }
                   >
                     <CardHeader>
                       <div className="flex items-start justify-between">
@@ -270,7 +274,9 @@ export default function AccountsClient({ userId }: AccountsClientProps) {
                 <Card
                   key={account.id}
                   className="cursor-pointer hover:border-primary transition-colors"
-                  onClick={() => router.push(`/accounts/${account.id}`)}
+                  onClick={() =>
+                    router.push(`/dashboard/accounts/${account.id}`)
+                  }
                 >
                   <CardHeader>
                     <CardTitle className="text-lg">
@@ -308,7 +314,7 @@ export default function AccountsClient({ userId }: AccountsClientProps) {
               <Card
                 key={account.id}
                 className="cursor-pointer hover:border-primary transition-colors"
-                onClick={() => router.push(`/accounts/${account.id}`)}
+                onClick={() => router.push(`/dashboard/accounts/${account.id}`)}
               >
                 <CardHeader>
                   <CardTitle className="text-lg">
@@ -336,7 +342,7 @@ export default function AccountsClient({ userId }: AccountsClientProps) {
               <Card
                 key={account.id}
                 className="cursor-pointer hover:border-primary transition-colors"
-                onClick={() => router.push(`/accounts/${account.id}`)}
+                onClick={() => router.push(`/dashboard/accounts/${account.id}`)}
               >
                 <CardHeader>
                   <CardTitle className="text-lg">

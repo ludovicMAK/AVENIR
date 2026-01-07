@@ -2,6 +2,7 @@ import { ApiError } from "@/lib/errors";
 import { isJsonObject } from "@/lib/json";
 import { JsonObject, JsonValue } from "@/types/json";
 import { ApiErrorCode } from "@/types/errors";
+import { getAuthenticationToken } from "@/lib/auth/client";
 
 // Adapters: Choose backend via NEXT_PUBLIC_API_BASE_URL
 // - If set (e.g., http://localhost:8000/api) → Use Express backend
@@ -15,6 +16,14 @@ export async function request<ResponseBody extends JsonValue = JsonValue>(
   const headers = new Headers(options.headers);
   headers.set("Content-Type", "application/json");
 
+  // Ajouter le token d'authentification si disponible (pour les requêtes côté client)
+  if (typeof window !== "undefined") {
+    const token = getAuthenticationToken();
+    if (token) {
+      headers.set("Authorization", `Bearer ${token}`);
+    }
+  }
+
   const fullUrl = `${API_BASE_URL}${path}`;
   console.log("[API Client] Calling:", fullUrl, "| BASE_URL:", API_BASE_URL);
 
@@ -23,6 +32,7 @@ export async function request<ResponseBody extends JsonValue = JsonValue>(
     response = await fetch(fullUrl, {
       ...options,
       headers,
+      credentials: "include", // Envoyer les cookies d'authentification
     });
   } catch {
     throw new ApiError(

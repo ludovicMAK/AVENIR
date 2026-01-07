@@ -8,8 +8,6 @@ import { CreateAccountRequest } from "@application/requests/accounts";
 import { SessionRepository } from "@application/repositories/session";
 import { ConnectedError } from "@application/errors";
 
-
-
 export class CreateAccount {
   constructor(
     private readonly sessionRepository: SessionRepository,
@@ -19,7 +17,10 @@ export class CreateAccount {
   ) {}
 
   async execute(request: CreateAccountRequest): Promise<Account> {
-    const isConnected = await this.sessionRepository.isConnected(request.idOwner, request.token);
+    const isConnected = await this.sessionRepository.isConnected(
+      request.idOwner,
+      request.token
+    );
     if (!isConnected) {
       throw new ConnectedError("User is not connected");
     }
@@ -32,12 +33,12 @@ export class CreateAccount {
       accountType,
       iban,
       request.accountName,
-      request.authorizedOverdraft,
-      request.overdraftLimit,
-      request.overdraftFees,
+      request.authorizedOverdraft ?? false,
+      request.overdraftLimit ?? 0,
+      request.overdraftFees ?? 0,
       StatusAccount.OPEN,
       request.idOwner,
-      0, 
+      0,
       0
     );
 
