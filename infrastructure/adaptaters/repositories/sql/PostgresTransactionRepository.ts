@@ -106,6 +106,33 @@ export class PostgresTransactionRepository implements TransactionRepository {
         }
     }
 
+    async findByIban(customerId: string): Promise<Transaction[]> {
+        try {
+            const query = `
+                SELECT t.id, t.account_iban, t.transaction_direction, t.amount, t.reason, t.account_date, t.status, t.transfer_id
+                FROM transactions t
+                JOIN accounts a ON t.account_iban = a.iban
+                WHERE a.id_owner = $1
+                ORDER BY t.account_date DESC
+            `;
+
+            const result = await this.pool.query(query, [customerId]);
+
+            return result.rows.map(row => new Transaction(
+                row.id,
+                row.account_iban,
+                TransactionDirection.from(row.transaction_direction),
+                row.amount,
+                row.reason,
+                row.account_date,
+                StatusTransaction.from(row.status),
+                row.transfer_id
+            ));
+        } catch (error) {
+            this.handleDatabaseError(error)
+        }
+    }
+
     private handleDatabaseError(unknownError: unknown): never {
         const error = ensureError(unknownError, "Unexpected database error")
         console.error("Database operation failed", error)

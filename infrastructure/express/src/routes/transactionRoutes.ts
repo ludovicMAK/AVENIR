@@ -7,7 +7,9 @@ export function createTransactionRoutes(transactionHttpHandler: TransactionHttpH
   router.post("/transaction", (request, response) =>
     transactionHttpHandler.createTransaction(request, response)
   );
+  router.get("/transactions/history", (request, response) =>
+    transactionHttpHandler.getTransactionHistory(request, response)
+  );
   
-
   return router;
 }

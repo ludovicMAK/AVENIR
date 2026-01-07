@@ -77,6 +77,7 @@ import { CreateTransaction } from "@application/usecases/transactions/createTran
 import { TransferHttpHandler } from "../http/TransferHttpHandler";
 import { TransferController } from "@express/controllers/TransferController";
 import { ValidTransferByAdmin } from "@application/usecases/transfer/validTransferByAdmin";
+
 import { UpdateNameAccount } from "@application/usecases/accounts/updateNameAccount";
 import { CreditHttpHandler } from "../http/CreditHttpHandler";
 import { CreditController } from "@express/controllers/CreditController";
@@ -92,6 +93,7 @@ import { SimulateAmortizationSchedule } from "@application/usecases/credits/simu
 import { PayInstallment } from "@application/usecases/credits/payInstallment";
 import { EnvironmentBankConfiguration } from "@adapters/services/EnvironmentBankConfiguration";
 import { GetUserById } from "@application/usecases/users/getUserById";
+import { GetTransactionHistory } from "@application/usecases/transactions/getTransactionHistory";
 
 const registerUser = new RegisterUser(
   userRepository,
@@ -206,7 +208,11 @@ const validateTransferByAdmin = new ValidTransferByAdmin(
   unitOfWork,
   accountRepository
 );
-const transactionController = new TransactionController(createTransaction);
+const getTransactionHistoryUsecase = new GetTransactionHistory(
+  sessionRepository,
+  transactionRepository
+);
+const transactionController = new TransactionController(createTransaction, getTransactionHistoryUsecase);
 const transferController = new TransferController(validateTransferByAdmin);
 
 const createConversation = new CreateConversation(

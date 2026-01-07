@@ -5,4 +5,5 @@ export interface TransactionRepository {
     createTransaction(transaction: Transaction, unitOfWork?: UnitOfWork): Promise<void>
     getAllTransactionsByTransferId(transferId: string): Promise<Transaction[]>
     update(transaction: Transaction, unitOfWork?: UnitOfWork): Promise<void>
+    findByIban(iban: string): Promise<Transaction[]>
 }
