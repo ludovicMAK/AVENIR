@@ -95,6 +95,7 @@ import { PayInstallment } from "@application/usecases/credits/payInstallment";
 import { EnvironmentBankConfiguration } from "@adapters/services/EnvironmentBankConfiguration";
 import { GetUserById } from "@application/usecases/users/getUserById";
 import { GetTransactionHistory } from "@application/usecases/transactions/getTransactionHistory";
+import { GetAccountTransactionsByAdmin } from "@application/usecases/transactions/getAccountTransactionsByAdmin";
 
 const registerUser = new RegisterUser(
   userRepository,
@@ -222,7 +223,20 @@ const getTransactionHistoryUsecase = new GetTransactionHistory(
   sessionRepository,
   transactionRepository
 );
-const transactionController = new TransactionController(createTransaction, getTransactionHistoryUsecase);
+
+
+
+const getAccountTransactionsByAdminUsecase = new GetAccountTransactionsByAdmin(
+  transactionRepository,
+  userRepository,
+  accountRepository
+);
+
+const transactionController = new TransactionController(
+  createTransaction, 
+  getTransactionHistoryUsecase,
+  getAccountTransactionsByAdminUsecase
+);
 const transferController = new TransferController(validateTransferByAdmin, cancelTransferUsecase);
 
 const createConversation = new CreateConversation(

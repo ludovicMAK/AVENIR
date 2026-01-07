@@ -106,17 +106,15 @@ export class PostgresTransactionRepository implements TransactionRepository {
         }
     }
 
-    async findByIban(customerId: string): Promise<Transaction[]> {
+    async findByIban(iban: string): Promise<Transaction[]> {
         try {
             const query = `
                 SELECT t.id, t.account_iban, t.transaction_direction, t.amount, t.reason, t.account_date, t.status, t.transfer_id
                 FROM transactions t
-                JOIN accounts a ON t.account_iban = a.iban
-                WHERE a.id_owner = $1
-                ORDER BY t.account_date DESC
+                WHERE t.account_iban = $1
             `;
 
-            const result = await this.pool.query(query, [customerId]);
+            const result = await this.pool.query(query, [iban]);
 
             return result.rows.map(row => new Transaction(
                 row.id,
