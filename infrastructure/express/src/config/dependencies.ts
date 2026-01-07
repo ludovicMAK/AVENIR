@@ -9,6 +9,9 @@ import { GetAccountsFromOwnerId } from "@application/usecases/accounts/getAccoun
 import { CreateAccount } from "@application/usecases/accounts/createAccount";
 import { GetAccountById } from "@application/usecases/accounts/getAccountById";
 import { CloseOwnAccount } from "@application/usecases/accounts/closeOwnAccount";
+import { GetAccountBalance } from "@application/usecases/accounts/getAccountBalance";
+import { GetAccountTransactions } from "@application/usecases/accounts/getAccountTransactions";
+import { GetAccountStatement } from "@application/usecases/accounts/getAccountStatement";
 
 // Shares use cases
 import { CreateShare } from "@application/usecases/shares/createShare";
@@ -22,8 +25,6 @@ import { ExecuteMatchingOrders } from "@application/usecases/shares/executeMatch
 import { CalculateSharePrice } from "@application/usecases/shares/calculateSharePrice";
 import { GetOrderBook } from "@application/usecases/shares/getOrderBook";
 import { GetShareTransactionHistory } from "@application/usecases/shares/getShareTransactionHistory";
-
-
 
 // Conversations use cases
 import { CreateConversation } from "@application/usecases/conversations/createConversation";
@@ -145,12 +146,29 @@ const updateNameAccount = new UpdateNameAccount(
   sessionRepository,
   accountRepository
 );
+const getAccountBalance = new GetAccountBalance(
+  accountRepository,
+  sessionRepository
+);
+const getAccountTransactions = new GetAccountTransactions(
+  accountRepository,
+  transactionRepository,
+  sessionRepository
+);
+const getAccountStatement = new GetAccountStatement(
+  accountRepository,
+  transactionRepository,
+  sessionRepository
+);
 const accountController = new AccountController(
   getAccountsFromOwnerId,
   createAccount,
   getAccountById,
   closeOwnAccount,
-  updateNameAccount
+  updateNameAccount,
+  getAccountBalance,
+  getAccountTransactions,
+  getAccountStatement
 );
 
 const createShare = new CreateShare(shareRepository, uuidGenerator);
@@ -246,7 +264,7 @@ const createConversation = new CreateConversation(
   sessionRepository,
   userRepository,
   uuidGenerator,
-  undefined 
+  undefined
 );
 const createGroupConversation = new CreateGroupConversation(
   conversationRepository,
@@ -342,11 +360,12 @@ const grantCredit = new GrantCredit(
   unitOfWork,
   uuidGenerator
 );
-const getCustomerCreditsWithDueDatesUsecase = new GetCustomerCreditsWithDueDates(
-  userRepository,
-  creditRepository,
-  dueDateRepository
-);
+const getCustomerCreditsWithDueDatesUsecase =
+  new GetCustomerCreditsWithDueDates(
+    userRepository,
+    creditRepository,
+    dueDateRepository
+  );
 const getMyCreditsUsecase = new GetMyCredits(
   sessionRepository,
   creditRepository,
@@ -401,7 +420,18 @@ const getOverdueDueDatesUsecase = new GetOverdueDueDates(
   creditRepository
 );
 
-const creditController = new CreditController(grantCredit, getCustomerCreditsWithDueDatesUsecase, getMyCreditsUsecase, getCreditStatusUsecase, getPaymentHistoryUsecase, earlyRepayCreditUsecase, markOverdueDueDatesUsecase, getOverdueDueDatesUsecase, simulateAmortizationScheduleUsecase, payInstallmentUsecase);
+const creditController = new CreditController(
+  grantCredit,
+  getCustomerCreditsWithDueDatesUsecase,
+  getMyCreditsUsecase,
+  getCreditStatusUsecase,
+  getPaymentHistoryUsecase,
+  earlyRepayCreditUsecase,
+  markOverdueDueDatesUsecase,
+  getOverdueDueDatesUsecase,
+  simulateAmortizationScheduleUsecase,
+  payInstallmentUsecase
+);
 const creditHttpHandler = new CreditHttpHandler(creditController);
 
 export const httpRouter = createHttpRouter(

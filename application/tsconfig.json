@@ -11,11 +11,9 @@
     },
     "declaration": true,
     "emitDeclarationOnly": true,
-    "ignoreDeprecations": "5.0"
+    "ignoreDeprecations": "6.0"
   },
-  "references": [
-    { "path": "../domain" }
-  ],
+  "references": [{ "path": "../domain" }],
   "include": ["**/*.ts"],
   "exclude": ["dist", "node_modules"]
 }

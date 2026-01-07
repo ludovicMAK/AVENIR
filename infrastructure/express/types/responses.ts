@@ -8,7 +8,6 @@ import { OverdueDueDateWithCredit } from "@domain/types/OverdueDueDateWithCredit
 import { PaymentHistoryItem } from "@domain/types/PaymentHistoryItem";
 import { TransactionHistoryResult } from "@domain/types/TransferHistoryResult";
 
-
 export type UserView = {
   id: string;
   firstname: string;
@@ -47,8 +46,6 @@ export type CreditResponseData = { credit: Credit };
 
 export type CreditsResponseData = { credits: Credit[] };
 
-
-
 export type AccountResponseData = { accounts: AccountView[] };
 
 export type SingleAccountResponseData = { account: AccountView };
@@ -79,8 +76,12 @@ export type MessageView = {
   text: string;
   sendDate: Date;
 };
-export type OverdueDueDateWithCreditData = { overdueDueDates: OverdueDueDateWithCredit[] };
-export type AmortizationScheduleResponseData = { schedule: AmortizationSchedule };
+export type OverdueDueDateWithCreditData = {
+  overdueDueDates: OverdueDueDateWithCredit[];
+};
+export type AmortizationScheduleResponseData = {
+  schedule: AmortizationSchedule;
+};
 
 export type ConversationResponseData = { conversation: ConversationView };
 
@@ -96,7 +97,7 @@ export type MessageResponseData = { message: MessageView };
 export type MessagesListResponseData = { messages: MessageView[] };
 export type PaymentHistoryItemData = {
   payments: PaymentHistoryItem[];
-}
+};
 
 export type SuccessData =
   | UserResponseData
@@ -112,7 +113,7 @@ export type SuccessData =
   | CreditsResponseData
   | DueDateResponseData
   | AmortizationScheduleResponseData
-  |creditsWithDueDatesData
+  | creditsWithDueDatesData
   | CreditStatusResponseData
   | PaymentHistoryItemData
   | MarkOverdueResult
@@ -121,7 +122,7 @@ export type SuccessData =
   | undefined;
 
 export type SuccessPayload<ResponseData extends SuccessData = SuccessData> = {
-  ok: true;
+  status: number;
   code: string;
   message?: string;
   data?: ResponseData;
