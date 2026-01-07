@@ -21,4 +21,9 @@ export interface TransactionRepository {
       limit: number;
     }
   ): Promise<{ transactions: Transaction[]; total: number }>;
+    findByIban(iban: string): Promise<Transaction[]>
+
 }
+
+
+    

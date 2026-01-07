@@ -8,6 +8,13 @@ export function createTransactionRoutes(transactionHttpHandler: TransactionHttpH
     transactionHttpHandler.createTransaction(request, response)
   );
   
+  router.get("/transactions/history", (request, response) =>
+    transactionHttpHandler.getTransactionHistory(request, response)
+  );
 
+  router.get("/transactions/account/:iban", (request, response) =>
+    transactionHttpHandler.getAccountTransactionsByAdmin(request, response)
+  );
+  
   return router;
 }

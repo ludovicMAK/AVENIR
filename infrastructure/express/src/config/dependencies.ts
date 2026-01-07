@@ -80,6 +80,8 @@ import { CreateTransaction } from "@application/usecases/transactions/createTran
 import { TransferHttpHandler } from "../http/TransferHttpHandler";
 import { TransferController } from "@express/controllers/TransferController";
 import { ValidTransferByAdmin } from "@application/usecases/transfer/validTransferByAdmin";
+import { CancelTransfer } from "@application/usecases/transfer/cancelTransfer";
+
 import { UpdateNameAccount } from "@application/usecases/accounts/updateNameAccount";
 import { CreditHttpHandler } from "../http/CreditHttpHandler";
 import { CreditController } from "@express/controllers/CreditController";
@@ -94,6 +96,8 @@ import { GetOverdueDueDates } from "@application/usecases/credits/getOverdueDueD
 import { SimulateAmortizationSchedule } from "@application/usecases/credits/simulateAmortizationSchedule";
 import { PayInstallment } from "@application/usecases/credits/payInstallment";
 import { EnvironmentBankConfiguration } from "@adapters/services/EnvironmentBankConfiguration";
+import { GetTransactionHistory } from "@application/usecases/transactions/getTransactionHistory";
+import { GetAccountTransactionsByAdmin } from "@application/usecases/transactions/getAccountTransactionsByAdmin";
 
 const registerUser = new RegisterUser(
   userRepository,
@@ -227,8 +231,34 @@ const validateTransferByAdmin = new ValidTransferByAdmin(
   unitOfWork,
   accountRepository
 );
-const transactionController = new TransactionController(createTransaction);
-const transferController = new TransferController(validateTransferByAdmin);
+
+const cancelTransferUsecase = new CancelTransfer(
+  transferRepository,
+  userRepository,
+  transactionRepository,
+  accountRepository,
+  unitOfWork
+);
+
+const getTransactionHistoryUsecase = new GetTransactionHistory(
+  sessionRepository,
+  transactionRepository
+);
+
+
+
+const getAccountTransactionsByAdminUsecase = new GetAccountTransactionsByAdmin(
+  transactionRepository,
+  userRepository,
+  accountRepository
+);
+
+const transactionController = new TransactionController(
+  createTransaction, 
+  getTransactionHistoryUsecase,
+  getAccountTransactionsByAdminUsecase
+);
+const transferController = new TransferController(validateTransferByAdmin, cancelTransferUsecase);
 
 const createConversation = new CreateConversation(
   conversationRepository,

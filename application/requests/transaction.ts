@@ -8,4 +8,8 @@ export type TransactionInput = {
     direction: string
     dateExecuted: Date
 }
+export type GetTransactionHistoryRequest = {
+    userId: string
+    token: string
+}
 
