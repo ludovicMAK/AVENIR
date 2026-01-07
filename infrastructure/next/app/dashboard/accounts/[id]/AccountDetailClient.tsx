@@ -44,6 +44,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import Link from "next/link";
+import { CloseAccountDialog } from "@/components/CloseAccountDialog";
 
 interface AccountDetailClientProps {
   accountId: string;
@@ -71,6 +72,7 @@ export default function AccountDetailClient({
 
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 20;
+  const [closeDialogOpen, setCloseDialogOpen] = useState(false);
 
   // Charger les données du compte
   useEffect(() => {
@@ -94,6 +96,11 @@ export default function AccountDetailClient({
 
     loadAccount();
   }, [accountId]);
+
+  // Rediriger après fermeture du compte
+  const handleCloseSuccess = () => {
+    router.push("/dashboard/accounts");
+  };
 
   // Charger les transactions
   useEffect(() => {
@@ -166,10 +173,6 @@ export default function AccountDetailClient({
           Retour aux comptes
         </Link>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <Edit className="mr-2 h-4 w-4" />
-            Renommer
-          </Button>
           <Button
             variant="outline"
             size="sm"
@@ -180,7 +183,12 @@ export default function AccountDetailClient({
             <FileText className="mr-2 h-4 w-4" />
             Relevé
           </Button>
-          <Button variant="outline" size="sm" className="text-destructive">
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-destructive"
+            onClick={() => setCloseDialogOpen(true)}
+          >
             <XCircle className="mr-2 h-4 w-4" />
             Fermer le compte
           </Button>
@@ -399,6 +407,16 @@ export default function AccountDetailClient({
           )}
         </CardContent>
       </Card>
+
+      {/* Close Account Dialog */}
+      {account && (
+        <CloseAccountDialog
+          account={account}
+          open={closeDialogOpen}
+          onOpenChange={setCloseDialogOpen}
+          onSuccess={handleCloseSuccess}
+        />
+      )}
     </div>
   );
 }

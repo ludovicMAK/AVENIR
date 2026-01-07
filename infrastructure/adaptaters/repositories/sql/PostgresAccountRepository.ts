@@ -67,7 +67,7 @@ export class PostgresAccountRepository implements AccountRepository {
         `
                     SELECT id, iban, account_type, account_name, authorized_overdraft, overdraft_limit, overdraft_fees, status, balance, id_owner, available_balance
                     FROM accounts
-                    WHERE iban = $1
+                    WHERE UPPER(REPLACE(iban, ' ', '')) = UPPER(REPLACE($1, ' ', ''))
                 `,
         [IBAN]
       );
@@ -204,7 +204,8 @@ export class PostgresAccountRepository implements AccountRepository {
           : null;
       const query = `
                   UPDATE accounts
-          SET available_balance = available_balance + $1
+          SET balance = balance + $1,
+              available_balance = available_balance + $1
           WHERE id = $2 AND status = 'open'
               `;
       const params = [amountToAdd, accountId];
@@ -269,7 +270,9 @@ export class PostgresAccountRepository implements AccountRepository {
       this.handleDatabaseError(error);
     }
   }
-  async findCurrentAccountByCustomerId(customerId: string): Promise<Account | null> {
+  async findCurrentAccountByCustomerId(
+    customerId: string
+  ): Promise<Account | null> {
     try {
       const result = await this.pool.query<AccountRow>(
         `

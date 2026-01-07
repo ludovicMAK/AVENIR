@@ -13,7 +13,7 @@ services:
       - "${DB_PORT:-5432}:5432"
     volumes:
       - avenir-postgres-data:/var/lib/postgresql/data
-      - ./infrastructure/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./infrastructure/database/init.sql:/docker-entrypoint-initdb.d
     healthcheck:
       test:
         [

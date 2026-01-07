@@ -9,6 +9,17 @@ import { getAuthenticationToken } from "@/lib/auth/client";
 // - If empty → Use Next.js API routes (/api/*)
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
+// Store pour l'userId côté client
+let cachedUserId: string | null = null;
+
+export function setCurrentUserId(userId: string | null) {
+  cachedUserId = userId;
+}
+
+export function getCurrentUserId(): string | null {
+  return cachedUserId;
+}
+
 export async function request<ResponseBody extends JsonValue = JsonValue>(
   path: string,
   options: RequestInit = {}
@@ -19,8 +30,21 @@ export async function request<ResponseBody extends JsonValue = JsonValue>(
   // Ajouter le token d'authentification si disponible (pour les requêtes côté client)
   if (typeof window !== "undefined") {
     const token = getAuthenticationToken();
+    const userId = getCurrentUserId();
+
+    console.log("[API Client] Auth state:", {
+      hasToken: !!token,
+      tokenPreview: token ? token.substring(0, 10) + "..." : null,
+      userId,
+    });
+
     if (token) {
       headers.set("Authorization", `Bearer ${token}`);
+    }
+
+    // Ajouter x-user-id si disponible
+    if (userId) {
+      headers.set("x-user-id", userId);
     }
   }
 

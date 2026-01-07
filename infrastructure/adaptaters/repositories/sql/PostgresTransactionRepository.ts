@@ -65,7 +65,7 @@ export class PostgresTransactionRepository implements TransactionRepository {
             row.id,
             row.account_iban,
             TransactionDirection.from(row.transaction_direction),
-            row.amount,
+            parseFloat(row.amount),
             row.reason,
             row.account_date,
             StatusTransaction.from(row.status),
@@ -181,6 +181,9 @@ export class PostgresTransactionRepository implements TransactionRepository {
 
       const queryParams = [...params, limit, offset];
       const result = await this.pool.query(query, queryParams);
+      console.log(
+        `[PostgresTransactionRepository.findByAccountIBAN] IBAN: ${iban}, Found: ${result.rows.length}/${total} transactions (page ${page})`
+      );
 
       const transactions = result.rows.map(
         (row) =>
@@ -188,7 +191,7 @@ export class PostgresTransactionRepository implements TransactionRepository {
             row.id,
             row.account_iban,
             TransactionDirection.from(row.transaction_direction),
-            row.amount,
+            parseFloat(row.amount),
             row.reason,
             row.account_date,
             StatusTransaction.from(row.status),
@@ -202,29 +205,36 @@ export class PostgresTransactionRepository implements TransactionRepository {
     }
   }
   async findByIban(iban: string): Promise<Transaction[]> {
-        try {
-            const query = `
+    try {
+      const query = `
                 SELECT t.id, t.account_iban, t.transaction_direction, t.amount, t.reason, t.account_date, t.status, t.transfer_id
                 FROM transactions t
                 WHERE t.account_iban = $1
+                ORDER BY t.account_date DESC
             `;
 
-            const result = await this.pool.query(query, [iban]);
+      const result = await this.pool.query(query, [iban]);
+      console.log(
+        `[PostgresTransactionRepository.findByIban] IBAN: ${iban}, Found: ${result.rows.length} transactions`
+      );
 
-            return result.rows.map(row => new Transaction(
-                row.id,
-                row.account_iban,
-                TransactionDirection.from(row.transaction_direction),
-                row.amount,
-                row.reason,
-                row.account_date,
-                StatusTransaction.from(row.status),
-                row.transfer_id
-            ));
-        } catch (error) {
-            this.handleDatabaseError(error)
-        }
+      return result.rows.map(
+        (row) =>
+          new Transaction(
+            row.id,
+            row.account_iban,
+            TransactionDirection.from(row.transaction_direction),
+            parseFloat(row.amount),
+            row.reason,
+            row.account_date,
+            StatusTransaction.from(row.status),
+            row.transfer_id
+          )
+      );
+    } catch (error) {
+      this.handleDatabaseError(error);
     }
+  }
 
   private handleDatabaseError(unknownError: unknown): never {
     const error = ensureError(unknownError, "Unexpected database error");

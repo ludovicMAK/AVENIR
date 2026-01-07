@@ -4,11 +4,14 @@ import { sendSuccess } from "../responses/success";
 import { mapErrorToHttpResponse } from "../responses/error";
 import { ValidationError, UnauthorizedError } from "@application/errors";
 import { SessionRepository } from "@application/repositories/session";
+import { Transaction } from "@domain/entities/transaction";
+import { TransactionRepository } from "@application/repositories/transaction";
 
 export class AccountHttpHandler {
   constructor(
     private readonly controller: AccountController,
-    private readonly sessionRepository: SessionRepository
+    private readonly sessionRepository: SessionRepository,
+    private readonly transactionRepository: TransactionRepository
   ) {}
 
   public async listByOwnerId(request: Request, response: Response) {
@@ -235,7 +238,7 @@ export class AccountHttpHandler {
       const { startDate, endDate, direction, status, page, limit } =
         request.query;
 
-      const transactionsData = await this.controller.getTransactions({
+      const result = await this.controller.getTransactions({
         accountId,
         userId,
         token,
@@ -246,6 +249,47 @@ export class AccountHttpHandler {
         page: page ? parseInt(page as string, 10) : undefined,
         limit: limit ? parseInt(limit as string, 10) : undefined,
       });
+
+      // Enrich and serialize transactions to plain objects
+      const enrichedTransactions = await Promise.all(
+        result.transactions.map(async (t: Transaction) => {
+          let counterpartyIBAN: string | undefined;
+
+          if (t.transferId) {
+            const transferTransactions =
+              await this.transactionRepository.getAllTransactionsByTransferId(
+                t.transferId
+              );
+            const otherTransaction = transferTransactions.find(
+              (tt) => tt.accountIBAN !== t.accountIBAN
+            );
+            counterpartyIBAN = otherTransaction?.accountIBAN;
+          }
+
+          return {
+            id: t.id,
+            accountIBAN: t.accountIBAN,
+            transactionDirection: t.transactionDirection.getValue(),
+            amount: t.amount,
+            reason: t.reason,
+            accountDate: t.accountDate,
+            status: t.status.getValue(),
+            transferId: t.transferId,
+            counterpartyIBAN,
+          };
+        })
+      );
+
+      // Transform to match Next.js expected format
+      const transactionsData = {
+        transactions: enrichedTransactions,
+        pagination: {
+          page: result.page,
+          limit: limit ? parseInt(limit as string, 10) : 20,
+          total: result.total,
+          totalPages: result.totalPages,
+        },
+      };
 
       return sendSuccess(response, {
         status: 200,
