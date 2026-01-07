@@ -5,6 +5,10 @@ import { PlaceOrder } from "@application/usecases/shares/placeOrder";
 import { CancelOrder } from "@application/usecases/shares/cancelOrder";
 import { GetClientPositions } from "@application/usecases/shares/getClientPositions";
 import { GetOrdersByCustomer } from "@application/usecases/shares/getOrdersByCustomer";
+import { ExecuteMatchingOrders } from "@application/usecases/shares/executeMatchingOrders";
+import { CalculateSharePrice } from "@application/usecases/shares/calculateSharePrice";
+import { GetOrderBook } from "@application/usecases/shares/getOrderBook";
+import { GetShareTransactionHistory } from "@application/usecases/shares/getShareTransactionHistory";
 import {
   CreateShareInput,
   PlaceOrderInput,
@@ -15,6 +19,7 @@ import {
 import { Share } from "@domain/entities/share";
 import { Order } from "@domain/entities/order";
 import { SecuritiesPosition } from "@domain/entities/securitiesPosition";
+import { ShareTransaction } from "@domain/entities/shareTransaction";
 
 export class ShareController {
   constructor(
@@ -24,7 +29,11 @@ export class ShareController {
     private readonly placeOrder: PlaceOrder,
     private readonly cancelOrder: CancelOrder,
     private readonly getClientPositions: GetClientPositions,
-    private readonly getOrdersByCustomer: GetOrdersByCustomer
+    private readonly getOrdersByCustomer: GetOrdersByCustomer,
+    private readonly executeMatchingOrdersUseCase: ExecuteMatchingOrders,
+    private readonly calculateSharePriceUseCase: CalculateSharePrice,
+    private readonly getOrderBookUseCase: GetOrderBook,
+    private readonly getShareTransactionHistoryUseCase: GetShareTransactionHistory
   ) {}
 
   async create(payload: CreateShareInput): Promise<Share> {
@@ -55,5 +64,21 @@ export class ShareController {
 
   async getOrders(customerId: string): Promise<Order[]> {
     return this.getOrdersByCustomer.execute(customerId);
+  }
+
+  async executeMatchingOrders(shareId: string): Promise<ShareTransaction[]> {
+    return this.executeMatchingOrdersUseCase.execute(shareId);
+  }
+
+  async calculatePrice(shareId: string): Promise<any> {
+    return this.calculateSharePriceUseCase.execute(shareId);
+  }
+
+  async getOrderBook(shareId: string): Promise<any> {
+    return this.getOrderBookUseCase.execute(shareId);
+  }
+
+  async getTransactionHistory(shareId: string): Promise<ShareTransaction[]> {
+    return this.getShareTransactionHistoryUseCase.execute(shareId);
   }
 }

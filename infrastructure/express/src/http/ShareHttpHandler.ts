@@ -161,4 +161,44 @@ export class ShareHttpHandler {
       return mapErrorToHttpResponse(response, error);
     }
   }
+
+  async executeMatchingOrders(request: Request, response: Response) {
+    try {
+      const shareId = request.params.id;
+      const transactions = await this.controller.executeMatchingOrders(shareId);
+      response.status(200).json(transactions);
+    } catch (error) {
+      return mapErrorToHttpResponse(response, error);
+    }
+  }
+
+  async calculatePrice(request: Request, response: Response) {
+    try {
+      const shareId = request.params.id;
+      const priceCalculation = await this.controller.calculatePrice(shareId);
+      response.status(200).json(priceCalculation);
+    } catch (error) {
+      return mapErrorToHttpResponse(response, error);
+    }
+  }
+
+  async getOrderBook(request: Request, response: Response) {
+    try {
+      const shareId = request.params.id;
+      const orderBook = await this.controller.getOrderBook(shareId);
+      response.status(200).json(orderBook);
+    } catch (error) {
+      return mapErrorToHttpResponse(response, error);
+    }
+  }
+
+  async getTransactionHistory(request: Request, response: Response) {
+    try {
+      const shareId = request.params.id;
+      const transactions = await this.controller.getTransactionHistory(shareId);
+      response.status(200).json(transactions);
+    } catch (error) {
+      return mapErrorToHttpResponse(response, error);
+    }
+  }
 }
