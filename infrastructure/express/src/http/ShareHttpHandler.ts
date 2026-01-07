@@ -6,6 +6,10 @@ import {
   CancelOrderInput,
   GetPositionsInput,
   GetShareInput,
+  GetShareTransactionHistoryInput,
+  GetOrderBookInput,
+  CalculateSharePriceInput,
+  ExecuteMatchingOrdersInput,
 } from "@application/requests/shares";
 import { mapErrorToHttpResponse } from "@express/src/responses/error";
 
@@ -43,6 +47,25 @@ export class ShareHttpHandler {
 
   async placeOrder(request: Request, response: Response) {
     try {
+      const userId = request.headers["x-user-id"] as string;
+      const authHeader = request.headers.authorization as string;
+      const token = authHeader?.startsWith("Bearer ")
+        ? authHeader.split(" ")[1]
+        : authHeader;
+
+      if (!userId) {
+        return response.status(400).send({
+          code: "MISSING_USER_ID",
+          message: "L'ID de l'utilisateur est requis.",
+        });
+      }
+      if (!token) {
+        return response.status(400).send({
+          code: "MISSING_AUTH_TOKEN",
+          message: "Le token d'authentification est requis.",
+        });
+      }
+
       const payload: PlaceOrderInput = request.body;
       const order = await this.controller.order(payload);
       response.status(201).json(order);
@@ -53,6 +76,25 @@ export class ShareHttpHandler {
 
   async cancelOrder(request: Request, response: Response) {
     try {
+      const userId = request.headers["x-user-id"] as string;
+      const authHeader = request.headers.authorization as string;
+      const token = authHeader?.startsWith("Bearer ")
+        ? authHeader.split(" ")[1]
+        : authHeader;
+
+      if (!userId) {
+        return response.status(400).send({
+          code: "MISSING_USER_ID",
+          message: "L'ID de l'utilisateur est requis.",
+        });
+      }
+      if (!token) {
+        return response.status(400).send({
+          code: "MISSING_AUTH_TOKEN",
+          message: "Le token d'authentification est requis.",
+        });
+      }
+
       const payload: CancelOrderInput = {
         orderId: request.params.orderId,
         customerId: request.body.customerId,
@@ -66,6 +108,25 @@ export class ShareHttpHandler {
 
   async getPositions(request: Request, response: Response) {
     try {
+      const userId = request.headers["x-user-id"] as string;
+      const authHeader = request.headers.authorization as string;
+      const token = authHeader?.startsWith("Bearer ")
+        ? authHeader.split(" ")[1]
+        : authHeader;
+
+      if (!userId) {
+        return response.status(400).send({
+          code: "MISSING_USER_ID",
+          message: "L'ID de l'utilisateur est requis.",
+        });
+      }
+      if (!token) {
+        return response.status(400).send({
+          code: "MISSING_AUTH_TOKEN",
+          message: "Le token d'authentification est requis.",
+        });
+      }
+
       const payload: GetPositionsInput = {
         customerId: request.params.customerId,
       };
@@ -78,9 +139,68 @@ export class ShareHttpHandler {
 
   async getOrders(request: Request, response: Response) {
     try {
+      const userId = request.headers["x-user-id"] as string;
+      const authHeader = request.headers.authorization as string;
+      const token = authHeader?.startsWith("Bearer ")
+        ? authHeader.split(" ")[1]
+        : authHeader;
+
+      if (!userId) {
+        return response.status(400).send({
+          code: "MISSING_USER_ID",
+          message: "L'ID de l'utilisateur est requis.",
+        });
+      }
+      if (!token) {
+        return response.status(400).send({
+          code: "MISSING_AUTH_TOKEN",
+          message: "Le token d'authentification est requis.",
+        });
+      }
+
       const customerId = request.params.customerId;
       const orders = await this.controller.getOrders(customerId);
       response.status(200).json(orders);
+    } catch (error) {
+      return mapErrorToHttpResponse(response, error);
+    }
+  }
+
+  async executeMatchingOrders(request: Request, response: Response) {
+    try {
+      const shareId = request.params.id;
+      const transactions = await this.controller.executeMatchingOrders(shareId);
+      response.status(200).json(transactions);
+    } catch (error) {
+      return mapErrorToHttpResponse(response, error);
+    }
+  }
+
+  async calculatePrice(request: Request, response: Response) {
+    try {
+      const shareId = request.params.id;
+      const priceCalculation = await this.controller.calculatePrice(shareId);
+      response.status(200).json(priceCalculation);
+    } catch (error) {
+      return mapErrorToHttpResponse(response, error);
+    }
+  }
+
+  async getOrderBook(request: Request, response: Response) {
+    try {
+      const shareId = request.params.id;
+      const orderBook = await this.controller.getOrderBook(shareId);
+      response.status(200).json(orderBook);
+    } catch (error) {
+      return mapErrorToHttpResponse(response, error);
+    }
+  }
+
+  async getTransactionHistory(request: Request, response: Response) {
+    try {
+      const shareId = request.params.id;
+      const transactions = await this.controller.getTransactionHistory(shareId);
+      response.status(200).json(transactions);
     } catch (error) {
       return mapErrorToHttpResponse(response, error);
     }

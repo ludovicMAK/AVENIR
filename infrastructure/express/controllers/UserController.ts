@@ -13,15 +13,19 @@ export class UserController {
     private readonly confirmRegistration: ConfirmRegistration
   ) {}
 
-  public async register(payload: RegisterUserInput): Promise<void> {
-    await this.registerUser.execute(payload);
+  public async register(
+    payload: RegisterUserInput
+  ): Promise<{ userId: string }> {
+    return await this.registerUser.execute(payload);
   }
 
   public async confirmRegistrationToken(token: string): Promise<void> {
     await this.confirmRegistration.execute(token);
   }
 
-  public async login(payload: LoginUserInput): Promise<User> {
+  public async login(
+    payload: LoginUserInput
+  ): Promise<{ user: User; token: string }> {
     return this.loginUser.execute(payload);
   }
 

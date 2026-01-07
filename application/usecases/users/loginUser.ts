@@ -17,7 +17,7 @@ export class LoginUser {
     private readonly sessionRepository: SessionRepository
   ) {}
 
-  async execute(input: LoginUserInput): Promise<User> {
+  async execute(input: LoginUserInput): Promise<{ user: User; token: string }> {
     const email = input.email.toLowerCase();
 
     const user = await this.userRepository.findByEmail(email);
@@ -46,10 +46,9 @@ export class LoginUser {
       new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       new Date()
     );
-    
-    await this.sessionRepository.createSession(session);
-    
 
-    return user;
+    await this.sessionRepository.createSession(session);
+
+    return { user, token };
   }
 }

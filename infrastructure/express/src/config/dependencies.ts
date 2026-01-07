@@ -18,6 +18,10 @@ import { PlaceOrder } from "@application/usecases/shares/placeOrder";
 import { CancelOrder } from "@application/usecases/shares/cancelOrder";
 import { GetClientPositions } from "@application/usecases/shares/getClientPositions";
 import { GetOrdersByCustomer } from "@application/usecases/shares/getOrdersByCustomer";
+import { ExecuteMatchingOrders } from "@application/usecases/shares/executeMatchingOrders";
+import { CalculateSharePrice } from "@application/usecases/shares/calculateSharePrice";
+import { GetOrderBook } from "@application/usecases/shares/getOrderBook";
+import { GetShareTransactionHistory } from "@application/usecases/shares/getShareTransactionHistory";
 
 
 
@@ -155,6 +159,20 @@ const placeOrder = new PlaceOrder(
 const cancelOrder = new CancelOrder(orderRepository);
 const getClientPositions = new GetClientPositions(securitiesPositionRepository);
 const getOrdersByCustomer = new GetOrdersByCustomer(orderRepository);
+const executeMatchingOrders = new ExecuteMatchingOrders(
+  orderRepository,
+  shareTransactionRepository,
+  securitiesPositionRepository,
+  accountRepository,
+  shareRepository,
+  uuidGenerator,
+  unitOfWork
+);
+const calculateSharePrice = new CalculateSharePrice(orderRepository);
+const getOrderBook = new GetOrderBook(orderRepository);
+const getShareTransactionHistory = new GetShareTransactionHistory(
+  shareTransactionRepository
+);
 
 const shareController = new ShareController(
   createShare,
@@ -163,7 +181,11 @@ const shareController = new ShareController(
   placeOrder,
   cancelOrder,
   getClientPositions,
-  getOrdersByCustomer
+  getOrdersByCustomer,
+  executeMatchingOrders,
+  calculateSharePrice,
+  getOrderBook,
+  getShareTransactionHistory
 );
 const createTransaction = new CreateTransaction(
   transactionRepository,

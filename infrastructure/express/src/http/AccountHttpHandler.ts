@@ -85,10 +85,10 @@ export class AccountHttpHandler {
   public async close(request: Request, response: Response) {
     try {
       const accountId = request.params.accountId;
-      const userId = request.headers["x-user-id"] as string; 
+      const userId = request.headers["x-user-id"] as string;
       const authHeader = request.headers.authorization as string;
-      const token = authHeader?.startsWith("Bearer ") 
-        ? authHeader.split(" ")[1] 
+      const token = authHeader?.startsWith("Bearer ")
+        ? authHeader.split(" ")[1]
         : authHeader;
       if (!accountId) {
         return response.status(400).send({
@@ -108,12 +108,11 @@ export class AccountHttpHandler {
           message: "Le token d'authentification est requis.",
         });
       }
-      
 
       await this.controller.close(accountId, userId, token);
 
       return sendSuccess(response, {
-        status: 200, 
+        status: 200,
         code: "ACCOUNT_CLOSED",
         message: "Account successfully closed.",
         data: undefined,
@@ -122,36 +121,43 @@ export class AccountHttpHandler {
       console.error("Error in AccountHttpHandler.close:", error);
       return mapErrorToHttpResponse(response, error);
     }
-}
+  }
   public async updateName(request: Request, response: Response) {
-      try {
-        const { accountId } = request.params;
-        const { newName } = request.body; 
-        const userId = request.headers["x-user-id"] as string; 
+    try {
+      const { accountId } = request.params;
+      const { newName } = request.body;
+      const userId = request.headers["x-user-id"] as string;
 
-        const authHeader = request.headers.authorization as string;
-        const token = authHeader?.startsWith("Bearer ") 
-          ? authHeader.split(" ")[1] 
-          : authHeader;
+      const authHeader = request.headers.authorization as string;
+      const token = authHeader?.startsWith("Bearer ")
+        ? authHeader.split(" ")[1]
+        : authHeader;
 
-        if (!newName || typeof newName !== 'string' || newName.trim().length === 0) {
-          throw new ValidationError("Le nouveau nom est requis et doit être une chaîne valide.");
-        }
-
-        if (newName.length > 50) {
-          throw new ValidationError("Le nom du compte ne peut pas dépasser 50 caractères.");
-        }
-
-
-        await this.controller.updateName(accountId, newName, userId, token);
-
-        return sendSuccess(response, {
-          status: 200,
-          code: "ACCOUNT_UPDATED",
-          message: "Le nom du compte a été mis à jour avec succès.",
-        });
-      } catch (error) {
-        return mapErrorToHttpResponse(response, error);
+      if (
+        !newName ||
+        typeof newName !== "string" ||
+        newName.trim().length === 0
+      ) {
+        throw new ValidationError(
+          "Le nouveau nom est requis et doit être une chaîne valide."
+        );
       }
+
+      if (newName.length > 50) {
+        throw new ValidationError(
+          "Le nom du compte ne peut pas dépasser 50 caractères."
+        );
+      }
+
+      await this.controller.updateName(accountId, newName, userId, token);
+
+      return sendSuccess(response, {
+        status: 200,
+        code: "ACCOUNT_UPDATED",
+        message: "Le nom du compte a été mis à jour avec succès.",
+      });
+    } catch (error) {
+      return mapErrorToHttpResponse(response, error);
+    }
   }
 }

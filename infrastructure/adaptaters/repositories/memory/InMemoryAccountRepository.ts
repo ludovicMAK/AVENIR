@@ -50,7 +50,10 @@ export class InMemoryAccountRepository implements AccountRepository {
       this.items.set(accountId, updatedAccount);
     }
   }
-  async updateBalanceAvailable(accountId: string, newAvailableBalance: number): Promise<void> {
+  async updateBalanceAvailable(
+    accountId: string,
+    newAvailableBalance: number
+  ): Promise<void> {
     const account = this.items.get(accountId);
     if (account) {
       const updatedAccount = new Account(
@@ -131,5 +134,45 @@ export class InMemoryAccountRepository implements AccountRepository {
       return true;
     }
     return false;
+  }
+
+  async blockFunds(accountId: string, amount: number): Promise<void> {
+    const account = this.items.get(accountId);
+    if (account && account.isOpen()) {
+      const updatedAccount = new Account(
+        account.id,
+        account.accountType,
+        account.IBAN,
+        account.accountName,
+        account.authorizedOverdraft,
+        account.overdraftLimit,
+        account.overdraftFees,
+        account.status,
+        account.idOwner,
+        account.balance,
+        account.availableBalance - amount
+      );
+      this.items.set(accountId, updatedAccount);
+    }
+  }
+
+  async unblockFunds(accountId: string, amount: number): Promise<void> {
+    const account = this.items.get(accountId);
+    if (account && account.isOpen()) {
+      const updatedAccount = new Account(
+        account.id,
+        account.accountType,
+        account.IBAN,
+        account.accountName,
+        account.authorizedOverdraft,
+        account.overdraftLimit,
+        account.overdraftFees,
+        account.status,
+        account.idOwner,
+        account.balance,
+        account.availableBalance + amount
+      );
+      this.items.set(accountId, updatedAccount);
+    }
   }
 }

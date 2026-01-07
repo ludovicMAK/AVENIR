@@ -56,6 +56,8 @@ export type UserResponseData = { user: UserView };
 
 export type UserListResponseData = { users: UserView[] };
 
+export type UserRegistrationResponseData = { userId: string };
+
 export type creditsWithDueDatesData = {
   creditWithDueDates: CreditWithDueDates[];
 };
@@ -97,6 +99,7 @@ export type PaymentHistoryItemData = {
 export type SuccessData =
   | UserResponseData
   | UserListResponseData
+  | UserRegistrationResponseData
   | AccountResponseData
   | SingleAccountResponseData
   | ConversationResponseData
