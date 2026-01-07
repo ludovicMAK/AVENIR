@@ -137,7 +137,6 @@ export class PostgresTransactionRepository implements TransactionRepository {
       const params: any[] = [iban];
       let paramIndex = 2;
 
-      // Ajouter les filtres
       if (filters?.startDate) {
         conditions.push(`account_date >= $${paramIndex}`);
         params.push(filters.startDate);
@@ -164,12 +163,10 @@ export class PostgresTransactionRepository implements TransactionRepository {
 
       const whereClause = conditions.join(" AND ");
 
-      // Compter le total
       const countQuery = `SELECT COUNT(*) as total FROM transactions WHERE ${whereClause}`;
       const countResult = await this.pool.query(countQuery, params);
       const total = parseInt(countResult.rows[0].total, 10);
 
-      // Récupérer les transactions avec pagination
       const page = pagination?.page || 1;
       const limit = pagination?.limit || 20;
       const offset = (page - 1) * limit;
@@ -204,6 +201,30 @@ export class PostgresTransactionRepository implements TransactionRepository {
       this.handleDatabaseError(error);
     }
   }
+  async findByIban(iban: string): Promise<Transaction[]> {
+        try {
+            const query = `
+                SELECT t.id, t.account_iban, t.transaction_direction, t.amount, t.reason, t.account_date, t.status, t.transfer_id
+                FROM transactions t
+                WHERE t.account_iban = $1
+            `;
+
+            const result = await this.pool.query(query, [iban]);
+
+            return result.rows.map(row => new Transaction(
+                row.id,
+                row.account_iban,
+                TransactionDirection.from(row.transaction_direction),
+                row.amount,
+                row.reason,
+                row.account_date,
+                StatusTransaction.from(row.status),
+                row.transfer_id
+            ));
+        } catch (error) {
+            this.handleDatabaseError(error)
+        }
+    }
 
   private handleDatabaseError(unknownError: unknown): never {
     const error = ensureError(unknownError, "Unexpected database error");

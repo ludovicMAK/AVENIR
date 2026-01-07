@@ -65,6 +65,9 @@ export class InMemoryTransactionRepository implements TransactionRepository {
         (t) => t.accountDate >= filters.startDate!
       );
     }
+    async findByIban(iban: string): Promise<Transaction[]> {
+        return Array.from(this.items.values()).filter(transaction => transaction.accountIBAN === iban);
+    }
 
     if (filters?.endDate) {
       transactions = transactions.filter(
