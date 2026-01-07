@@ -9,12 +9,12 @@ export function createCreditRoutes(creditHttpHandler: CreditHttpHandler): Router
     creditHttpHandler.grantCredit(request, response)
   );
 
-  router.get("/credits/:creditId", (request, response) =>
-    creditHttpHandler.getCreditById(request, response)
-  );
-
   router.get("/credits/:customerId/credits-with-due-dates", (request, response) =>
     creditHttpHandler.getCustomerCreditsWithDueDates(request, response)
+  );
+
+  router.get("/my-credits", (request, response) =>
+    creditHttpHandler.getMyCredits(request, response)
   );
 
   router.post("/credits/simulate-schedule", (request, response) =>
@@ -24,6 +24,7 @@ export function createCreditRoutes(creditHttpHandler: CreditHttpHandler): Router
   router.post("/due-dates/:dueDateId/pay", (request, response) =>
     creditHttpHandler.payInstallment(request, response)
   );
+
 
   return router;
 }

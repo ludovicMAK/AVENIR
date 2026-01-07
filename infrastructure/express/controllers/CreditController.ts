@@ -1,17 +1,17 @@
 import { GrantCredit } from "@application/usecases/credits/grantCredit";
-import { GetCreditById } from "@application/usecases/credits/getCreditById";
 import { GetCustomerCreditsWithDueDates, CreditWithDueDates } from "@application/usecases/credits/getCustomerCreditsWithDueDates";
+import { GetMyCredits } from "@application/usecases/credits/getMyCredits";
 import { SimulateAmortizationSchedule, AmortizationSchedule } from "@application/usecases/credits/simulateAmortizationSchedule";
 import { PayInstallment } from "@application/usecases/credits/payInstallment";
-import { GrantCreditRequest, GetCreditByIdRequest, GetCustomerCreditsWithDueDatesRequest, CalculateCreditDetailsRequest, PayInstallmentRequest } from "@application/requests/credit";
+import { GrantCreditRequest, GetCustomerCreditsWithDueDatesRequest, GetMyCreditsRequest, CalculateCreditDetailsRequest, PayInstallmentRequest } from "@application/requests/credit";
 import { Credit } from "@domain/entities/credit";
 import { DueDate } from "@domain/entities/dueDate";
 
 export class CreditController {
   public constructor(
     private readonly grantCreditUsecase: GrantCredit,
-    private readonly getCreditByIdUsecase: GetCreditById,
     private readonly getCustomerCreditsWithDueDatesUsecase: GetCustomerCreditsWithDueDates,
+    private readonly getMyCreditsUsecase: GetMyCredits,
     private readonly simulateAmortizationScheduleUsecase: SimulateAmortizationSchedule,
     private readonly payInstallmentUsecase: PayInstallment
   ) {}
@@ -20,12 +20,12 @@ export class CreditController {
     return await this.grantCreditUsecase.execute(request);
   }
 
-  public async getCreditById(request: GetCreditByIdRequest, userId: string): Promise<Credit> {
-    return await this.getCreditByIdUsecase.execute(request, userId);
-  }
-
   public async getCustomerCreditsWithDueDates(request: GetCustomerCreditsWithDueDatesRequest): Promise<CreditWithDueDates[]> {
     return await this.getCustomerCreditsWithDueDatesUsecase.execute(request);
+  }
+
+  public async getMyCredits(request: GetMyCreditsRequest): Promise<CreditWithDueDates[]> {
+    return await this.getMyCreditsUsecase.execute(request);
   }
 
   public simulateAmortizationSchedule(request: CalculateCreditDetailsRequest): AmortizationSchedule {

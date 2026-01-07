@@ -78,7 +78,7 @@ import { CreditHttpHandler } from "../http/CreditHttpHandler";
 import { CreditController } from "@express/controllers/CreditController";
 import { GrantCredit } from "@application/usecases/credits/grantCredit";
 import { GetCustomerCreditsWithDueDates } from "@application/usecases/credits/getCustomerCreditsWithDueDates";
-import { GetCreditById } from "@application/usecases/credits/getCreditById";
+import { GetMyCredits } from "@application/usecases/credits/getMyCredits";
 import { SimulateAmortizationSchedule } from "@application/usecases/credits/simulateAmortizationSchedule";
 import { PayInstallment } from "@application/usecases/credits/payInstallment";
 import { EnvironmentBankConfiguration } from "@adapters/services/EnvironmentBankConfiguration";
@@ -282,12 +282,13 @@ const grantCredit = new GrantCredit(
   unitOfWork,
   uuidGenerator
 );
-const getCreditByIdUsecase = new GetCreditById(
-  sessionRepository,
-  creditRepository,
-);
 const getCustomerCreditsWithDueDatesUsecase = new GetCustomerCreditsWithDueDates(
   userRepository,
+  creditRepository,
+  dueDateRepository
+);
+const getMyCreditsUsecase = new GetMyCredits(
+  sessionRepository,
   creditRepository,
   dueDateRepository
 );
@@ -309,7 +310,7 @@ const payInstallmentUsecase = new PayInstallment(
 
 
 
-const creditController = new CreditController(grantCredit, getCreditByIdUsecase, getCustomerCreditsWithDueDatesUsecase, simulateAmortizationScheduleUsecase, payInstallmentUsecase);
+const creditController = new CreditController(grantCredit, getCustomerCreditsWithDueDatesUsecase, getMyCreditsUsecase, simulateAmortizationScheduleUsecase, payInstallmentUsecase);
 const creditHttpHandler = new CreditHttpHandler(creditController);
 
 export const httpRouter = createHttpRouter(

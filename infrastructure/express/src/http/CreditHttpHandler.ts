@@ -3,7 +3,7 @@ import { CreditController } from "@express/controllers/CreditController";
 import { sendSuccess } from "../responses/success";
 import { mapErrorToHttpResponse } from "../responses/error";
 import { ValidationError } from "@application/errors";
-import { GrantCreditRequest, PayInstallmentRequest, GetCustomerCreditsWithDueDatesRequest } from "@application/requests/credit";
+import { GrantCreditRequest, PayInstallmentRequest, GetCustomerCreditsWithDueDatesRequest, GetMyCreditsRequest } from "@application/requests/credit";
 
 export class CreditHttpHandler {
   constructor(private readonly controller: CreditController) {}
@@ -48,37 +48,6 @@ export class CreditHttpHandler {
     }
   }
 
-  public async getCreditById(request: Request, response: Response) {
-    try {
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers["authorization"];
-      const token = authHeader && authHeader.split(" ")[1];
-      const { creditId } = request.params;
-
-      if (!creditId) {
-        throw new ValidationError("Credit ID is required");
-      }
-
-      if (!userId || !token) {
-        throw new ValidationError("Authentication required");
-      }
-
-      const credit = await this.controller.getCreditById(
-        { creditId, token: token || "" },
-        userId
-      );
-
-      return sendSuccess(response, {
-        status: 200,
-        code: "CREDIT_FOUND",
-        message: "Credit retrieved successfully.",
-        data: { credit },
-      });
-    } catch (error) {
-      return mapErrorToHttpResponse(response, error);
-    }
-  }
-
   public async getCustomerCreditsWithDueDates(request: Request, response: Response) {
     try {
       const userId = request.headers["x-user-id"] as string;
@@ -107,6 +76,34 @@ export class CreditHttpHandler {
         code: "CREDITS_WITH_DUE_DATES_FOUND",
         message: "Credits with due dates retrieved successfully.",
         data: { creditWithDueDates:creditsWithDueDates },
+      });
+    } catch (error) {
+      return mapErrorToHttpResponse(response, error);
+    }
+  }
+
+  public async getMyCredits(request: Request, response: Response) {
+    try {
+      const userId = request.headers["x-user-id"] as string;
+      const authHeader = request.headers["authorization"];
+      const token = authHeader && authHeader.split(" ")[1];
+
+      if (!userId || !token) {
+        throw new ValidationError("Authentication required");
+      }
+
+      const getMyCreditsRequest: GetMyCreditsRequest = {
+        customerId: userId,
+        token: token || "",
+      };
+
+      const myCredits = await this.controller.getMyCredits(getMyCreditsRequest);
+
+      return sendSuccess(response, {
+        status: 200,
+        code: "MY_CREDITS_FOUND",
+        message: "My credits retrieved successfully.",
+        data: { creditWithDueDates: myCredits },
       });
     } catch (error) {
       return mapErrorToHttpResponse(response, error);

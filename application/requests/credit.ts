@@ -9,11 +9,6 @@ export type GrantCreditRequest = {
   advisorId: string;
 };
 
-export type GetCreditByIdRequest = {
-  creditId: string;
-  token: string;
-};
-
 export type CalculateCreditDetailsRequest = {
   amountBorrowed: number; 
   annualRate: number; 
@@ -31,4 +26,9 @@ export type GetCustomerCreditsWithDueDatesRequest = {
   customerId: string;
   token: string;
   advisorId: string;
+};
+
+export type GetMyCreditsRequest = {
+  customerId: string;
+  token: string;
 };
