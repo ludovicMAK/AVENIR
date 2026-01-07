@@ -15,7 +15,14 @@
     --color-muted: #1e293b;
     --color-muted-foreground: #94a3b8;
     --color-card: #1e293b;
+    --color-card-foreground: #f8fafc;
+    --color-popover: #1e293b;
+    --color-popover-foreground: #f8fafc;
     --color-border: #334155;
+    --color-input: #334155;
+    --color-ring: #3b82f6;
+    --color-destructive: #ef4444;
+    --color-destructive-foreground: #f8fafc;
     --color-success: #10b981;
     /* Vert */
     --color-warning: #f59e0b;

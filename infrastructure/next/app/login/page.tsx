@@ -83,21 +83,20 @@ export default function Page() {
 
     try {
       const response = await authApi.login(data);
-      const userToken = response?.user?.id;
+      const sessionToken = response?.token;
 
-      if (!userToken) {
+      if (!sessionToken) {
         throw new ApiError(
           "INFRASTRUCTURE_ERROR",
           "Invalid authentication response."
         );
       }
 
-      persistAuthentication(userToken);
+      persistAuthentication(sessionToken);
 
       const redirectPath = sanitizeRedirectPath(getRedirectHint());
       clearRedirectHint();
       router.replace(redirectPath);
-      router.refresh();
     } catch (error) {
       const message =
         error instanceof ApiError

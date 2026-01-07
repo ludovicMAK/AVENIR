@@ -6,7 +6,7 @@ export default async function AccountsPage() {
   const user = await getCurrentUser();
 
   if (!user) {
-    redirect("/login?redirect=/accounts");
+    redirect("/login?redirect=/dashboard/accounts");
   }
 
   return <AccountsClient userId={user.id} />;

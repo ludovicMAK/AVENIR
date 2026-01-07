@@ -2,6 +2,8 @@
 import { RegisterUser } from "@application/usecases/users/registerUser";
 import { LoginUser } from "@application/usecases/users/loginUser";
 import { GetAllUsers } from "@application/usecases/users/getAllUsers";
+import { GetUserById } from "@application/usecases/users/getUserById";
+import { GetUserByToken } from "@application/usecases/users/getUserByToken";
 import { ConfirmRegistration } from "@application/usecases/users/confirmRegistration";
 
 // Accounts use cases
@@ -94,7 +96,6 @@ import { GetOverdueDueDates } from "@application/usecases/credits/getOverdueDueD
 import { SimulateAmortizationSchedule } from "@application/usecases/credits/simulateAmortizationSchedule";
 import { PayInstallment } from "@application/usecases/credits/payInstallment";
 import { EnvironmentBankConfiguration } from "@adapters/services/EnvironmentBankConfiguration";
-import { GetUserById } from "@application/usecases/users/getUserById";
 import { GetTransactionHistory } from "@application/usecases/transactions/getTransactionHistory";
 import { GetAccountTransactionsByAdmin } from "@application/usecases/transactions/getAccountTransactionsByAdmin";
 
@@ -115,6 +116,7 @@ const loginUser = new LoginUser(
 );
 const getAllUsers = new GetAllUsers(userRepository);
 const getUserById = new GetUserById(userRepository);
+const getUserByToken = new GetUserByToken(userRepository, sessionRepository);
 const confirmRegistration = new ConfirmRegistration(
   userRepository,
   emailConfirmationTokenRepository,
@@ -128,7 +130,8 @@ const userController = new UserController(
   loginUser,
   getAllUsers,
   confirmRegistration,
-  getUserById
+  getUserById,
+  getUserByToken
 );
 const getAccountsFromOwnerId = new GetAccountsFromOwnerId(accountRepository);
 const createAccount = new CreateAccount(
@@ -341,7 +344,10 @@ const conversationController = new ConversationController(
 );
 
 const userHttpHandler = new UserHttpHandler(userController);
-const accountHttpHandler = new AccountHttpHandler(accountController);
+const accountHttpHandler = new AccountHttpHandler(
+  accountController,
+  sessionRepository
+);
 const shareHttpHandler = new ShareHttpHandler(shareController);
 const transactionHttpHandler = new TransactionHttpHandler(
   transactionController

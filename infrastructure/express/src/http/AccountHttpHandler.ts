@@ -2,10 +2,14 @@ import { Request, Response } from "express";
 import { AccountController } from "@express/controllers/AccountController";
 import { sendSuccess } from "../responses/success";
 import { mapErrorToHttpResponse } from "../responses/error";
-import { ValidationError } from "@application/errors";
+import { ValidationError, UnauthorizedError } from "@application/errors";
+import { SessionRepository } from "@application/repositories/session";
 
 export class AccountHttpHandler {
-  constructor(private readonly controller: AccountController) {}
+  constructor(
+    private readonly controller: AccountController,
+    private readonly sessionRepository: SessionRepository
+  ) {}
 
   public async listByOwnerId(request: Request, response: Response) {
     try {
@@ -57,14 +61,19 @@ export class AccountHttpHandler {
 
   public async create(request: Request, response: Response) {
     try {
-      const userId = request.headers["x-user-id"] as string;
       const authHeader = request.headers.authorization as string;
       const token = authHeader?.startsWith("Bearer ")
         ? authHeader.split(" ")[1]
         : authHeader;
 
-      if (!userId || !token) {
-        throw new ValidationError("Authentication required");
+      if (!token) {
+        throw new UnauthorizedError("Authentication required");
+      }
+
+      // Récupérer l'userId à partir du token
+      const userId = await this.sessionRepository.getUserIdByToken(token);
+      if (!userId) {
+        throw new UnauthorizedError("Invalid or expired session");
       }
 
       const accountData = request.body;

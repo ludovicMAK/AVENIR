@@ -8,9 +8,7 @@ import { User } from "@domain/entities/users";
 import { Session } from "@domain/entities/session";
 import { SessionRepository } from "@application/repositories/session";
 
-export class PostgresSessionRepository
-  implements SessionRepository
-{
+export class PostgresSessionRepository implements SessionRepository {
   constructor(private readonly pool: Pool) {}
 
   async createSession(session: Session): Promise<void> {
@@ -26,14 +24,12 @@ export class PostgresSessionRepository
           session.createdAt,
         ]
       );
-        
     } catch (error) {
       this.handleDatabaseError(error);
     }
   }
   async isConnected(userId: string, token: string): Promise<boolean> {
     try {
-
       const result = await this.pool.query(
         `SELECT COUNT(*) as count FROM sessions WHERE user_id = $1 AND refresh_token_hash = $2 AND expires_at > NOW()`,
         [userId, token]
@@ -46,9 +42,24 @@ export class PostgresSessionRepository
     } catch (error) {
       this.handleDatabaseError(error);
     }
-}
+  }
 
-  
+  async getUserIdByToken(token: string): Promise<string | null> {
+    try {
+      const result = await this.pool.query(
+        `SELECT user_id FROM sessions WHERE refresh_token_hash = $1 AND expires_at > NOW() LIMIT 1`,
+        [token]
+      );
+
+      if (result.rows.length === 0) {
+        return null;
+      }
+
+      return result.rows[0].user_id;
+    } catch (error) {
+      this.handleDatabaseError(error);
+    }
+  }
 
   private mapRowToPosition(row: SecuritiesPositionRow): SecuritiesPosition {
     return new SecuritiesPosition(

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/users/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,11 +15,6 @@ import {
 
 export default async function LandingPage() {
   const user = await getCurrentUser();
-
-  // Si l'utilisateur est déjà connecté, rediriger vers le dashboard
-  if (user) {
-    redirect("/dashboard");
-  }
 
   const features = [
     {
@@ -67,15 +61,26 @@ export default async function LandingPage() {
             <span className="text-2xl font-bold">AVENIR</span>
           </div>
           <nav className="flex items-center gap-4">
-            <Button variant="ghost" asChild>
-              <Link href="/login">Connexion</Link>
-            </Button>
-            <Button asChild>
-              <Link href="/register">
-                Inscription
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
+            {user ? (
+              <Button asChild>
+                <Link href="/dashboard">
+                  Tableau de bord
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            ) : (
+              <>
+                <Button variant="ghost" asChild>
+                  <Link href="/login">Connexion</Link>
+                </Button>
+                <Button asChild>
+                  <Link href="/register">
+                    Inscription
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </>
+            )}
           </nav>
         </div>
       </header>

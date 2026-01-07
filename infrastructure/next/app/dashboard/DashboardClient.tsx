@@ -120,7 +120,7 @@ export default function DashboardClient({ userId }: DashboardClientProps) {
             Vue d'ensemble de vos comptes et transactions
           </p>
         </div>
-        <Button onClick={() => router.push("/accounts/new")}>
+        <Button onClick={() => router.push("/dashboard/accounts/new")}>
           <Plus className="mr-2 h-4 w-4" />
           Nouveau compte
         </Button>
@@ -179,7 +179,7 @@ export default function DashboardClient({ userId }: DashboardClientProps) {
               <p className="text-muted-foreground mb-4">
                 Commencez par créer votre premier compte bancaire
               </p>
-              <Button onClick={() => router.push("/accounts/new")}>
+              <Button onClick={() => router.push("/dashboard/accounts/new")}>
                 <Plus className="mr-2 h-4 w-4" />
                 Créer un compte
               </Button>
@@ -194,7 +194,9 @@ export default function DashboardClient({ userId }: DashboardClientProps) {
                   <Card
                     key={account.id}
                     className="cursor-pointer hover:bg-accent transition-colors"
-                    onClick={() => router.push(`/accounts/${account.id}`)}
+                    onClick={() =>
+                      router.push(`/dashboard/accounts/${account.id}`)
+                    }
                   >
                     <CardContent className="pt-6">
                       <div className="flex items-start justify-between">

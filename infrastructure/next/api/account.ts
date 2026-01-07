@@ -119,21 +119,19 @@ export const accountsApi = {
       method: "POST",
       body: JSON.stringify(data),
     });
-    if (!isJsonObject(response) || !isJsonObject(response.data)) {
+    if (!isJsonObject(response) || !isJsonObject(response.account)) {
       throw invalidAccountsResponseError();
     }
-    return toAccount(response.data);
+    return toAccount(response.account);
   },
 
   async updateName(accountId: string, accountName: string) {
     const response = await request(`/accounts/${accountId}`, {
       method: "PATCH",
-      body: JSON.stringify({ accountName }),
+      body: JSON.stringify({ newName: accountName }),
     });
-    if (!isJsonObject(response) || !isJsonObject(response.data)) {
-      throw invalidAccountsResponseError();
-    }
-    return toAccount(response.data);
+    // Le backend ne retourne que le message de succès, pas l'account
+    return response;
   },
 
   async close(accountId: string) {
