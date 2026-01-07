@@ -77,6 +77,7 @@ import { CreateTransaction } from "@application/usecases/transactions/createTran
 import { TransferHttpHandler } from "../http/TransferHttpHandler";
 import { TransferController } from "@express/controllers/TransferController";
 import { ValidTransferByAdmin } from "@application/usecases/transfer/validTransferByAdmin";
+import { CancelTransfer } from "@application/usecases/transfer/cancelTransfer";
 
 import { UpdateNameAccount } from "@application/usecases/accounts/updateNameAccount";
 import { CreditHttpHandler } from "../http/CreditHttpHandler";
@@ -208,12 +209,21 @@ const validateTransferByAdmin = new ValidTransferByAdmin(
   unitOfWork,
   accountRepository
 );
+
+const cancelTransferUsecase = new CancelTransfer(
+  transferRepository,
+  userRepository,
+  transactionRepository,
+  accountRepository,
+  unitOfWork
+);
+
 const getTransactionHistoryUsecase = new GetTransactionHistory(
   sessionRepository,
   transactionRepository
 );
 const transactionController = new TransactionController(createTransaction, getTransactionHistoryUsecase);
-const transferController = new TransferController(validateTransferByAdmin);
+const transferController = new TransferController(validateTransferByAdmin, cancelTransferUsecase);
 
 const createConversation = new CreateConversation(
   conversationRepository,

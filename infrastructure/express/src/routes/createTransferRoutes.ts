@@ -9,7 +9,10 @@ export function createTransferRoutes(
   router.patch("/transfers/validate", (request, response) =>
     transferHttpHandler.validateTransferByAdmin(request, response)
   );
-  
+
+  router.patch("/transfers/cancel", (request, response) =>
+    transferHttpHandler.cancelTransfer(request, response)
+  );
 
   return router;
 }
