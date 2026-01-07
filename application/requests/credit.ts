@@ -32,3 +32,9 @@ export type GetMyCreditsRequest = {
   customerId: string;
   token: string;
 };
+
+export type GetCreditStatusRequest = {
+  creditId: string;
+  userId: string;
+  token: string;
+};

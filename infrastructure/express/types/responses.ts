@@ -1,7 +1,9 @@
+import { CreditStatusData } from "@application/usecases/credits/getCreditStatus";
 import { CreditWithDueDates } from "@application/usecases/credits/getCustomerCreditsWithDueDates";
 import { AmortizationSchedule } from "@application/usecases/credits/simulateAmortizationSchedule";
 import { Credit } from "@domain/entities/credit";
 import { DueDate } from "@domain/entities/dueDate";
+
 
 export type UserView = {
   id: string;
@@ -78,6 +80,7 @@ export type ConversationResponseData = { conversation: ConversationView };
 export type ConversationsListResponseData = {
   conversations: ConversationView[];
 };
+export type CreditStatusResponseData = { creditStatusData: CreditStatusData };
 export type DueDateResponseData = { dueDate: DueDate };
 
 export type MessageResponseData = { message: MessageView };
@@ -98,6 +101,7 @@ export type SuccessData =
   | DueDateResponseData
   | AmortizationScheduleResponseData
   |creditsWithDueDatesData
+  | CreditStatusResponseData
   | undefined;
 
 export type SuccessPayload<ResponseData extends SuccessData = SuccessData> = {

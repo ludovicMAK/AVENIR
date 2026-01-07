@@ -79,6 +79,7 @@ import { CreditController } from "@express/controllers/CreditController";
 import { GrantCredit } from "@application/usecases/credits/grantCredit";
 import { GetCustomerCreditsWithDueDates } from "@application/usecases/credits/getCustomerCreditsWithDueDates";
 import { GetMyCredits } from "@application/usecases/credits/getMyCredits";
+import { GetCreditStatus } from "@application/usecases/credits/getCreditStatus";
 import { SimulateAmortizationSchedule } from "@application/usecases/credits/simulateAmortizationSchedule";
 import { PayInstallment } from "@application/usecases/credits/payInstallment";
 import { EnvironmentBankConfiguration } from "@adapters/services/EnvironmentBankConfiguration";
@@ -292,6 +293,11 @@ const getMyCreditsUsecase = new GetMyCredits(
   creditRepository,
   dueDateRepository
 );
+const getCreditStatusUsecase = new GetCreditStatus(
+  sessionRepository,
+  creditRepository,
+  dueDateRepository
+);
 const bankConfiguration = new EnvironmentBankConfiguration();
 const simulateAmortizationScheduleUsecase = new SimulateAmortizationSchedule(
   nodeGenerateAmortizationService
@@ -310,7 +316,7 @@ const payInstallmentUsecase = new PayInstallment(
 
 
 
-const creditController = new CreditController(grantCredit, getCustomerCreditsWithDueDatesUsecase, getMyCreditsUsecase, simulateAmortizationScheduleUsecase, payInstallmentUsecase);
+const creditController = new CreditController(grantCredit, getCustomerCreditsWithDueDatesUsecase, getMyCreditsUsecase, getCreditStatusUsecase, simulateAmortizationScheduleUsecase, payInstallmentUsecase);
 const creditHttpHandler = new CreditHttpHandler(creditController);
 
 export const httpRouter = createHttpRouter(

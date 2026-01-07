@@ -17,6 +17,10 @@ export function createCreditRoutes(creditHttpHandler: CreditHttpHandler): Router
     creditHttpHandler.getMyCredits(request, response)
   );
 
+  router.get("/credits/:creditId/status", (request, response) =>
+    creditHttpHandler.getCreditStatus(request, response)
+  );
+
   router.post("/credits/simulate-schedule", (request, response) =>
     creditHttpHandler.simulateAmortizationSchedule(request, response)
   );
