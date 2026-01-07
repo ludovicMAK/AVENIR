@@ -22,5 +22,17 @@ export function createAccountRoutes(
     accountHttpHandler.updateName(request, response)
   );
 
+  router.get("/accounts/:accountId/balance", (request, response) =>
+    accountHttpHandler.getBalance(request, response)
+  );
+
+  router.get("/accounts/:accountId/transactions", (request, response) =>
+    accountHttpHandler.getTransactions(request, response)
+  );
+
+  router.get("/accounts/:accountId/statement", (request, response) =>
+    accountHttpHandler.getStatement(request, response)
+  );
+
   return router;
 }

@@ -1,7 +1,7 @@
 # 📝 TODO - Fonctionnalités Restantes AVENIR
 
-**Dernière mise à jour** : 6 janvier 2026  
-**Branche** : `investissement`
+**Dernière mise à jour** : 7 janvier 2026  
+**Branche** : `main`
 
 ---
 
@@ -24,6 +24,21 @@
 - `GET /shares/:shareId/order-book` - Carnet d'ordres
 - `GET /shares/:shareId/price` - Prix d'équilibre
 - `POST /shares/:shareId/execute` - Exécuter les matchings
+
+### 💰 **Solde des Comptes** (Complété - 7 janvier 2026)
+
+- ✅ `getAccountBalance` - Calculer le solde détaillé d'un compte
+- ✅ `getAccountTransactions` - Liste paginée des transactions avec filtres
+- ✅ `getAccountStatement` - Relevé de compte sur une période
+- ✅ Extension `TransactionRepository` avec `findByAccountIBAN`
+- ✅ Implémentation PostgreSQL et InMemory avec filtres et pagination
+- ✅ Routes HTTP et handlers pour les nouveaux endpoints
+
+**Routes ajoutées :**
+
+- `GET /accounts/:accountId/balance` - Solde détaillé
+- `GET /accounts/:accountId/transactions` - Transactions paginées
+- `GET /accounts/:accountId/statement` - Relevé de compte
 
 ---
 
@@ -90,45 +105,7 @@
 
 ---
 
-### 💰 **Calcul du Solde des Comptes**
-
-**Statut** : ❌ Non implémenté
-
-#### ❌ Use Cases Manquants
-
-1. **`getAccountBalance`** - Calculer le solde d'un compte
-
-   - Input : `accountId` ou `IBAN`
-   - Logique : Somme de toutes les transactions validées (CREDIT - DEBIT)
-   - Prendre en compte `availableBalance` (fonds bloqués)
-   - Output : `{ balance: number, availableBalance: number, blockedAmount: number }`
-
-2. **`getAccountTransactions`** - Transactions d'un compte
-
-   - Input : `accountId`, filtres (date, type, status)
-   - Pagination nécessaire
-   - Trier par date décroissante
-   - Output : List<Transaction>
-
-3. **`getAccountStatement`** - Relevé de compte
-   - Input : `accountId`, `fromDate`, `toDate`
-   - Générer un relevé avec :
-     - Solde initial
-     - Liste des transactions
-     - Solde final
-   - Output : AccountStatement
-
-#### 📊 Repositories à Créer/Étendre
-
-- ✅ `TransactionRepository` existe
-- ❌ Ajouter :
-  - `findByAccountIBAN(iban: string)`
-  - `findByDateRange(iban: string, from: Date, to: Date)`
-  - `calculateBalance(iban: string)` - Requête SQL optimisée
-
----
-
-### 💳 **Crédits (Complètement Absent)**
+### **Crédits (Complètement Absent)**
 
 **Statut** : ❌ 0% - Entités manquantes
 
