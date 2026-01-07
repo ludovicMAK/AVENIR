@@ -15,9 +15,9 @@ export class PostgresUserRepository implements UserRepository {
     try {
       await this.pool.query(
         `
-                    INSERT INTO users (id, lastname, firstname, email, role, password, status, email_verified_at)
-                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-                `,
+          INSERT INTO users (id, lastname, firstname, email, role, password, status, email_verified_at)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        `,
         [
           user.id,
           user.lastname,
@@ -34,14 +34,36 @@ export class PostgresUserRepository implements UserRepository {
     }
   }
 
+  async findById(id: string): Promise<User | null> {
+    try {
+      const result = await this.pool.query<UserRow>(
+        `
+          SELECT id, lastname, firstname, email, role, password, status, email_verified_at
+          FROM users
+          WHERE id = $1
+          LIMIT 1
+        `,
+        [id]
+      );
+
+      if (result.rowCount === 0) {
+        return null;
+      }
+
+      return this.mapRowToUser(result.rows[0]);
+    } catch (error) {
+      this.handleDatabaseError(error);
+    }
+  }
+
   async findAll(): Promise<User[]> {
     try {
       const result = await this.pool.query<UserRow>(
         `
-                    SELECT id, lastname, firstname, email, role, password, status, email_verified_at
-                    FROM users
-                    ORDER BY lastname ASC, firstname ASC
-                `
+          SELECT id, lastname, firstname, email, role, password, status, email_verified_at
+          FROM users
+          ORDER BY lastname ASC, firstname ASC
+        `
       );
 
       return result.rows.map((row: UserRow) => this.mapRowToUser(row));
@@ -54,11 +76,11 @@ export class PostgresUserRepository implements UserRepository {
     try {
       const result = await this.pool.query<UserRow>(
         `
-                    SELECT id, lastname, firstname, email, role, password, status, email_verified_at
-                    FROM users
-                    WHERE email = $1
-                    LIMIT 1
-                `,
+          SELECT id, lastname, firstname, email, role, password, status, email_verified_at
+          FROM users
+          WHERE email = $1
+          LIMIT 1
+        `,
         [email.toLowerCase()]
       );
 
@@ -76,11 +98,11 @@ export class PostgresUserRepository implements UserRepository {
     try {
       const result = await this.pool.query<UserRow>(
         `
-                    SELECT id, lastname, firstname, email, role, password, status, email_verified_at
-                    FROM users
-                    WHERE email = $1 AND email_verified_at IS NULL
-                    LIMIT 1
-                `,
+          SELECT id, lastname, firstname, email, role, password, status, email_verified_at
+          FROM users
+          WHERE email = $1 AND email_verified_at IS NULL
+          LIMIT 1
+        `,
         [email.toLowerCase()]
       );
 
@@ -93,6 +115,7 @@ export class PostgresUserRepository implements UserRepository {
       this.handleDatabaseError(error);
     }
   }
+
   async getInformationUserConnected(
     userId: string,
     token: string
@@ -100,12 +123,12 @@ export class PostgresUserRepository implements UserRepository {
     try {
       const result = await this.pool.query<UserRow>(
         `
-                    SELECT  lastname, firstname, email, role, status
-                    FROM users
-                    inner join sessions on sessions.user_id = users.id
-                    WHERE sessions.refresh_token_hash = $2 AND users.id = $1
-                    LIMIT 1
-                `,
+          SELECT lastname, firstname, email, role, status
+          FROM users
+          INNER JOIN sessions ON sessions.user_id = users.id
+          WHERE sessions.refresh_token_hash = $2 AND users.id = $1
+          LIMIT 1
+        `,
         [userId, token]
       );
 
@@ -125,16 +148,34 @@ export class PostgresUserRepository implements UserRepository {
       this.handleDatabaseError(error);
     }
   }
+
   async setEmailVerified(userId: string, verifiedAt: Date): Promise<void> {
     try {
       await this.pool.query(
         `
-                    UPDATE users
-                    SET email_verified_at = $1
-                    WHERE id = $2
-                `,
+          UPDATE users
+          SET email_verified_at = $1
+          WHERE id = $2
+        `,
         [verifiedAt, userId]
       );
+    } catch (error) {
+      this.handleDatabaseError(error);
+    }
+  }
+
+  async findByRole(role: string): Promise<User[]> {
+    try {
+      const result = await this.pool.query<UserRow>(
+        `
+          SELECT id, lastname, firstname, email, role, password, status, email_verified_at
+          FROM users
+          WHERE role = $1
+        `,
+        [role]
+      );
+
+      return result.rows.map((row) => this.mapRowToUser(row));
     } catch (error) {
       this.handleDatabaseError(error);
     }
@@ -153,42 +194,6 @@ export class PostgresUserRepository implements UserRepository {
     );
   }
 
-  async findByRole(role: string): Promise<User[]> {
-    try {
-      const result = await this.pool.query<UserRow>(
-        `
-                    SELECT id, lastname, firstname, email, role, password, status, email_verified_at
-                    FROM users
-                    WHERE role = $1
-                `,
-        [role]
-      );
-
-      return result.rows.map((row) => this.mapRowToUser(row));
-    } catch (error) {
-      this.handleDatabaseError(error);
-    }
-  }
-  async findById(userId: string): Promise<User | null> {
-    try {
-      const result = await this.pool.query<UserRow>(
-        `
-                    SELECT id, lastname, firstname, email, role, password, status, email_verified_at
-                    FROM users
-                    WHERE id = $1
-                    LIMIT 1
-                `,
-        [userId]
-      );
-      if (result.rowCount === 0) {
-        return null;
-      }
-      return this.mapRowToUser(result.rows[0]);
-    } catch (error) {
-      this.handleDatabaseError(error);
-    }
-  }
-
   private handleDatabaseError(unknownError: unknown): never {
     const error = ensureError(unknownError, "Unexpected database error");
     console.error("Database operation failed", error);
@@ -196,5 +201,4 @@ export class PostgresUserRepository implements UserRepository {
       "Database unavailable. Please try again later."
     );
   }
-  
 }

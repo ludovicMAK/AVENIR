@@ -2,6 +2,7 @@ import { RegisterUser } from "@application/usecases/users/registerUser";
 import { GetAllUsers } from "@application/usecases/users/getAllUsers";
 import { LoginUser } from "@application/usecases/users/loginUser";
 import { ConfirmRegistration } from "@application/usecases/users/confirmRegistration";
+import { GetUserById } from "@application/usecases/users/getUserById";
 import { RegisterUserInput, LoginUserInput } from "@application/requests/auth";
 import { User } from "@domain/entities/users";
 
@@ -10,7 +11,8 @@ export class UserController {
     private readonly registerUser: RegisterUser,
     private readonly loginUser: LoginUser,
     private readonly getAllUsers: GetAllUsers,
-    private readonly confirmRegistration: ConfirmRegistration
+    private readonly confirmRegistration: ConfirmRegistration,
+    private readonly getUserById: GetUserById,
   ) {}
 
   public async register(
@@ -31,5 +33,9 @@ export class UserController {
 
   public async list(): Promise<User[]> {
     return this.getAllUsers.execute();
+  }
+
+  public async findById(id: string): Promise<User> {
+    return this.getUserById.execute(id);
   }
 }

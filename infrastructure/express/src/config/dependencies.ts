@@ -91,6 +91,7 @@ import { GetOverdueDueDates } from "@application/usecases/credits/getOverdueDueD
 import { SimulateAmortizationSchedule } from "@application/usecases/credits/simulateAmortizationSchedule";
 import { PayInstallment } from "@application/usecases/credits/payInstallment";
 import { EnvironmentBankConfiguration } from "@adapters/services/EnvironmentBankConfiguration";
+import { GetUserById } from "@application/usecases/users/getUserById";
 
 const registerUser = new RegisterUser(
   userRepository,
@@ -108,6 +109,7 @@ const loginUser = new LoginUser(
   sessionRepository
 );
 const getAllUsers = new GetAllUsers(userRepository);
+const getUserById = new GetUserById(userRepository);
 const confirmRegistration = new ConfirmRegistration(
   userRepository,
   emailConfirmationTokenRepository,
@@ -120,7 +122,8 @@ const userController = new UserController(
   registerUser,
   loginUser,
   getAllUsers,
-  confirmRegistration
+  confirmRegistration,
+  getUserById
 );
 const getAccountsFromOwnerId = new GetAccountsFromOwnerId(accountRepository);
 const createAccount = new CreateAccount(
