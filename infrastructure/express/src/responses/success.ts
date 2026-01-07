@@ -1,24 +1,25 @@
-import { Response } from "express"
-import { SuccessOptions, SuccessPayload, SuccessData } from "@express/types/responses"
+import { Response } from "express";
+import {
+  SuccessOptions,
+  SuccessPayload,
+  SuccessData,
+} from "@express/types/responses";
 
-export function sendSuccess<ResponseData extends SuccessData>(response: Response, options: SuccessOptions<ResponseData>) {
-    const {
-        status = 200,
-        code,
-        message,
-        data,
-        headers,
-    } = options
+export function sendSuccess<ResponseData extends SuccessData>(
+  response: Response,
+  options: SuccessOptions<ResponseData>
+) {
+  const { status = 200, code, message, data, headers } = options;
 
-    if (headers) {
-        for (const [key, value] of Object.entries(headers)) {
-            response.setHeader(key, value)
-        }
+  if (headers) {
+    for (const [key, value] of Object.entries(headers)) {
+      response.setHeader(key, value);
     }
+  }
 
-    const payload: SuccessPayload<ResponseData> = { ok: true, code }
-    if (message) payload.message = message
-    if (data !== undefined) payload.data = data
+  const payload: SuccessPayload<ResponseData> = { status, code };
+  if (message) payload.message = message;
+  if (data !== undefined) payload.data = data;
 
-    return response.status(status).json(payload)
+  return response.status(status).json(payload);
 }

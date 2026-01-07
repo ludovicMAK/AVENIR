@@ -1,34 +1,37 @@
 export type LoginPayload = {
-    email: string
-    password: string
-}
+  email: string;
+  password: string;
+};
 
 export type AuthenticatedUser = {
-    id: string
-    firstname: string
-    lastname: string
-    email: string
-    role: string
-}
+  id: string;
+  firstname: string;
+  lastname: string;
+  email: string;
+  role: string;
+};
+
+export type LoginData = {
+  user: AuthenticatedUser;
+  token: string;
+};
 
 export type LoginSuccessResponse = {
-    ok: true
-    code: string
-    message?: string
-    data: {
-        user: AuthenticatedUser
-    }
-}
+  status: number;
+  code: string;
+  message?: string;
+  data: LoginData;
+};
 
 export type RegisterPayload = {
-    firstname: string
-    lastname: string
-    email: string
-    password: string
-}
+  firstname: string;
+  lastname: string;
+  email: string;
+  password: string;
+};
 
 export type CookieOptions = {
-    maxAge: number
-    path?: string
-    sameSite?: "lax" | "strict" | "none"
-}
+  maxAge: number;
+  path?: string;
+  sameSite?: "lax" | "strict" | "none";
+};

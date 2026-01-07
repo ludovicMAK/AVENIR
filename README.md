@@ -54,9 +54,18 @@ La banque AVENIR vous a recruté comme développeur Web afin de développer une 
 
 #### **Opérations Bancaires**
 
-- Effectuer des transferts entre comptes (uniquement au sein de la banque AVENIR)
-- Consulter l'historique des transactions
-- Le solde reflète la somme de toutes les opérations (débit/crédit)
+- **Créer un transfert** entre comptes (uniquement au sein de la banque AVENIR)
+  - Vérification du solde disponible (incluant découvert autorisé)
+  - Création immédiate des transactions en statut `POSTED`
+  - Mise à jour du solde disponible
+  - Le transfert reste en statut `PENDING` jusqu'à validation
+- **Validation des transferts** par un administrateur (conseiller ou directeur)
+  - Passage du transfert de `PENDING` à `VALIDATED`
+  - Passage des transactions de `POSTED` à `VALIDATED`
+  - Mise à jour du solde réel
+- Consulter l'historique des transactions avec filtres et pagination
+- Consulter le relevé de compte sur une période donnée
+- Le solde reflète la somme de toutes les transactions (débit/crédit)
 
 #### **Épargne**
 
@@ -180,9 +189,12 @@ Représente une personne dans le système (client, conseiller, directeur). Utili
 
 - Peut être fermé uniquement si solde = 0 et aucune transaction en attente
 - L'IBAN doit être mathématiquement valide et unique
+- Le compte dispose de **deux types de soldes** :
+  - **Balance** (solde réel) : Transactions validées uniquement
+  - **BalanceAvailable** (solde disponible) : Transactions postées (incluant les transferts en attente de validation)
 
 **Description :**  
-C'est le "portefeuille" bancaire d'un client (courant ou épargne). L'argent entre ou sort via des transactions, et peut être fermé s'il est vide.
+C'est le "portefeuille" bancaire d'un client (courant ou épargne). L'argent entre ou sort via des transactions. Le système maintient deux soldes distincts pour gérer les transferts en attente de validation administrative.
 
 ---
 
@@ -194,18 +206,24 @@ C'est le "portefeuille" bancaire d'un client (courant ou épargne). L'argent ent
 - `accountIBAN` : IBAN du compte concerné
 - `direction` : Direction (`debit` / `credit`)
 - `amount` : Montant (en centimes)
-- `reason` : Motif (`transfer`, `fee`, `interest`, `shareTransaction`, `dueDate`, etc.)
-- `accountDate` : Date comptable
-- `status` : Statut (`pending` / `validated` / `cancelled`)
-- `transferId` : ID du transfert associé (optionnel)
+- `reason` : Description/Motif de la transaction
+- `accountDate` : Date comptable de la transaction
+- `status` : Statut (`posted` / `validated` / `cancelled`)
+- `transferId` : ID du transfert associé (obligatoire pour les virements)
 
 **Relations :**
 
-- 1 transaction **concerne** 1 account
-- 0..1 transaction **est liée à** 1 transfer
+- 1 transaction **concerne** 1 account (identifié par IBAN)
+- 1 transaction **est liée à** 1 transfer (pour les virements)
+
+**Statuts des transactions :**
+
+- `POSTED` : Transaction créée et comptabilisée (affecte le solde disponible)
+- `VALIDATED` : Transaction validée par un administrateur (affecte le solde réel)
+- `CANCELLED` : Transaction annulée
 
 **Description :**  
-C'est une **ligne comptable** sur un compte : entrée (crédit) ou sortie (débit). Tous les mouvements d'argent passent par des transactions, qui permettent d'expliquer le solde.
+C'est une **ligne comptable** sur un compte : entrée (crédit) ou sortie (débit). Tous les mouvements d'argent passent par des transactions. Pour les virements, chaque Transfer génère exactement 2 transactions (une DEBIT sur le compte source, une CREDIT sur le compte destination).
 
 ---
 
@@ -215,21 +233,50 @@ C'est une **ligne comptable** sur un compte : entrée (crédit) ou sortie (débi
 
 - `id` : Identifiant unique
 - `amount` : Montant (en centimes)
-- `dateRequested` : Date de demande
-- `dateExecuted` : Date d'exécution
+- `dateRequested` : Date de demande du transfert
+- `dateExecuted` : Date d'exécution prévue/effective
 - `description` : Description du virement
-- `sourceAccountId` : ID du compte source
-- `targetAccountId` : ID du compte cible
-- `status` : Statut (`pending` / `executed` / `cancelled`)
+- `status` : Statut (`pending` / `validated` / `cancelled`)
 
 **Relations :**
 
-- 1 transfer **débite** 1 source_account
-- 1 transfer **crédite** 1 target_account
 - 1 transfer **génère** exactement 2 transactions (débit source, crédit cible)
+- Les comptes source et destination sont identifiés via les transactions associées
+
+**Règles métier :**
+
+- À la création d'un transfert (`CreateTransaction`) :
+  - Le Transfer est créé avec statut `PENDING`
+  - 2 Transactions sont immédiatement créées avec statut `POSTED` (une DEBIT, une CREDIT)
+  - Le solde disponible des comptes est mis à jour immédiatement
+  - Validation des fonds disponibles avant création
+- Lors de la validation par un administrateur (`ValidTransferByAdmin`) :
+  - Le Transfer passe de `PENDING` à `VALIDATED`
+  - Les Transactions passent de `POSTED` à `VALIDATED`
+  - Le solde réel des comptes est mis à jour
 
 **Description :**  
-Une **opération** qui transfère de l'argent d'un compte à un autre. Un transfert exécuté produit **deux mouvements** : un débit côté source et un crédit côté cible.
+Une **opération** qui transfère de l'argent d'un compte à un autre au sein de la banque AVENIR. Le transfert est créé en statut `PENDING` et nécessite une validation administrative pour être finalisé. Les transactions sont créées immédiatement avec le transfert, permettant un suivi précis des mouvements.
+
+**Flux de transfert :**
+
+1. **Création** (`CreateTransaction`) :
+
+   - Le client demande un transfert entre deux comptes AVENIR
+   - Validation : solde disponible suffisant (incluant découvert)
+   - Création d'un Transfer en statut `PENDING`
+   - Création de 2 Transactions en statut `POSTED` :
+     - Transaction DEBIT sur le compte source
+     - Transaction CREDIT sur le compte destination
+   - Mise à jour immédiate du **solde disponible** (balanceAvailable)
+   - ⚠️ Le **solde réel** (balance) n'est pas encore modifié
+
+2. **Validation** (`ValidTransferByAdmin`) :
+   - Un conseiller ou directeur valide le transfert
+   - Le Transfer passe de `PENDING` à `VALIDATED`
+   - Les 2 Transactions passent de `POSTED` à `VALIDATED`
+   - Mise à jour du **solde réel** (balance) des deux comptes
+   - Le transfert est définitivement exécuté
 
 ---
 
@@ -576,12 +623,12 @@ Gère l'authentification et les sessions actives des utilisateurs.
 - ✅ EmailConfirmationToken
 - ✅ Session
 
-### ❌ **Entités Manquantes (4/14)**
+### ❌ **Entités Manquantes (1/16)**
 
-- ❌ **Credit** (Crédit)
-- ❌ **DueDate** (Échéance)
 - ❌ **SavingsRate** (Taux d'épargne)
 - ❌ **DailyInterest** (Intérêts journaliers)
+
+**Note** : Les entités Credit et DueDate sont **déjà implémentées** ✅
 
 ---
 
@@ -601,16 +648,23 @@ Gère l'authentification et les sessions actives des utilisateurs.
 - ✅ `getAccountsFromOwnerId` - Comptes d'un propriétaire
 - ✅ `updateNameAccount` - Renommer un compte
 - ✅ `closeOwnAccount` - Fermer un compte
+- ✅ `getAccountBalance` - Récupérer le solde détaillé d'un compte
+- ✅ `getAccountTransactions` - Liste paginée des transactions avec filtres
+- ✅ `getAccountStatement` - Relevé de compte sur une période
 
 #### ✅ **Actions/Investissement**
 
-- ✅ `createShare` - Créer une action
-- ✅ `getAllShares` - Lister les actions
-- ✅ `getShareById` - Récupérer une action
-- ✅ `placeOrder` - Placer un ordre
-- ✅ `cancelOrder` - Annuler un ordre
+- ✅ `createShare` - Créer une action (directeur)
+- ✅ `getAllShares` - Lister les actions disponibles
+- ✅ `getShareById` - Récupérer une action par ID
+- ✅ `placeOrder` - Placer un ordre d'achat/vente
+- ✅ `cancelOrder` - Annuler un ordre en attente
 - ✅ `getOrdersByCustomer` - Ordres d'un client
-- ✅ `getClientPositions` - Positions d'un client
+- ✅ `getClientPositions` - Positions (portefeuille) d'un client
+- ✅ `executeMatchingOrders` - Matcher et exécuter les ordres buy/sell
+- ✅ `calculateSharePrice` - Calculer le prix d'équilibre
+- ✅ `getOrderBook` - Afficher le carnet d'ordres pour une action
+- ✅ `getShareTransactionHistory` - Historique des transactions d'une action
 
 #### ✅ **Conversations**
 
@@ -620,13 +674,18 @@ Gère l'authentification et les sessions actives des utilisateurs.
 - ✅ `closeConversation` - Fermer une conversation
 - ✅ `transferConversation` - Transférer une conversation
 - ✅ `sendMessage` - Envoyer un message
-- ✅ `getConversationMessages` - Messages d'une conversation
-- ✅ `getCustomerConversations` - Conversations d'un client
-- ✅ `getAdvisorConversations` - Conversations d'un conseiller
+- ✅ `✅ **Transactions & Transferts**
 
-#### ⚠️ **Transactions** (Minimal)
-
-- ✅ `createTransaction` - Créer une transaction
+- ✅ `createTransaction` - Créer un transfert avec ses 2 transactions
+  - Crée un Transfer en statut `PENDING`
+  - Génère 2 Transactions en statut `POSTED` (DEBIT + CREDIT)
+  - Met à jour le solde disponible des comptes
+  - Valide les fonds disponibles (incluant découvert)
+- ✅ `validTransferByAdmin` - Valider un transfert par un administrateur
+  - Passage du Transfer de `PENDING` à `VALIDATED`
+  - Passage des Transactions de `POSTED` à `VALIDATED`
+  - Mise à jour du solde réel des comptes
+  - Réservé aux conseillers et directeurs
 
 #### ⚠️ **Transferts** (Minimal)
 
@@ -636,42 +695,34 @@ Gère l'authentification et les sessions actives des utilisateurs.
 
 ### 🔴 **Use Cases Manquants (Critiques)**
 
-#### ❌ **Gestion des Comptes**
+#### ❌ **Crédits** (Complètement implémentés - voir TODO.md)
 
-- ❌ `getAccountBalance` - Récupérer le solde
-- ❌ `getAccountTransactions` - Transactions d'un compte
-- ❌ `getAccountByIBAN` - Récupérer par IBAN
+Les use cases pour les crédits sont **déjà implémentés** :
 
-#### ❌ **Transferts**
+- ✅ `grantCredit` - Octroyer un crédit (conseiller)
+- ✅ `getCreditStatus` - Statut d'un crédit
+- ✅ `getCustomerCreditsWithDueDates` - Crédits avec échéances
+- ✅ `getMyCredits` - Mes crédits (client)
+- ✅ `getOverdueDueDates` - Échéances en retard
+- ✅ `getPaymentHistory` - Historique des paiements
+- ✅ `payInstallment` - Payer une échéance
+- ✅ `simulateAmortizationSchedule` - Simuler un crédit
+- ✅ `markOverdueDueDates` - Marquer échéances en retard
+- ✅ `earlyRepayCredit` - Remboursement anticipé
 
-- ❌ `createTransfer` - Créer un transfert
-- ❌ `executeTransfer` - Exécuter un transfert
-- ❌ `getTransferHistory` - Historique des transferts
-- ❌ `cancelTransfer` - Annuler un transfert
+#### ❌ **Transferts** (Extensions possibles)
+
+- ❌ `getTransferHistory` - Historique des transferts avec filtres
+- ❌ `getTransferById` - Récupérer un transfert par ID
+- ❌ `cancelTransfer` - Annuler un transfert en `PENDING`
 
 #### ❌ **Épargne** (Complètement absent)
 
-- ❌ `calculateDailyInterest` - Calculer intérêts journaliers
+- ❌ `calculateDailyInterest` - Calculer intérêts journaliers (CRON)
 - ❌ `creditDailyInterest` - Créditer les intérêts
 - ❌ `updateSavingsRate` - Modifier le taux (directeur)
 - ❌ `getSavingsRateHistory` - Historique des taux
 - ❌ `notifyCustomersOfRateChange` - Notifier changement de taux
-
-#### ❌ **Crédits** (Complètement absent)
-
-- ❌ `grantCredit` - Octroyer un crédit
-- ❌ `calculateAmortizationSchedule` - Calculer le tableau d'amortissement
-- ❌ `getCreditsByCustomer` - Crédits d'un client
-- ❌ `payDueDate` - Payer une échéance
-- ❌ `getUpcomingDueDates` - Échéances à venir
-- ❌ `handleOverdueDueDate` - Gérer les impayés
-
-#### ❌ **Investissement**
-
-- ❌ `executeMatchingOrders` - Matcher ordres buy/sell
-- ❌ `calculateSharePrice` - Calculer prix d'équilibre
-- ❌ `getOrderBook` - Carnet d'ordres
-- ❌ `blockFundsForOrder` - Bloquer fonds/titres
 
 #### ❌ **Directeur**
 
@@ -688,24 +739,15 @@ Gère l'authentification et les sessions actives des utilisateurs.
 
 ### 🔴 **Priorité 1 - Fonctionnalités essentielles**
 
-1. Système de **transferts** complet
-2. Calcul du **solde** des comptes
-3. Entités **Credit** et **DueDate**
-4. Use cases de **gestion des crédits**
+1. Système d'**épargne** (SavingsRate, DailyInterest, calcul d'intérêts)
+2. Extensions **transferts** (historique, annulation)
+3. Gestion **directeur** (ban/unban, CRUD actions)
 
 ### 🟠 **Priorité 2 - Fonctionnalités métier**
 
-1. Entités **SavingsRate** et **DailyInterest**
-2. Système d'**intérêts** sur épargne
-3. **Matching des ordres** boursiers
-4. Calcul du **prix d'équilibre** des actions
-
-### 🟡 **Priorité 3 - Fonctionnalités avancées**
-
-1. Gestion directeur (ban/unban, CRUD actions)
-2. Notifications (changement de taux, etc.)
-3. Dashboard utilisateurs
-4. Rapports et statistiques
+1. **Notifications** (changement de taux, ordres exécutés)
+2. **Dashboard** utilisateurs avec statistiques
+3. Rapports et **analytics** (performance portefeuille)
 
 ---
 
@@ -720,14 +762,15 @@ AVENIR/
 │
 ├── application/              # Couche Application (Use Cases)
 │   ├── usecases/
-│   │   ├── users/           # ✅ 4 use cases
-│   │   ├── accounts/        # ✅ 5 use cases
-│   │   ├── shares/          # ✅ 7 use cases
-│   │   ├── conversations/   # ✅ 9 use cases
-│   │   ├── transactions/    # ⚠️ 1 use case (minimal)
-│   │   └── transfer/        # ⚠️ 1 use case (minimal)
+│   │   ├── users/           # ✅ 5 use cases (auth, gestion)
+│   │   ├── accounts/        # ✅ 8 use cases (CRUD, solde, transactions)
+│   │   ├── shares/          # ✅ 11 use cases (CRUD, ordres, matching, prix)
+│   │   ├── conversations/   # ✅ 9 use cases (messagerie conseiller)
+│   │   ├── credits/         # ✅ 10 use cases (octroi, paiement, simulation)
+│   │   ├── transactions/    # ✅ 1 use case (createTransaction)
+│   │   └── transfer/        # ✅ 1 use case (validTransferByAdmin)
 │   ├── repositories/        # ✅ Interfaces repositories
-│   ├── services/            # ✅ Services (Email, Hash, etc.)
+│   ├── services/            # ✅ Services (Email, Hash, IBAN, etc.)
 │   └── requests/            # ✅ DTOs de requêtes
 │
 └── infrastructure/          # Couche Infrastructure
