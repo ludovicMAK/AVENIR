@@ -1,113 +1,80 @@
 import { OrderRepository } from "@application/repositories/order";
-import { ShareRepository } from "@application/repositories/share";
-import { CalculateSharePriceInput } from "@application/requests/shares";
-import { NotFoundError } from "@application/errors";
+import { OrderDirection } from "@domain/values/orderDirection";
 
-export type SharePriceCalculation = {
-  shareId: string;
-  currentPrice: number;
+interface PriceCalculation {
   equilibriumPrice: number | null;
-  maxVolume: number;
-  buyOrdersVolume: number;
-  sellOrdersVolume: number;
-  canMatch: boolean;
-};
+  buyOrders: number;
+  sellOrders: number;
+  potentialVolume: number;
+}
 
 export class CalculateSharePrice {
-  constructor(
-    private readonly orderRepository: OrderRepository,
-    private readonly shareRepository: ShareRepository
-  ) {}
+  constructor(private readonly orderRepository: OrderRepository) {}
 
-  async execute(
-    input: CalculateSharePriceInput
-  ): Promise<SharePriceCalculation> {
-    const share = await this.shareRepository.findById(input.shareId);
-
-    if (!share) {
-      throw new NotFoundError("Share not found");
-    }
-
-    const activeOrders = await this.orderRepository.findActiveByShareId(
-      input.shareId
-    );
-
-    const buyOrders = activeOrders
-      .filter((order) => order.isBuyOrder())
-      .sort((a, b) => b.priceLimit - a.priceLimit);
-
-    const sellOrders = activeOrders
-      .filter((order) => order.isSellOrder())
-      .sort((a, b) => a.priceLimit - b.priceLimit);
-
-    const buyOrdersVolume = buyOrders.reduce((sum, o) => sum + o.quantity, 0);
-    const sellOrdersVolume = sellOrders.reduce((sum, o) => sum + o.quantity, 0);
-
-    // Trouver le prix d'équilibre
-    let equilibriumPrice: number | null = null;
-    let maxVolume = 0;
+  async execute(shareId: string): Promise<PriceCalculation> {
+    // Récupérer tous les ordres actifs
+    const buyOrders =
+      await this.orderRepository.findActiveByShareIdAndDirection(
+        shareId,
+        OrderDirection.BUY
+      );
+    const sellOrders =
+      await this.orderRepository.findActiveByShareIdAndDirection(
+        shareId,
+        OrderDirection.SELL
+      );
 
     if (buyOrders.length === 0 || sellOrders.length === 0) {
       return {
-        shareId: share.id,
-        currentPrice: share.getCurrentPrice(),
         equilibriumPrice: null,
-        maxVolume: 0,
-        buyOrdersVolume,
-        sellOrdersVolume,
-        canMatch: false,
+        buyOrders: buyOrders.length,
+        sellOrders: sellOrders.length,
+        potentialVolume: 0,
       };
     }
 
-    const buyPrices: number[] = [];
-    const buyCumulativeVolumes: number[] = [];
-    let buyCumulative = 0;
+    // Trier les ordres
+    const sortedBuyOrders = buyOrders.sort(
+      (a, b) => b.priceLimit - a.priceLimit
+    );
+    const sortedSellOrders = sellOrders.sort(
+      (a, b) => a.priceLimit - b.priceLimit
+    );
 
-    buyOrders.forEach((order) => {
-      buyCumulative += order.quantity;
-      buyPrices.push(order.priceLimit);
-      buyCumulativeVolumes.push(buyCumulative);
-    });
+    // Trouver le prix d'équilibre (où offre et demande se rencontrent)
+    const highestBuyPrice = sortedBuyOrders[0].priceLimit;
+    const lowestSellPrice = sortedSellOrders[0].priceLimit;
 
-    const sellPrices: number[] = [];
-    const sellCumulativeVolumes: number[] = [];
-    let sellCumulative = 0;
+    if (highestBuyPrice < lowestSellPrice) {
+      // Pas de prix d'équilibre possible
+      return {
+        equilibriumPrice: null,
+        buyOrders: buyOrders.length,
+        sellOrders: sellOrders.length,
+        potentialVolume: 0,
+      };
+    }
 
-    sellOrders.forEach((order) => {
-      sellCumulative += order.quantity;
-      sellPrices.push(order.priceLimit);
-      sellCumulativeVolumes.push(sellCumulative);
-    });
+    // Le prix d'équilibre est le prix du vendeur (ordre passé en premier)
+    const equilibriumPrice = lowestSellPrice;
 
-    // Trouver le prix où les courbes se croisent (volume max échangeable)
-    // Prix d'équilibre = prix où buy >= sell et volume maximal
-    for (let i = 0; i < buyOrders.length; i++) {
-      const buyPrice = buyOrders[i].priceLimit;
-      const buyVolume = buyCumulativeVolumes[i];
-
-      for (let j = 0; j < sellOrders.length; j++) {
-        const sellPrice = sellOrders[j].priceLimit;
-        const sellVolume = sellCumulativeVolumes[j];
-
-        if (buyPrice >= sellPrice) {
-          const matchableVolume = Math.min(buyVolume, sellVolume);
-          if (matchableVolume > maxVolume) {
-            maxVolume = matchableVolume;
-            // Prix d'équilibre = prix de l'ordre SELL (standard de marché)
-            equilibriumPrice = sellPrice;
+    // Calculer le volume potentiel à ce prix
+    let potentialVolume = 0;
+    for (const buyOrder of sortedBuyOrders) {
+      if (buyOrder.priceLimit >= equilibriumPrice) {
+        for (const sellOrder of sortedSellOrders) {
+          if (sellOrder.priceLimit <= equilibriumPrice) {
+            potentialVolume += Math.min(buyOrder.quantity, sellOrder.quantity);
           }
         }
       }
     }
 
     return {
-      shareId: share.id,
-      currentPrice: share.getCurrentPrice(),
       equilibriumPrice,
-      maxVolume,
-      buyOrdersVolume,
-      sellOrdersVolume,
-      canMatch: equilibriumPrice !== null,
+      buyOrders: buyOrders.length,
+      sellOrders: sellOrders.length,
+      potentialVolume,
     };
   }
 }

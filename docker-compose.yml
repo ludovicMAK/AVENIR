@@ -3,24 +3,49 @@ services:
     image: postgres:16
     container_name: avenir-postgres
     restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-avenir_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-avenir_password}
+      POSTGRES_DB: ${POSTGRES_DB:-avenir_db}
     env_file:
       - .env
     ports:
       - "${DB_PORT:-5432}:5432"
     volumes:
       - avenir-postgres-data:/var/lib/postgresql/data
-  adminer:
+      - ./infrastructure/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-avenir_user} -d ${POSTGRES_DB:-avenir_db}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - avenir-network
+
+  pgadmin:
     image: dpage/pgadmin4:latest
     container_name: avenir-pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: "${PGADMIN_DEFAULT_EMAIL:-avenir.noreply@gmail.com}"
-      PGADMIN_DEFAULT_PASSWORD: "${PGADMIN_DEFAULT_PASSWORD:-admin}"
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-avenir.noreply@gmail.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
     restart: unless-stopped
     env_file:
       - .env
     ports:
       - "${PGADMIN_PORT:-8080}:80"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    networks:
+      - avenir-network
+
+networks:
+  avenir-network:
+    driver: bridge
+
 volumes:
   avenir-postgres-data:

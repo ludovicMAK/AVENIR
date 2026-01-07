@@ -1,95 +1,77 @@
 import { OrderRepository } from "@application/repositories/order";
-import { ShareRepository } from "@application/repositories/share";
-import { GetOrderBookInput } from "@application/requests/shares";
 import { OrderDirection } from "@domain/values/orderDirection";
-import { NotFoundError } from "@application/errors";
 
-export type OrderBookLevel = {
+interface OrderBookLevel {
   price: number;
-  totalQuantity: number;
-  orderCount: number;
-};
+  quantity: number;
+  orders: number;
+}
 
-export type OrderBookResult = {
+interface OrderBook {
   shareId: string;
-  shareName: string;
-  currentPrice: number;
   buyOrders: OrderBookLevel[];
   sellOrders: OrderBookLevel[];
   spread: number | null;
-  bestBuyPrice: number | null;
-  bestSellPrice: number | null;
-};
+}
 
 export class GetOrderBook {
-  constructor(
-    private readonly orderRepository: OrderRepository,
-    private readonly shareRepository: ShareRepository
-  ) {}
+  constructor(private readonly orderRepository: OrderRepository) {}
 
-  async execute(input: GetOrderBookInput): Promise<OrderBookResult> {
-    const share = await this.shareRepository.findById(input.shareId);
+  async execute(shareId: string): Promise<OrderBook> {
+    // Récupérer tous les ordres actifs
+    const buyOrders =
+      await this.orderRepository.findActiveByShareIdAndDirection(
+        shareId,
+        OrderDirection.BUY
+      );
+    const sellOrders =
+      await this.orderRepository.findActiveByShareIdAndDirection(
+        shareId,
+        OrderDirection.SELL
+      );
 
-    if (!share) {
-      throw new NotFoundError("Share not found");
+    // Agréger les ordres d'achat par niveau de prix
+    const buyLevels = this.aggregateOrdersByPrice(buyOrders);
+    const sortedBuyLevels = buyLevels.sort((a, b) => b.price - a.price);
+
+    // Agréger les ordres de vente par niveau de prix
+    const sellLevels = this.aggregateOrdersByPrice(sellOrders);
+    const sortedSellLevels = sellLevels.sort((a, b) => a.price - b.price);
+
+    // Calculer le spread (différence entre meilleur prix d'achat et de vente)
+    let spread: number | null = null;
+    if (sortedBuyLevels.length > 0 && sortedSellLevels.length > 0) {
+      const bestBid = sortedBuyLevels[0].price;
+      const bestAsk = sortedSellLevels[0].price;
+      spread = bestAsk - bestBid;
     }
 
-    const activeOrders = await this.orderRepository.findActiveByShareId(
-      input.shareId
-    );
+    return {
+      shareId,
+      buyOrders: sortedBuyLevels,
+      sellOrders: sortedSellLevels,
+      spread,
+    };
+  }
 
-    // Grouper les ordres BUY par prix
-    const buyOrdersMap = new Map<number, { quantity: number; count: number }>();
-    const sellOrdersMap = new Map<
-      number,
-      { quantity: number; count: number }
-    >();
+  private aggregateOrdersByPrice(orders: any[]): OrderBookLevel[] {
+    const priceMap = new Map<number, { quantity: number; count: number }>();
 
-    activeOrders.forEach((order) => {
-      const map = order.isBuyOrder() ? buyOrdersMap : sellOrdersMap;
-      const existing = map.get(order.priceLimit) || {
+    for (const order of orders) {
+      const existing = priceMap.get(order.priceLimit) || {
         quantity: 0,
         count: 0,
       };
-      map.set(order.priceLimit, {
+      priceMap.set(order.priceLimit, {
         quantity: existing.quantity + order.quantity,
         count: existing.count + 1,
       });
-    });
+    }
 
-    // Convertir en array et trier
-    const buyOrders: OrderBookLevel[] = Array.from(buyOrdersMap.entries())
-      .map(([price, data]) => ({
-        price,
-        totalQuantity: data.quantity,
-        orderCount: data.count,
-      }))
-      .sort((a, b) => b.price - a.price); // Décroissant (meilleur prix en premier)
-
-    const sellOrders: OrderBookLevel[] = Array.from(sellOrdersMap.entries())
-      .map(([price, data]) => ({
-        price,
-        totalQuantity: data.quantity,
-        orderCount: data.count,
-      }))
-      .sort((a, b) => a.price - b.price); // Croissant (meilleur prix en premier)
-
-    const bestBuyPrice = buyOrders[0]?.price ?? null;
-    const bestSellPrice = sellOrders[0]?.price ?? null;
-    const spread =
-      bestBuyPrice !== null && bestSellPrice !== null
-        ? bestSellPrice - bestBuyPrice
-        : null;
-
-    return {
-      shareId: share.id,
-      shareName: share.name,
-      currentPrice: share.getCurrentPrice(),
-      buyOrders,
-      sellOrders,
-      spread,
-      bestBuyPrice,
-      bestSellPrice,
-    };
+    return Array.from(priceMap.entries()).map(([price, data]) => ({
+      price,
+      quantity: data.quantity,
+      orders: data.count,
+    }));
   }
 }

@@ -1,145 +1,142 @@
 import { OrderRepository } from "@application/repositories/order";
-import { ShareRepository } from "@application/repositories/share";
 import { ShareTransactionRepository } from "@application/repositories/shareTransaction";
 import { SecuritiesPositionRepository } from "@application/repositories/securitiesPosition";
 import { AccountRepository } from "@application/repositories/account";
-import { UnitOfWork } from "@application/services/UnitOfWork";
+import { ShareRepository } from "@application/repositories/share";
 import { UuidGenerator } from "@application/services/UuidGenerator";
-import { ExecuteMatchingOrdersInput } from "@application/requests/shares";
-import { ShareTransaction } from "@domain/entities/shareTransaction";
-import { SecuritiesPosition } from "@domain/entities/securitiesPosition";
+import { UnitOfWork } from "@application/services/UnitOfWork";
+import { OrderDirection } from "@domain/values/orderDirection";
 import { OrderStatus } from "@domain/values/orderStatus";
-import { NotFoundError, InfrastructureError } from "@application/errors";
-
-export type ExecutionResult = {
-  shareId: string;
-  executedTransactions: number;
-  totalVolume: number;
-  lastExecutedPrice: number | null;
-};
+import { ShareTransaction } from "@domain/entities/shareTransaction";
+import { NotFoundError, UnprocessableError } from "@application/errors";
 
 export class ExecuteMatchingOrders {
   constructor(
     private readonly orderRepository: OrderRepository,
-    private readonly shareRepository: ShareRepository,
     private readonly shareTransactionRepository: ShareTransactionRepository,
     private readonly securitiesPositionRepository: SecuritiesPositionRepository,
     private readonly accountRepository: AccountRepository,
-    private readonly unitOfWork: UnitOfWork,
-    private readonly uuidGenerator: UuidGenerator
+    private readonly shareRepository: ShareRepository,
+    private readonly uuidGenerator: UuidGenerator,
+    private readonly unitOfWork: UnitOfWork
   ) {}
 
-  async execute(input: ExecuteMatchingOrdersInput): Promise<ExecutionResult> {
-    const share = await this.shareRepository.findById(input.shareId);
-
+  async execute(shareId: string): Promise<ShareTransaction[]> {
+    const share = await this.shareRepository.findById(shareId);
     if (!share) {
-      throw new NotFoundError("Share not found");
+      throw new NotFoundError(`Share with id ${shareId} not found`);
     }
-
-    const activeOrders = await this.orderRepository.findActiveByShareId(
-      input.shareId
-    );
-
-    const buyOrders = activeOrders
-      .filter((order) => order.isBuyOrder())
-      .sort((a, b) => b.priceLimit - a.priceLimit); // Prix décroissant (meilleurs acheteurs en premier)
-
-    const sellOrders = activeOrders
-      .filter((order) => order.isSellOrder())
-      .sort((a, b) => a.priceLimit - b.priceLimit); // Prix croissant (meilleurs vendeurs en premier)
-
-    let executedTransactions = 0;
-    let totalVolume = 0;
-    let lastExecutedPrice: number | null = null;
 
     await this.unitOfWork.begin();
 
     try {
-      for (const buyOrder of buyOrders) {
-        for (const sellOrder of sellOrders) {
+      const transactions: ShareTransaction[] = [];
+
+      // Récupérer tous les ordres actifs pour cette action
+      const buyOrders =
+        await this.orderRepository.findActiveByShareIdAndDirection(
+          shareId,
+          OrderDirection.BUY
+        );
+      const sellOrders =
+        await this.orderRepository.findActiveByShareIdAndDirection(
+          shareId,
+          OrderDirection.SELL
+        );
+
+      // Trier les ordres : buy par prix décroissant, sell par prix croissant
+      const sortedBuyOrders = buyOrders.sort(
+        (a, b) => b.priceLimit - a.priceLimit
+      );
+      const sortedSellOrders = sellOrders.sort(
+        (a, b) => a.priceLimit - b.priceLimit
+      );
+
+      // Matcher les ordres
+      for (const buyOrder of sortedBuyOrders) {
+        for (const sellOrder of sortedSellOrders) {
           if (!buyOrder.canMatchWith(sellOrder)) {
             continue;
           }
 
-          // Matching complet uniquement (pas d'exécution partielle)
-          if (buyOrder.quantity !== sellOrder.quantity) {
-            continue;
-          }
-
-          const executionPrice = sellOrder.priceLimit; // Le vendeur fixe le prix
-          const quantity = buyOrder.quantity;
+          // Prix d'exécution = prix limite du vendeur (ordre passé en premier)
+          const executionPrice = sellOrder.priceLimit;
+          const quantity = Math.min(buyOrder.quantity, sellOrder.quantity);
 
           // Créer la transaction
-          const transactionId = this.uuidGenerator.generate();
           const transaction = new ShareTransaction(
-            transactionId,
-            input.shareId,
+            this.uuidGenerator.generate(),
+            shareId,
             buyOrder.id,
             sellOrder.id,
             buyOrder.customerId,
             sellOrder.customerId,
             executionPrice,
             quantity,
-            new Date()
+            new Date(),
+            100, // buyerFee
+            100 // sellerFee
           );
 
           await this.shareTransactionRepository.save(transaction);
+          transactions.push(transaction);
 
-          // Débloquer et transférer les fonds de l'acheteur
-          const buyerAccounts = await this.accountRepository.findByOwnerId(
+          // Transférer les fonds de l'acheteur au vendeur
+          const buyerAccount = await this.accountRepository.findByOwnerId(
             buyOrder.customerId
           );
-          const buyerTradingAccount = buyerAccounts.find(
-            (acc) => acc.accountType.getValue() === "trading"
-          );
-
-          if (!buyerTradingAccount) {
-            throw new InfrastructureError("Buyer trading account not found");
-          }
-
-          // Débloquer les fonds bloqués lors de l'ordre
-          await this.accountRepository.unblockFunds(
-            buyerTradingAccount.id,
-            buyOrder.blockedAmount,
-            this.unitOfWork
-          );
-
-          // Déduire le montant total (prix + frais)
-          const totalCostForBuyer = transaction.getTotalAmountForBuyer();
-          await this.accountRepository.updateBalance(
-            buyerTradingAccount.id,
-            buyerTradingAccount.balance - totalCostForBuyer,
-            this.unitOfWork
-          );
-
-          // Créditer le vendeur (prix - frais)
-          const sellerAccounts = await this.accountRepository.findByOwnerId(
+          const sellerAccount = await this.accountRepository.findByOwnerId(
             sellOrder.customerId
           );
-          const sellerTradingAccount = sellerAccounts.find(
-            (acc) => acc.accountType.getValue() === "trading"
-          );
 
-          if (!sellerTradingAccount) {
-            throw new InfrastructureError("Seller trading account not found");
+          if (!buyerAccount || buyerAccount.length === 0) {
+            throw new NotFoundError(
+              `Buyer account not found for customer ${buyOrder.customerId}`
+            );
+          }
+          if (!sellerAccount || sellerAccount.length === 0) {
+            throw new NotFoundError(
+              `Seller account not found for customer ${sellOrder.customerId}`
+            );
           }
 
-          const totalCreditForSeller = transaction.getTotalAmountForSeller();
+          // Débloquer les fonds de l'acheteur et débiter le montant total
+          const totalAmountForBuyer = transaction.getTotalAmountForBuyer();
+          await this.accountRepository.updateBalanceAvailable(
+            buyerAccount[0].id,
+            buyerAccount[0].availableBalance - buyOrder.blockedAmount,
+            this.unitOfWork
+          );
           await this.accountRepository.updateBalance(
-            sellerTradingAccount.id,
-            sellerTradingAccount.balance + totalCreditForSeller,
+            buyerAccount[0].id,
+            buyerAccount[0].balance - totalAmountForBuyer,
             this.unitOfWork
           );
 
-          // Transférer les titres du vendeur vers l'acheteur
+          // Créditer le vendeur (montant - frais)
+          const totalAmountForSeller = transaction.getTotalAmountForSeller();
+          await this.accountRepository.updateBalance(
+            sellerAccount[0].id,
+            sellerAccount[0].balance + totalAmountForSeller,
+            this.unitOfWork
+          );
+
+          // Transférer les titres du vendeur à l'acheteur
           const sellerPosition =
             await this.securitiesPositionRepository.findByCustomerIdAndShareId(
               sellOrder.customerId,
-              input.shareId
+              shareId
+            );
+          const buyerPosition =
+            await this.securitiesPositionRepository.findByCustomerIdAndShareId(
+              buyOrder.customerId,
+              shareId
             );
 
           if (!sellerPosition) {
-            throw new InfrastructureError("Seller position not found");
+            throw new NotFoundError(
+              `Seller position not found for customer ${sellOrder.customerId}`
+            );
           }
 
           // Débloquer et retirer les titres du vendeur
@@ -149,18 +146,7 @@ export class ExecuteMatchingOrders {
             sellerPosition.blockedQuantity - quantity
           );
 
-          // Supprimer la position si elle est vide
-          if (sellerPosition.totalQuantity - quantity === 0) {
-            await this.securitiesPositionRepository.delete(sellerPosition.id);
-          }
-
           // Ajouter les titres à l'acheteur
-          let buyerPosition =
-            await this.securitiesPositionRepository.findByCustomerIdAndShareId(
-              buyOrder.customerId,
-              input.shareId
-            );
-
           if (buyerPosition) {
             await this.securitiesPositionRepository.updateQuantities(
               buyerPosition.id,
@@ -168,15 +154,15 @@ export class ExecuteMatchingOrders {
               buyerPosition.blockedQuantity
             );
           } else {
-            const newPositionId = this.uuidGenerator.generate();
-            buyerPosition = new SecuritiesPosition(
-              newPositionId,
-              buyOrder.customerId,
-              input.shareId,
-              quantity,
-              0
-            );
-            await this.securitiesPositionRepository.save(buyerPosition);
+            // Créer une nouvelle position pour l'acheteur - utiliser uuidGenerator
+            const newPosition = {
+              id: this.uuidGenerator.generate(),
+              customerId: buyOrder.customerId,
+              shareId: shareId,
+              totalQuantity: quantity,
+              blockedQuantity: 0,
+            };
+            await this.securitiesPositionRepository.save(newPosition as any);
           }
 
           // Mettre à jour le statut des ordres
@@ -189,32 +175,19 @@ export class ExecuteMatchingOrders {
             OrderStatus.EXECUTED
           );
 
-          // Mettre à jour le dernier prix exécuté
+          // Mettre à jour le prix de l'action
           await this.shareRepository.updateLastExecutedPrice(
-            input.shareId,
+            shareId,
             executionPrice
           );
-
-          executedTransactions++;
-          totalVolume += quantity;
-          lastExecutedPrice = executionPrice;
-
-          // Sortir de la boucle interne (ce buyOrder a été matché)
-          break;
         }
       }
 
       await this.unitOfWork.commit();
+      return transactions;
     } catch (error) {
       await this.unitOfWork.rollback();
       throw error;
     }
-
-    return {
-      shareId: input.shareId,
-      executedTransactions,
-      totalVolume,
-      lastExecutedPrice,
-    };
   }
 }

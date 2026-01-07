@@ -1,31 +1,17 @@
 import { ShareTransactionRepository } from "@application/repositories/shareTransaction";
-import { ShareRepository } from "@application/repositories/share";
-import { GetShareTransactionHistoryInput } from "@application/requests/shares";
 import { ShareTransaction } from "@domain/entities/shareTransaction";
-import { NotFoundError } from "@application/errors";
 
 export class GetShareTransactionHistory {
   constructor(
-    private readonly shareTransactionRepository: ShareTransactionRepository,
-    private readonly shareRepository: ShareRepository
+    private readonly shareTransactionRepository: ShareTransactionRepository
   ) {}
 
-  async execute(
-    input: GetShareTransactionHistoryInput
-  ): Promise<ShareTransaction[]> {
-    const share = await this.shareRepository.findById(input.shareId);
-
-    if (!share) {
-      throw new NotFoundError("Share not found");
-    }
-
+  async execute(shareId: string): Promise<ShareTransaction[]> {
     const transactions = await this.shareTransactionRepository.findByShareId(
-      input.shareId
+      shareId
     );
 
-    // Trier par date décroissante (plus récent en premier)
-    return transactions.sort(
-      (a, b) => b.dateExecuted.getTime() - a.dateExecuted.getTime()
-    );
+    // Les transactions sont déjà triées par date décroissante dans le repository
+    return transactions;
   }
 }
