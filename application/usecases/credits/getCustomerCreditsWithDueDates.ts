@@ -2,9 +2,9 @@ import { Credit } from "@domain/entities/credit";
 import { DueDate } from "@domain/entities/dueDate";
 import { CreditRepository } from "@application/repositories/credit";
 import { DueDateRepository } from "@application/repositories/dueDate";
-import { SessionRepository } from "@application/repositories/session";
 import { GetCustomerCreditsWithDueDatesRequest } from "@application/requests/credit";
 import { ConnectedError } from "@application/errors";
+import { UserRepository } from "@application/repositories/users";
 
 export type CreditWithDueDates = {
   credit: Credit;
@@ -13,14 +13,14 @@ export type CreditWithDueDates = {
 
 export class GetCustomerCreditsWithDueDates {
   constructor(
-    private readonly sessionRepository: SessionRepository,
+    private readonly userRepository: UserRepository,
     private readonly creditRepository: CreditRepository,
     private readonly dueDateRepository: DueDateRepository
   ) {}
 
   async execute(request: GetCustomerCreditsWithDueDatesRequest): Promise<CreditWithDueDates[]> {
-    const isConnected = await this.sessionRepository.isConnected(request.advisorId, request.token);
-    if (!isConnected) {
+    const userInformationConnected = await this.userRepository.getInformationUserConnected(request.advisorId, request.token);
+    if (!userInformationConnected || (userInformationConnected.role.getValue() !== "bankAdvisor" && userInformationConnected.role.getValue() !== "bankManager")) {
       throw new ConnectedError("Advisor is not connected");
     }
 

@@ -79,38 +79,6 @@ export class CreditHttpHandler {
     }
   }
 
-  public async getCustomerCredits(request: Request, response: Response) {
-    try {
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers["authorization"];
-      const token = authHeader && authHeader.split(" ")[1];
-      const { customerId } = request.params;
-
-      if (!customerId) {
-        throw new ValidationError("Customer ID is required");
-      }
-
-      if (!userId || !token) {
-        throw new ValidationError("Authentication required");
-      }
-
-      const credits = await this.controller.getCustomerCredits({
-        customerId,
-        token: token || "",
-        advisorId: userId,
-      });
-
-      return sendSuccess(response, {
-        status: 200,
-        code: "CREDITS_FOUND",
-        message: "Credits retrieved successfully.",
-        data: { credits },
-      });
-    } catch (error) {
-      return mapErrorToHttpResponse(response, error);
-    }
-  }
-
   public async getCustomerCreditsWithDueDates(request: Request, response: Response) {
     try {
       const userId = request.headers["x-user-id"] as string;

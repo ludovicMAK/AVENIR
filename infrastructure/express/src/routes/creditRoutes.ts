@@ -13,10 +13,6 @@ export function createCreditRoutes(creditHttpHandler: CreditHttpHandler): Router
     creditHttpHandler.getCreditById(request, response)
   );
 
-  router.get("/credits/:customerId/credits", (request, response) =>
-    creditHttpHandler.getCustomerCredits(request, response)
-  );
-
   router.get("/credits/:customerId/credits-with-due-dates", (request, response) =>
     creditHttpHandler.getCustomerCreditsWithDueDates(request, response)
   );
