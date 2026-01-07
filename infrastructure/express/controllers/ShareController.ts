@@ -15,6 +15,10 @@ import {
   CancelOrderInput,
   GetPositionsInput,
   GetShareInput,
+  GetShareTransactionHistoryInput,
+  GetOrderBookInput,
+  CalculateSharePriceInput,
+  ExecuteMatchingOrdersInput,
 } from "@application/requests/shares";
 import { Share } from "@domain/entities/share";
 import { Order } from "@domain/entities/order";

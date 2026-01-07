@@ -35,3 +35,19 @@ export type TransferToTradingAccountInput = {
   fromAccountId: string;
   toAccountId: string;
 };
+
+export type GetShareTransactionHistoryInput = {
+  shareId: string;
+};
+
+export type GetOrderBookInput = {
+  shareId: string;
+};
+
+export type CalculateSharePriceInput = {
+  shareId: string;
+};
+
+export type ExecuteMatchingOrdersInput = {
+  shareId: string;
+};

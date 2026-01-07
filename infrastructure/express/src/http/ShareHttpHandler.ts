@@ -6,6 +6,10 @@ import {
   CancelOrderInput,
   GetPositionsInput,
   GetShareInput,
+  GetShareTransactionHistoryInput,
+  GetOrderBookInput,
+  CalculateSharePriceInput,
+  ExecuteMatchingOrdersInput,
 } from "@application/requests/shares";
 import { mapErrorToHttpResponse } from "@express/src/responses/error";
 
