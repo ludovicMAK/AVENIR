@@ -32,3 +32,9 @@ export type PayInstallmentRequest = {
   customerId: string;
   dueDateId: string;
 };
+
+export type GetCustomerCreditsWithDueDatesRequest = {
+  customerId: string;
+  token: string;
+  advisorId: string;
+};

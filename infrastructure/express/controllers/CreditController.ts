@@ -1,10 +1,10 @@
 import { GrantCredit } from "@application/usecases/credits/grantCredit";
 import { GetCreditById } from "@application/usecases/credits/getCreditById";
 import { GetCustomerCredits } from "@application/usecases/credits/getCustomerCredits";
-import { CalculateCreditDetails, CreditDetails } from "@application/usecases/credits/calculateCreditDetails";
+import { GetCustomerCreditsWithDueDates, CreditWithDueDates } from "@application/usecases/credits/getCustomerCreditsWithDueDates";
 import { SimulateAmortizationSchedule, AmortizationSchedule } from "@application/usecases/credits/simulateAmortizationSchedule";
 import { PayInstallment } from "@application/usecases/credits/payInstallment";
-import { GrantCreditRequest, GetCreditByIdRequest, GetCustomerCreditsRequest, CalculateCreditDetailsRequest, PayInstallmentRequest } from "@application/requests/credit";
+import { GrantCreditRequest, GetCreditByIdRequest, GetCustomerCreditsRequest, GetCustomerCreditsWithDueDatesRequest, CalculateCreditDetailsRequest, PayInstallmentRequest } from "@application/requests/credit";
 import { Credit } from "@domain/entities/credit";
 import { DueDate } from "@domain/entities/dueDate";
 
@@ -13,7 +13,7 @@ export class CreditController {
     private readonly grantCreditUsecase: GrantCredit,
     private readonly getCreditByIdUsecase: GetCreditById,
     private readonly getCustomerCreditsUsecase: GetCustomerCredits,
-    private readonly calculateCreditDetailsUsecase: CalculateCreditDetails,
+    private readonly getCustomerCreditsWithDueDatesUsecase: GetCustomerCreditsWithDueDates,
     private readonly simulateAmortizationScheduleUsecase: SimulateAmortizationSchedule,
     private readonly payInstallmentUsecase: PayInstallment
   ) {}
@@ -25,13 +25,12 @@ export class CreditController {
   public async getCreditById(request: GetCreditByIdRequest, userId: string): Promise<Credit> {
     return await this.getCreditByIdUsecase.execute(request, userId);
   }
-
   public async getCustomerCredits(request: GetCustomerCreditsRequest): Promise<Credit[]> {
     return await this.getCustomerCreditsUsecase.execute(request);
   }
 
-  public async calculateCreditDetails(request: CalculateCreditDetailsRequest): Promise<CreditDetails> {
-    return this.calculateCreditDetailsUsecase.execute(request);
+  public async getCustomerCreditsWithDueDates(request: GetCustomerCreditsWithDueDatesRequest): Promise<CreditWithDueDates[]> {
+    return await this.getCustomerCreditsWithDueDatesUsecase.execute(request);
   }
 
   public simulateAmortizationSchedule(request: CalculateCreditDetailsRequest): AmortizationSchedule {

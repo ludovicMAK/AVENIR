@@ -1,4 +1,4 @@
-import { CreditDetails } from "@application/usecases/credits/calculateCreditDetails";
+import { CreditWithDueDates } from "@application/usecases/credits/getCustomerCreditsWithDueDates";
 import { AmortizationSchedule } from "@application/usecases/credits/simulateAmortizationSchedule";
 import { Credit } from "@domain/entities/credit";
 import { DueDate } from "@domain/entities/dueDate";
@@ -41,9 +41,7 @@ export type CreditResponseData = { credit: Credit };
 
 export type CreditsResponseData = { credits: Credit[] };
 
-export type CreditDetailsResponseData = {
-  details: CreditDetails;
-};
+
 
 export type AccountResponseData = { accounts: AccountView[] };
 
@@ -52,6 +50,10 @@ export type SingleAccountResponseData = { account: AccountView };
 export type UserResponseData = { user: UserView };
 
 export type UserListResponseData = { users: UserView[] };
+
+export type creditsWithDueDatesData = {
+  creditWithDueDates: CreditWithDueDates[];
+};
 
 export type ConversationView = {
   id: string;
@@ -93,9 +95,9 @@ export type SuccessData =
   | MessagesListResponseData
   | CreditResponseData
   | CreditsResponseData
-  | CreditDetailsResponseData
   | DueDateResponseData
   | AmortizationScheduleResponseData
+  |creditsWithDueDatesData
   | undefined;
 
 export type SuccessPayload<ResponseData extends SuccessData = SuccessData> = {

@@ -3,7 +3,7 @@ import { CreditController } from "@express/controllers/CreditController";
 import { sendSuccess } from "../responses/success";
 import { mapErrorToHttpResponse } from "../responses/error";
 import { ValidationError } from "@application/errors";
-import { GrantCreditRequest, CalculateCreditDetailsRequest, PayInstallmentRequest } from "@application/requests/credit";
+import { GrantCreditRequest, PayInstallmentRequest, GetCustomerCreditsWithDueDatesRequest } from "@application/requests/credit";
 
 export class CreditHttpHandler {
   constructor(private readonly controller: CreditController) {}
@@ -111,26 +111,34 @@ export class CreditHttpHandler {
     }
   }
 
-  public async calculateCreditDetails(request: Request, response: Response) {
+  public async getCustomerCreditsWithDueDates(request: Request, response: Response) {
     try {
-      const { amountBorrowed, annualRate, insuranceRate, durationInMonths } = request.body;
+      const userId = request.headers["x-user-id"] as string;
+      const authHeader = request.headers["authorization"];
+      const token = authHeader && authHeader.split(" ")[1];
+      const { customerId } = request.params;
 
-      if (!amountBorrowed || !annualRate || !insuranceRate || !durationInMonths) {
-        throw new ValidationError("Missing required fields: amountBorrowed, annualRate, insuranceRate, durationInMonths");
+      if (!customerId) {
+        throw new ValidationError("Customer ID is required");
       }
 
-      const details = await this.controller.calculateCreditDetails({
-        amountBorrowed,
-        annualRate,
-        insuranceRate,
-        durationInMonths,
-      });
+      if (!userId || !token) {
+        throw new ValidationError("Authentication required");
+      }
+
+      const getCustomerCreditsWithDueDatesRequest: GetCustomerCreditsWithDueDatesRequest = {
+        customerId,
+        token: token || "",
+        advisorId: userId,
+      };
+
+      const creditsWithDueDates = await this.controller.getCustomerCreditsWithDueDates(getCustomerCreditsWithDueDatesRequest);
 
       return sendSuccess(response, {
         status: 200,
-        code: "CREDIT_DETAILS_CALCULATED",
-        message: "Credit details calculated successfully.",
-        data: { details },
+        code: "CREDITS_WITH_DUE_DATES_FOUND",
+        message: "Credits with due dates retrieved successfully.",
+        data: { creditWithDueDates:creditsWithDueDates },
       });
     } catch (error) {
       return mapErrorToHttpResponse(response, error);
