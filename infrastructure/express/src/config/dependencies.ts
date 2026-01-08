@@ -50,7 +50,7 @@ import {
   securitiesPositionRepository,
   transactionRepository,
   transferRepository,
-  unitOfWork,
+  unitOfWorkFactory,
   sessionRepository,
   conversationRepository,
   messageRepository,
@@ -58,6 +58,8 @@ import {
   transferConversationRepository,
   creditRepository,
   dueDateRepository,
+  savingsRateRepository,
+  dailyInterestRepository,
 } from "@express/src/config/repositories";
 import {
   emailSender,
@@ -101,6 +103,14 @@ import { PayInstallment } from "@application/usecases/credits/payInstallment";
 import { EnvironmentBankConfiguration } from "@adapters/services/EnvironmentBankConfiguration";
 import { GetTransactionHistory } from "@application/usecases/transactions/getTransactionHistory";
 import { GetAccountTransactionsByAdmin } from "@application/usecases/transactions/getAccountTransactionsByAdmin";
+import { UpdateSavingsRate } from "@application/usecases/savings/updateSavingsRate";
+import { GetSavingsRateHistory } from "@application/usecases/savings/getSavingsRateHistory";
+import { GetActiveSavingsRate } from "@application/usecases/savings/getActiveSavingsRate";
+import { ProcessDailySavingsInterest } from "@application/usecases/savings/processDailySavingsInterest";
+import { GetAccountInterestHistory } from "@application/usecases/savings/getAccountInterestHistory";
+import { SavingsController } from "@express/controllers/SavingsController";
+import { SavingsHttpHandler } from "../http/SavingsHttpHandler";
+import { AuthenticateUser } from "@application/usecases/auth/authenticateUser";
 
 const registerUser = new RegisterUser(
   userRepository,
@@ -203,7 +213,7 @@ const executeMatchingOrders = new ExecuteMatchingOrders(
   accountRepository,
   shareRepository,
   uuidGenerator,
-  unitOfWork
+  unitOfWorkFactory
 );
 const calculateSharePrice = new CalculateSharePrice(orderRepository);
 const getOrderBook = new GetOrderBook(orderRepository);
@@ -231,7 +241,7 @@ const createTransaction = new CreateTransaction(
   uuidGenerator,
   transferRepository,
   accountRepository,
-  unitOfWork,
+  unitOfWorkFactory,
   sessionRepository
 );
 
@@ -239,7 +249,7 @@ const validateTransferByAdmin = new ValidTransferByAdmin(
   transactionRepository,
   transferRepository,
   userRepository,
-  unitOfWork,
+  unitOfWorkFactory,
   accountRepository
 );
 
@@ -248,7 +258,7 @@ const cancelTransferUsecase = new CancelTransfer(
   userRepository,
   transactionRepository,
   accountRepository,
-  unitOfWork
+  unitOfWorkFactory
 );
 
 const getTransactionHistoryUsecase = new GetTransactionHistory(
@@ -378,7 +388,7 @@ const grantCredit = new GrantCredit(
   creditRepository,
   dueDateRepository,
   nodeGenerateAmortizationService,
-  unitOfWork,
+  unitOfWorkFactory,
   uuidGenerator
 );
 const getCustomerCreditsWithDueDatesUsecase =
@@ -418,7 +428,7 @@ const payInstallmentUsecase = new PayInstallment(
   transactionRepository,
   transferRepository,
   creditRepository,
-  unitOfWork,
+  unitOfWorkFactory,
   uuidGenerator,
   bankConfiguration
 );
@@ -429,7 +439,7 @@ const earlyRepayCreditUsecase = new EarlyRepayCredit(
   transactionRepository,
   transferRepository,
   creditRepository,
-  unitOfWork,
+  unitOfWorkFactory,
   uuidGenerator,
   bankConfiguration
 );
@@ -437,7 +447,7 @@ const markOverdueDueDatesUsecase = new MarkOverdueDueDates(
   sessionRepository,
   userRepository,
   dueDateRepository,
-  unitOfWork
+  unitOfWorkFactory
 );
 const getOverdueDueDatesUsecase = new GetOverdueDueDates(
   sessionRepository,
@@ -461,6 +471,45 @@ const creditController = new CreditController(
 );
 const creditHttpHandler = new CreditHttpHandler(creditController);
 
+const updateSavingsRateUsecase = new UpdateSavingsRate(
+  savingsRateRepository,
+  uuidGenerator
+);
+const getSavingsRateHistoryUsecase = new GetSavingsRateHistory(
+  savingsRateRepository
+);
+const getActiveSavingsRateUsecase = new GetActiveSavingsRate(
+  savingsRateRepository
+);
+const processDailySavingsInterestUsecase = new ProcessDailySavingsInterest(
+  savingsRateRepository,
+  dailyInterestRepository,
+  accountRepository,
+  transactionRepository,
+  uuidGenerator,
+  unitOfWorkFactory
+);
+const getAccountInterestHistoryUsecase = new GetAccountInterestHistory(
+  dailyInterestRepository,
+  accountRepository
+);
+const authenticateUserUsecase = new AuthenticateUser(
+  sessionRepository,
+  userRepository
+);
+
+const savingsController = new SavingsController(
+  updateSavingsRateUsecase,
+  getSavingsRateHistoryUsecase,
+  getActiveSavingsRateUsecase,
+  processDailySavingsInterestUsecase,
+  getAccountInterestHistoryUsecase
+);
+const savingsHttpHandler = new SavingsHttpHandler(
+  savingsController,
+  authenticateUserUsecase
+);
+
 export const httpRouter = createHttpRouter(
   userHttpHandler,
   accountHttpHandler,
@@ -468,7 +517,8 @@ export const httpRouter = createHttpRouter(
   transactionHttpHandler,
   transferHttpHandler,
   conversationHttpHandler,
-  creditHttpHandler
+  creditHttpHandler,
+  savingsHttpHandler
 );
 
 export {

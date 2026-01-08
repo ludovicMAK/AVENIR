@@ -100,6 +100,23 @@ export class PostgresAccountRepository implements AccountRepository {
     }
   }
 
+  async findByType(accountType: AccountType): Promise<Account[]> {
+    try {
+      const result = await this.pool.query<AccountRow>(
+        `
+          SELECT id, iban, account_type, account_name, authorized_overdraft, overdraft_limit, overdraft_fees, status, balance, id_owner, available_balance
+          FROM accounts
+          WHERE account_type = $1
+        `,
+        [accountType.getValue()]
+      );
+
+      return result.rows.map((row) => this.mapRowToAccount(row));
+    } catch (error) {
+      this.handleDatabaseError(error);
+    }
+  }
+
   async updateBalance(
     accountId: string,
     amountToAdd: number,

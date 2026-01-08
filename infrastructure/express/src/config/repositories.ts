@@ -51,6 +51,12 @@ import { CreditRepository } from "@application/repositories/credit";
 import { PostgresDueDateRepository } from "@adapters/repositories/sql/PostgresDueDateRepository";
 import { InMemoryDueDateRepository } from "@adapters/repositories/memory/InMemoryDueDateRepository";
 import { DueDateRepository } from "@application/repositories/dueDate";
+import { SavingsRateRepository } from "@application/repositories/savingsRate";
+import { PostgresSavingsRateRepository } from "@adapters/repositories/sql/PostgresSavingsRateRepository";
+import { InMemorySavingsRateRepository } from "@adapters/repositories/memory/InMemorySavingsRateRepository";
+import { DailyInterestRepository } from "@application/repositories/dailyInterest";
+import { PostgresDailyInterestRepository } from "@adapters/repositories/sql/PostgresDailyInterestRepository";
+import { InMemoryDailyInterestRepository } from "@adapters/repositories/memory/InMemoryDailyInterestRepository";
 
 function resolveRepositoryDriver(): RepositoryDriver {
   const driver = (process.env.DATA_DRIVER ?? "memory").toLowerCase();
@@ -204,6 +210,26 @@ function buildDueDateRepository(driver: RepositoryDriver): DueDateRepository {
   return new InMemoryDueDateRepository();
 }
 
+function buildSavingsRateRepository(
+  driver: RepositoryDriver
+): SavingsRateRepository {
+  if (driver === "postgres") {
+    return new PostgresSavingsRateRepository(getPool());
+  }
+
+  return new InMemorySavingsRateRepository();
+}
+
+function buildDailyInterestRepository(
+  driver: RepositoryDriver
+): DailyInterestRepository {
+  if (driver === "postgres") {
+    return new PostgresDailyInterestRepository(getPool());
+  }
+
+  return new InMemoryDailyInterestRepository();
+}
+
 export const repositoryDriver: RepositoryDriver = resolveRepositoryDriver();
 process.stdout.write(`Repository driver: ${repositoryDriver}\n`);
 export const userRepository: UserRepository =
@@ -224,7 +250,8 @@ export const transactionRepository: TransactionRepository =
   buildTransactionRepository(repositoryDriver);
 export const transferRepository: TransferRepository =
   buildTransferRepository(repositoryDriver);
-export const unitOfWork: UnitOfWork = buildUnitOfWork(repositoryDriver);
+export const unitOfWorkFactory: () => UnitOfWork = () =>
+  buildUnitOfWork(repositoryDriver);
 export const sessionRepository: SessionRepository =
   buildSessionRepository(repositoryDriver);
 export const conversationRepository: ConversationRepository =
@@ -237,3 +264,7 @@ export const transferConversationRepository: TransferConversationRepository =
   buildTransferConversationRepository(repositoryDriver);
 export const creditRepository: CreditRepository = buildCreditRepository(repositoryDriver);
 export const dueDateRepository: DueDateRepository = buildDueDateRepository(repositoryDriver);
+export const savingsRateRepository: SavingsRateRepository =
+  buildSavingsRateRepository(repositoryDriver);
+export const dailyInterestRepository: DailyInterestRepository =
+  buildDailyInterestRepository(repositoryDriver);

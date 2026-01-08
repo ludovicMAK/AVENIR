@@ -74,7 +74,7 @@ import {
   securitiesPositionRepository,
   transactionRepository,
   transferRepository,
-  unitOfWork,
+  unitOfWorkFactory,
   sessionRepository,
   conversationRepository,
   messageRepository,
@@ -202,7 +202,7 @@ export const executeMatchingOrders = new ExecuteMatchingOrders(
   accountRepository,
   shareRepository,
   uuidGenerator,
-  unitOfWork
+  unitOfWorkFactory
 );
 
 export const calculateSharePrice = new CalculateSharePrice(orderRepository);
@@ -219,7 +219,7 @@ export const createTransaction = new CreateTransaction(
   uuidGenerator,
   transferRepository,
   accountRepository,
-  unitOfWork,
+  unitOfWorkFactory,
   sessionRepository
 );
 
@@ -233,7 +233,7 @@ export const validateTransferByAdmin = new ValidTransferByAdmin(
   transactionRepository,
   transferRepository,
   userRepository,
-  unitOfWork,
+  unitOfWorkFactory,
   accountRepository
 );
 

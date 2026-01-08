@@ -102,3 +102,12 @@ export class UnknownDueDateStatusError extends DomainError {
     });
   }
 }
+
+export class UnknownCreditModeError extends DomainError {
+  constructor(value: string) {
+    super("UNKNOWN_CREDIT_MODE", `Unknown credit mode: ${value}`, {
+      issue: "unknown_credit_mode",
+      context: { value },
+    });
+  }
+}

@@ -1,5 +1,8 @@
 import { AccountRepository } from "@application/repositories/account";
 import { Account } from "@domain/entities/account";
+import { AccountType } from "@domain/values/accountType";
+import { UnitOfWork } from "@application/services/UnitOfWork";
+import { InMemoryUnitOfWork } from "@adapters/services/InMemoryUnitOfWork";
 
 export class InMemoryAccountRepository implements AccountRepository {
   private readonly items: Map<string, Account> = new Map();
@@ -31,46 +34,54 @@ export class InMemoryAccountRepository implements AccountRepository {
     return accounts;
   }
 
-  async updateBalance(accountId: string, newBalance: number): Promise<void> {
-    const account = this.items.get(accountId);
-    if (account) {
-      const updatedAccount = new Account(
-        account.id,
-        account.accountType,
-        account.IBAN,
-        account.accountName,
-        account.authorizedOverdraft,
-        account.overdraftLimit,
-        account.overdraftFees,
-        account.status,
-        account.idOwner,
-        newBalance,
-        account.availableBalance
-      );
-      this.items.set(accountId, updatedAccount);
-    }
+  async updateBalance(
+    accountId: string,
+    amountToAdd: number,
+    unitOfWork?: UnitOfWork
+  ): Promise<void> {
+    return this.applyChange(
+      accountId,
+      (account) =>
+        new Account(
+          account.id,
+          account.accountType,
+          account.IBAN,
+          account.accountName,
+          account.authorizedOverdraft,
+          account.overdraftLimit,
+          account.overdraftFees,
+          account.status,
+          account.idOwner,
+          account.balance + amountToAdd,
+          account.availableBalance
+        ),
+      unitOfWork
+    );
   }
+
   async updateBalanceAvailable(
     accountId: string,
-    newAvailableBalance: number
+    amountToAdd: number,
+    unitOfWork?: UnitOfWork
   ): Promise<void> {
-    const account = this.items.get(accountId);
-    if (account) {
-      const updatedAccount = new Account(
-        account.id,
-        account.accountType,
-        account.IBAN,
-        account.accountName,
-        account.authorizedOverdraft,
-        account.overdraftLimit,
-        account.overdraftFees,
-        account.status,
-        account.idOwner,
-        account.balance,
-        newAvailableBalance
-      );
-      this.items.set(accountId, updatedAccount);
-    }
+    return this.applyChange(
+      accountId,
+      (account) =>
+        new Account(
+          account.id,
+          account.accountType,
+          account.IBAN,
+          account.accountName,
+          account.authorizedOverdraft,
+          account.overdraftLimit,
+          account.overdraftFees,
+          account.status,
+          account.idOwner,
+          account.balance,
+          account.availableBalance + amountToAdd
+        ),
+      unitOfWork
+    );
   }
 
   async updateStatus(accountId: string, status: string): Promise<void> {
@@ -114,65 +125,114 @@ export class InMemoryAccountRepository implements AccountRepository {
     }
     return null;
   }
-  async updateNameAccount(accountId: string, newName: string): Promise<boolean> {
+  async findByType(accountType: AccountType): Promise<Account[]> {
+    return Array.from(this.items.values()).filter((account) =>
+      account.accountType.equals(accountType)
+    );
+  }
+  async updateNameAccount(
+    accountId: string,
+    newName: string,
+    unitOfWork?: UnitOfWork
+  ): Promise<boolean> {
     const account = this.items.get(accountId);
-    if (account) {
-      const updatedAccount = new Account(
-        account.id,
-        account.accountType,
-        account.IBAN,
-        newName,
-        account.authorizedOverdraft,
-        account.overdraftLimit,
-        account.overdraftFees,
-        account.status,
-        account.idOwner,
-        account.balance,
-        account.availableBalance
-      );
-      this.items.set(accountId, updatedAccount);
-      return true;
+    if (!account) {
+      return false;
     }
-    return false;
+
+    await this.applyChange(
+      accountId,
+      (existing) =>
+        new Account(
+          existing.id,
+          existing.accountType,
+          existing.IBAN,
+          newName,
+          existing.authorizedOverdraft,
+          existing.overdraftLimit,
+          existing.overdraftFees,
+          existing.status,
+          existing.idOwner,
+          existing.balance,
+          existing.availableBalance
+        ),
+      unitOfWork
+    );
+
+    return true;
   }
 
-  async blockFunds(accountId: string, amount: number): Promise<void> {
-    const account = this.items.get(accountId);
-    if (account && account.isOpen()) {
-      const updatedAccount = new Account(
-        account.id,
-        account.accountType,
-        account.IBAN,
-        account.accountName,
-        account.authorizedOverdraft,
-        account.overdraftLimit,
-        account.overdraftFees,
-        account.status,
-        account.idOwner,
-        account.balance,
-        account.availableBalance - amount
-      );
-      this.items.set(accountId, updatedAccount);
-    }
+  async blockFunds(
+    accountId: string,
+    amount: number,
+    unitOfWork?: UnitOfWork
+  ): Promise<void> {
+    return this.applyChange(
+      accountId,
+      (account) =>
+        new Account(
+          account.id,
+          account.accountType,
+          account.IBAN,
+          account.accountName,
+          account.authorizedOverdraft,
+          account.overdraftLimit,
+          account.overdraftFees,
+          account.status,
+          account.idOwner,
+          account.balance,
+          account.availableBalance - amount
+        ),
+      unitOfWork
+    );
   }
 
-  async unblockFunds(accountId: string, amount: number): Promise<void> {
+  async unblockFunds(
+    accountId: string,
+    amount: number,
+    unitOfWork?: UnitOfWork
+  ): Promise<void> {
+    return this.applyChange(
+      accountId,
+      (account) =>
+        new Account(
+          account.id,
+          account.accountType,
+          account.IBAN,
+          account.accountName,
+          account.authorizedOverdraft,
+          account.overdraftLimit,
+          account.overdraftFees,
+          account.status,
+          account.idOwner,
+          account.balance,
+          account.availableBalance + amount
+        ),
+      unitOfWork
+    );
+  }
+
+  private async applyChange(
+    accountId: string,
+    mutation: (account: Account) => Account,
+    unitOfWork?: UnitOfWork
+  ): Promise<void> {
     const account = this.items.get(accountId);
-    if (account && account.isOpen()) {
-      const updatedAccount = new Account(
-        account.id,
-        account.accountType,
-        account.IBAN,
-        account.accountName,
-        account.authorizedOverdraft,
-        account.overdraftLimit,
-        account.overdraftFees,
-        account.status,
-        account.idOwner,
-        account.balance,
-        account.availableBalance + amount
-      );
-      this.items.set(accountId, updatedAccount);
+    if (!account) {
+      return;
     }
+
+    const updatedAccount = mutation(account);
+
+    if (unitOfWork instanceof InMemoryUnitOfWork) {
+      unitOfWork.registerChange({
+        execute: async () => {
+          this.items.set(accountId, updatedAccount);
+        },
+      });
+      return;
+    }
+
+    this.items.set(accountId, updatedAccount);
   }
 }
