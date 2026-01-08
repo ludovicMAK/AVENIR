@@ -1,5 +1,6 @@
 import { UnitOfWork } from "@application/services/UnitOfWork";
 import { Account } from "@domain/entities/account";
+import { AccountType } from "@domain/values/accountType";
 export interface AccountRepository {
   save(account: Account): Promise<void>;
   findById(id: string): Promise<Account | null>;
@@ -29,6 +30,6 @@ export interface AccountRepository {
     amount: number,
     unitOfWork?: UnitOfWork
   ): Promise<void>;
-  updateBalanceAvailable(accountId: string, newAvailableBalance: number, unitOfWork?: UnitOfWork): Promise<void>;
   findCurrentAccountByCustomerId(customerId: string): Promise<Account | null>;
+  findByType(accountType: AccountType): Promise<Account[]>;
 }

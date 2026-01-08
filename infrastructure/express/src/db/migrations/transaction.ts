@@ -23,8 +23,13 @@ export async function ensureTransactionsTable(): Promise<void> {
           reason TEXT NOT NULL,
           account_date TIMESTAMP NOT NULL,
           status status_transaction NOT NULL,
-          transfer_id UUID NOT NULL
+          transfer_id UUID NULL
       );
+    `);
+
+    await client.query(`
+      ALTER TABLE transactions
+      ALTER COLUMN transfer_id DROP NOT NULL;
     `);
 
     await client.query(`

@@ -34,7 +34,7 @@ export class PostgresTransactionRepository implements TransactionRepository {
         transaction.reason,
         transaction.accountDate,
         transaction.status.getValue(),
-        transaction.transferId,
+        transaction.transferId ?? null,
       ];
 
       if (client) {
@@ -69,7 +69,7 @@ export class PostgresTransactionRepository implements TransactionRepository {
             row.reason,
             row.account_date,
             StatusTransaction.from(row.status),
-            row.transfer_id
+            row.transfer_id ?? null
           )
       );
     } catch (error) {
@@ -106,7 +106,7 @@ export class PostgresTransactionRepository implements TransactionRepository {
         transaction.reason,
         transaction.accountDate,
         transaction.status.getValue(),
-        transaction.transferId,
+        transaction.transferId ?? null,
       ];
 
       if (client) {
@@ -195,7 +195,7 @@ export class PostgresTransactionRepository implements TransactionRepository {
             row.reason,
             row.account_date,
             StatusTransaction.from(row.status),
-            row.transfer_id
+            row.transfer_id ?? null
           )
       );
 
@@ -228,7 +228,7 @@ export class PostgresTransactionRepository implements TransactionRepository {
             row.reason,
             row.account_date,
             StatusTransaction.from(row.status),
-            row.transfer_id
+            row.transfer_id ?? null
           )
       );
     } catch (error) {

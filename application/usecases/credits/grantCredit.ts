@@ -4,7 +4,7 @@ import { CreditRepository } from "@application/repositories/credit";
 import { SessionRepository } from "@application/repositories/session";
 import { UserRepository } from "@application/repositories/users"; 
 import { AccountRepository } from "@application/repositories/account"; 
-import { UnitOfWork } from "@application/services/UnitOfWork"; 
+import { UnitOfWorkFactory } from "@application/services/UnitOfWork"; 
 import { UuidGenerator } from "@application/services/UuidGenerator";
 import { GrantCreditRequest } from "@application/requests/credit";
 import { ConnectedError, UnauthorizedError, NotFoundError, ValidationError } from "@application/errors";
@@ -21,7 +21,7 @@ export class GrantCredit {
     private readonly creditRepository: CreditRepository,
     private readonly dueDateRepository: DueDateRepository,
     private readonly amortizationService: GenerateAmortizationService,
-    private readonly unitOfWork: UnitOfWork,
+    private readonly unitOfWorkFactory: UnitOfWorkFactory,
     private readonly uuidGenerator: UuidGenerator
   ) {}
 
@@ -57,9 +57,10 @@ export class GrantCredit {
       request.customerId
     );
 
-    await this.unitOfWork.begin();
+    const unitOfWork = this.unitOfWorkFactory();
+    await unitOfWork.begin();
     try {
-      await this.creditRepository.save(credit, this.unitOfWork);
+      await this.creditRepository.save(credit, unitOfWork);
 
       const schedule = this.amortizationService.generate(
         request.amountBorrowed,
@@ -82,16 +83,16 @@ export class GrantCredit {
           creditId
         );
 
-        await this.dueDateRepository.save(due, this.unitOfWork as any);
+        await this.dueDateRepository.save(due, unitOfWork as any);
       }
 
-      await this.accountRepository.updateBalance(customerAccount.id, request.amountBorrowed, this.unitOfWork);
-      await this.accountRepository.updateBalanceAvailable(customerAccount.id, request.amountBorrowed, this.unitOfWork);
+      await this.accountRepository.updateBalance(customerAccount.id, request.amountBorrowed, unitOfWork);
+      await this.accountRepository.updateBalanceAvailable(customerAccount.id, request.amountBorrowed, unitOfWork);
 
-      await this.unitOfWork.commit();
+      await unitOfWork.commit();
       return credit;
     } catch (error) {
-      await this.unitOfWork.rollback();
+      await unitOfWork.rollback();
       throw error;
     }
   }
