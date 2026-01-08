@@ -23,6 +23,10 @@ export class GetUserByToken {
       throw new UnauthorizedError("User not found");
     }
 
+    if (!user.isActive()) {
+      throw new UnauthorizedError("User is banned");
+    }
+
     return user;
   }
 }

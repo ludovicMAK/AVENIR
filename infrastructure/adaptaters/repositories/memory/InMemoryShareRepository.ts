@@ -36,7 +36,8 @@ export class InMemoryShareRepository implements ShareRepository {
         share.name,
         share.totalNumberOfParts,
         share.initialPrice,
-        price
+        price,
+        share.isActive
       );
       this.shares.set(shareId, updatedShare);
     }

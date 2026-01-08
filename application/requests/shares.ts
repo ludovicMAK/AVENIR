@@ -56,8 +56,13 @@ export type UpdateShareInput = {
   shareId: string;
   name?: string;
   totalNumberOfParts?: number;
+  initialPrice?: number;
 };
 
 export type DeleteShareInput = {
+  shareId: string;
+};
+
+export type ToggleShareActivationInput = {
   shareId: string;
 };

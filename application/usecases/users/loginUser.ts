@@ -34,7 +34,11 @@ export class LoginUser {
       throw new UnauthorizedError("Invalid credentials");
     }
 
-    if (!user.canLogin()) {
+    if (user.isBanned()) {
+      throw new UnauthorizedError("User is banned");
+    }
+
+    if (!user.isEmailVerified()) {
       throw new UnauthorizedError("Please verify your email address to login");
     }
     const sessionId = this.uuidGenerator.generate();

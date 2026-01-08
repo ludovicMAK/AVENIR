@@ -111,3 +111,9 @@ export class UnknownCreditModeError extends DomainError {
     });
   }
 }
+
+export class InvalidShareDataError extends DomainError {
+  constructor(message: string, details?: DomainErrorDetail) {
+    super("INVALID_SHARE_DATA", message, details);
+  }
+}

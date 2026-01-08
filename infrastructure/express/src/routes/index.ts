@@ -16,6 +16,8 @@ import { TransferHttpHandler } from "../http/TransferHttpHandler";
 import { createConversationRoutes } from "./conversationRoutes";
 import { CreditHttpHandler } from "../http/CreditHttpHandler";
 import { createCreditRoutes } from "./creditRoutes";
+import { SavingsHttpHandler } from "../http/SavingsHttpHandler";
+import { createSavingsRoutes } from "./savingsRoutes";
 import { createRoleMiddleware } from "@express/src/middleware/roleMiddleware";
 import {
   userRepository,
@@ -29,7 +31,8 @@ export function createHttpRouter(
   transactionHttpHandler: TransactionHttpHandler,
   TransferHttpHandler: TransferHttpHandler,
   conversationHttpHandler: ConversationHttpHandler,
-  creditHttpHandler: CreditHttpHandler
+  creditHttpHandler: CreditHttpHandler,
+  savingsHttpHandler: SavingsHttpHandler
 ): Router {
   const router = Router();
 
@@ -47,6 +50,7 @@ export function createHttpRouter(
   router.use(createTransferRoutes(TransferHttpHandler));
   router.use(createConversationRoutes(conversationHttpHandler));
   router.use(createCreditRoutes(creditHttpHandler));
+  router.use(createSavingsRoutes(savingsHttpHandler));
 
   return router;
 }

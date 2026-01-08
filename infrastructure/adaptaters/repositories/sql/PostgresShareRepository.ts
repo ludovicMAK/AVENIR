@@ -11,14 +11,15 @@ export class PostgresShareRepository implements ShareRepository {
   async save(share: Share): Promise<void> {
     try {
       await this.pool.query(
-        `INSERT INTO shares (id, name, total_number_of_parts, initial_price, last_executed_price)
-                 VALUES ($1, $2, $3, $4, $5)`,
+        `INSERT INTO shares (id, name, total_number_of_parts, initial_price, last_executed_price, is_active)
+                 VALUES ($1, $2, $3, $4, $5, $6)`,
         [
           share.id,
           share.name,
           share.totalNumberOfParts,
           share.initialPrice,
           share.lastExecutedPrice,
+          share.isActive,
         ]
       );
     } catch (error) {
@@ -29,7 +30,7 @@ export class PostgresShareRepository implements ShareRepository {
   async findById(id: string): Promise<Share | null> {
     try {
       const result = await this.pool.query<ShareRow>(
-        `SELECT id, name, total_number_of_parts, initial_price, last_executed_price
+        `SELECT id, name, total_number_of_parts, initial_price, last_executed_price, is_active
                  FROM shares WHERE id = $1`,
         [id]
       );
@@ -42,7 +43,7 @@ export class PostgresShareRepository implements ShareRepository {
   async findAll(): Promise<Share[]> {
     try {
       const result = await this.pool.query<ShareRow>(
-        `SELECT id, name, total_number_of_parts, initial_price, last_executed_price
+        `SELECT id, name, total_number_of_parts, initial_price, last_executed_price, is_active
                  FROM shares ORDER BY name ASC`
       );
       return result.rows.map((row) => this.mapRowToShare(row));
@@ -54,7 +55,7 @@ export class PostgresShareRepository implements ShareRepository {
   async findByName(name: string): Promise<Share | null> {
     try {
       const result = await this.pool.query<ShareRow>(
-        `SELECT id, name, total_number_of_parts, initial_price, last_executed_price
+        `SELECT id, name, total_number_of_parts, initial_price, last_executed_price, is_active
                  FROM shares WHERE LOWER(name) = LOWER($1)`,
         [name]
       );
@@ -78,14 +79,19 @@ export class PostgresShareRepository implements ShareRepository {
   async update(share: Share): Promise<void> {
     try {
       await this.pool.query(
-        `UPDATE shares 
-         SET name = $1, total_number_of_parts = $2, initial_price = $3, last_executed_price = $4
-         WHERE id = $5`,
+        `UPDATE shares
+         SET name = $1,
+             total_number_of_parts = $2,
+             initial_price = $3,
+             last_executed_price = $4,
+             is_active = $5
+         WHERE id = $6`,
         [
           share.name,
           share.totalNumberOfParts,
           share.initialPrice,
           share.lastExecutedPrice,
+          share.isActive,
           share.id,
         ]
       );
@@ -108,7 +114,8 @@ export class PostgresShareRepository implements ShareRepository {
       row.name,
       row.total_number_of_parts,
       row.initial_price,
-      row.last_executed_price
+      row.last_executed_price,
+      row.is_active
     );
   }
 

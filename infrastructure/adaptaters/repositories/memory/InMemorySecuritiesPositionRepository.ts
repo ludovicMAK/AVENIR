@@ -19,13 +19,7 @@ export class InMemorySecuritiesPositionRepository
       (position) => position.customerId === customerId
     );
   }
-
-  async findByShareId(shareId: string): Promise<SecuritiesPosition[]> {
-    return Array.from(this.positions.values()).filter(
-      (position) => position.shareId === shareId
-    );
-  }
-
+  
   async findByCustomerIdAndShareId(
     customerId: string,
     shareId: string
@@ -36,6 +30,12 @@ export class InMemorySecuritiesPositionRepository
       }
     }
     return null;
+  }
+
+  async findByShareId(shareId: string): Promise<SecuritiesPosition[]> {
+    return Array.from(this.positions.values()).filter(
+      (position) => position.shareId === shareId
+    );
   }
 
   async updateQuantities(

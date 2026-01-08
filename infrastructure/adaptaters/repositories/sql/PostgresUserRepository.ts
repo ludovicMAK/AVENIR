@@ -181,6 +181,29 @@ export class PostgresUserRepository implements UserRepository {
     }
   }
 
+  async updateStatus(userId: string, status: string): Promise<void> {
+    try {
+      await this.pool.query(
+        `
+          UPDATE users
+          SET status = $1
+          WHERE id = $2
+        `,
+        [status, userId]
+      );
+    } catch (error) {
+      this.handleDatabaseError(error);
+    }
+  }
+
+  async delete(userId: string): Promise<void> {
+    try {
+      await this.pool.query(`DELETE FROM users WHERE id = $1`, [userId]);
+    } catch (error) {
+      this.handleDatabaseError(error);
+    }
+  }
+
   private mapRowToUser(row: UserRow): User {
     return new User(
       row.id,
