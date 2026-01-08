@@ -4,7 +4,7 @@ import { TransferRepository } from "@application/repositories/transfer";
 import { Transfer } from "@domain/entities/transfer";
 import { StatusTransaction } from "@domain/values/statusTransaction";
 import { ConnectedError, TransferCreationFailedError } from "@application/errors/index";
-import { UnitOfWork } from "@application/services/UnitOfWork";
+import { UnitOfWorkFactory } from "@application/services/UnitOfWork";
 import { StatusTransfer } from "@domain/values/statusTransfer";
 import { UserRepository } from "@application/repositories/users";
 import { confirmTransfer } from "@application/requests/transfer";
@@ -16,7 +16,7 @@ export class ValidTransferByAdmin {
     private readonly transactionRepository: TransactionRepository,
     private readonly transferRepository: TransferRepository,
     private readonly userRepository: UserRepository,
-    private readonly unitOfWork: UnitOfWork,
+    private readonly unitOfWorkFactory: UnitOfWorkFactory,
     private readonly accountRepository: AccountRepository
   ) {}
   
@@ -36,7 +36,8 @@ export class ValidTransferByAdmin {
     if(!transfer.statusTransfer.equals(StatusTransfer.PENDING)) {
       throw new TransferCreationFailedError("Only pending transfers can be validated.");
     }
-    await this.unitOfWork.begin();
+    const unitOfWork = this.unitOfWorkFactory();
+    await unitOfWork.begin();
     try {
       const updatedTransfer = new Transfer(
         transfer.id,
@@ -47,7 +48,7 @@ export class ValidTransferByAdmin {
         StatusTransfer.VALIDATED 
       );
 
-      const saveResult = await this.transferRepository.update(updatedTransfer, this.unitOfWork);
+      const saveResult = await this.transferRepository.update(updatedTransfer, unitOfWork);
       if (!saveResult) {
         throw new TransferCreationFailedError("Failed to validate the transfer.");
       }
@@ -62,7 +63,7 @@ export class ValidTransferByAdmin {
                            ? -transaction.amount 
                            : transaction.amount;
                            
-        await this.accountRepository.updateBalance(account.id, adjustment, this.unitOfWork);
+        await this.accountRepository.updateBalance(account.id, adjustment, unitOfWork);
         const updatedTransaction = new Transaction(
           transaction.id,
           transaction.accountIBAN,
@@ -73,12 +74,12 @@ export class ValidTransferByAdmin {
           StatusTransaction.VALIDATED,
           transaction.transferId
         );
-        await this.transactionRepository.update(updatedTransaction, this.unitOfWork);
+        await this.transactionRepository.update(updatedTransaction, unitOfWork);
       }
       
-      await this.unitOfWork.commit();
+      await unitOfWork.commit();
     }catch (error) {
-      await this.unitOfWork.rollback();
+      await unitOfWork.rollback();
       throw error;
     }
     

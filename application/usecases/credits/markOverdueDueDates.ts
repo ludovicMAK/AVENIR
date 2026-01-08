@@ -2,7 +2,7 @@ import { DueDateRepository } from "@application/repositories/dueDate";
 import { SessionRepository } from "@application/repositories/session";
 import { DueDate } from "@domain/entities/dueDate";
 import { DueDateStatus } from "@domain/values/dueDateStatus";
-import { UnitOfWork } from "@application/services/UnitOfWork";
+import { UnitOfWorkFactory } from "@application/services/UnitOfWork";
 import { MarkOverdueRequest } from "@application/requests/credit";
 import { MarkOverdueResult } from "@domain/types/MarkOverdueResult";
 import { ConnectedError, UnauthorizedError } from "@application/errors";
@@ -13,7 +13,7 @@ export class MarkOverdueDueDates {
     private readonly sessionRepository: SessionRepository,
     private readonly userRepository: UserRepository,
     private readonly dueDateRepository: DueDateRepository,
-    private readonly unitOfWork: UnitOfWork
+    private readonly unitOfWorkFactory: UnitOfWorkFactory
   ) {}
 
   async execute(request: MarkOverdueRequest): Promise<MarkOverdueResult> {
@@ -38,7 +38,8 @@ export class MarkOverdueDueDates {
       };
     }
 
-    await this.unitOfWork.begin();
+    const unitOfWork = this.unitOfWorkFactory();
+    await unitOfWork.begin();
     try {
       const markedIds: string[] = [];
 
@@ -56,18 +57,18 @@ export class MarkOverdueDueDates {
           dueDate.transferId
         );
 
-        await this.dueDateRepository.update(overdueDueDate, this.unitOfWork);
+        await this.dueDateRepository.update(overdueDueDate, unitOfWork);
         markedIds.push(dueDate.id);
       }
 
-      await this.unitOfWork.commit();
+      await unitOfWork.commit();
 
       return {
         markedCount: markedIds.length,
         dueDateIds: markedIds,
       };
     } catch (error) {
-      await this.unitOfWork.rollback();
+      await unitOfWork.rollback();
       throw error;
     }
   }

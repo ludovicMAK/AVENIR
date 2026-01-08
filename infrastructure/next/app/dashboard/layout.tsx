@@ -11,6 +11,7 @@ import {
   Globe,
   User,
   ArrowLeftRight,
+  PiggyBank,
 } from "lucide-react";
 import { UserProvider } from "@/lib/auth/UserContext";
 
@@ -89,6 +90,16 @@ export default async function DashboardLayout({
               <Link href="/dashboard/transfers">
                 <ArrowLeftRight className="mr-3 h-4 w-4" />
                 Virements
+              </Link>
+            </Button>
+            <Button
+              variant="ghost"
+              className="w-full justify-start hover:bg-primary/10 hover:text-primary"
+              asChild
+            >
+              <Link href="/dashboard/savings">
+                <PiggyBank className="mr-3 h-4 w-4" />
+                Épargne
               </Link>
             </Button>
 

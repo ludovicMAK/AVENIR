@@ -2,9 +2,7 @@ import { z } from "zod";
 
 export const createAccountSchema = z.object({
   accountType: z.enum(["current", "savings", "trading"], {
-    required_error: "Account type is required",
-    invalid_type_error:
-      "Account type must be 'current', 'savings', or 'trading'",
+    message: "Account type must be 'current', 'savings', or 'trading'",
   }),
   accountName: z.string().min(1, "Account name is required"),
   authorizedOverdraft: z.boolean().default(false),

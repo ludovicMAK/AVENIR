@@ -7,6 +7,7 @@ import { MarkOverdueResult } from "@domain/types/MarkOverdueResult";
 import { OverdueDueDateWithCredit } from "@domain/types/OverdueDueDateWithCredit";
 import { PaymentHistoryItem } from "@domain/types/PaymentHistoryItem";
 import { TransactionHistoryResult } from "@domain/types/TransferHistoryResult";
+import { DailyInterestDto, SavingsRateDto } from "./savings";
 
 export type UserView = {
   id: string;
@@ -56,6 +57,10 @@ export type UserListResponseData = { users: UserView[] };
 
 export type UserRegistrationResponseData = { userId: string };
 
+export type SavingsRateResponseData = { rate: SavingsRateDto };
+
+export type SavingsRateHistoryResponseData = { rates: SavingsRateDto[] };
+
 export type creditsWithDueDatesData = {
   creditWithDueDates: CreditWithDueDates[];
 };
@@ -93,16 +98,27 @@ export type DueDateResponseData = { dueDate: DueDate };
 
 export type MessageResponseData = { message: MessageView };
 
-
 export type MessagesListResponseData = { messages: MessageView[] };
 export type PaymentHistoryItemData = {
   payments: PaymentHistoryItem[];
+};
+
+export type AccountInterestHistoryResponseData = {
+  interests: DailyInterestDto[];
+};
+
+export type ProcessDailyInterestResponseData = {
+  date: string;
+  processedAccounts: number;
+  skippedAccounts: number;
 };
 
 export type SuccessData =
   | UserResponseData
   | UserListResponseData
   | UserRegistrationResponseData
+  | SavingsRateResponseData
+  | SavingsRateHistoryResponseData
   | AccountResponseData
   | SingleAccountResponseData
   | ConversationResponseData
@@ -116,6 +132,8 @@ export type SuccessData =
   | creditsWithDueDatesData
   | CreditStatusResponseData
   | PaymentHistoryItemData
+  | AccountInterestHistoryResponseData
+  | ProcessDailyInterestResponseData
   | MarkOverdueResult
   | OverdueDueDateWithCreditData
   | TransactionHistoryResult

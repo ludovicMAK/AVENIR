@@ -2,7 +2,7 @@ import { TransferRepository } from "@application/repositories/transfer";
 import { Transfer } from "@domain/entities/transfer";
 import { StatusTransfer } from "@domain/values/statusTransfer";
 import { ConnectedError, NotFoundError, UnauthorizedError, TransferCreationFailedError } from "@application/errors/index";
-import { UnitOfWork } from "@application/services/UnitOfWork";
+import { UnitOfWorkFactory } from "@application/services/UnitOfWork";
 import { UserRepository } from "@application/repositories/users";
 import { AccountRepository } from "@application/repositories/account";
 import { TransactionRepository } from "@application/repositories/transaction";
@@ -19,7 +19,7 @@ export class CancelTransfer {
     private readonly userRepository: UserRepository,
     private readonly transactionRepository: TransactionRepository,
     private readonly accountRepository: AccountRepository,
-    private readonly unitOfWork: UnitOfWork
+    private readonly unitOfWorkFactory: UnitOfWorkFactory
   ) {}
 
   async execute(input: CancelTransferRequest): Promise<void> {
@@ -56,7 +56,8 @@ export class CancelTransfer {
       throw new UnauthorizedError("You are not authorized to cancel this transfer. Only the owner of the source account can cancel it.");
     }
 
-    await this.unitOfWork.begin();
+    const unitOfWork = this.unitOfWorkFactory();
+    await unitOfWork.begin();
     try {
       const cancelledTransfer = new Transfer(
         transfer.id,
@@ -67,14 +68,14 @@ export class CancelTransfer {
         StatusTransfer.CANCELLED
       );
 
-      const updateResult = await this.transferRepository.update(cancelledTransfer, this.unitOfWork);
+      const updateResult = await this.transferRepository.update(cancelledTransfer, unitOfWork);
       if (!updateResult) {
         throw new TransferCreationFailedError("Failed to cancel the transfer.");
       }
 
-      await this.unitOfWork.commit();
+      await unitOfWork.commit();
     } catch (error) {
-      await this.unitOfWork.rollback();
+      await unitOfWork.rollback();
       throw error;
     }
   }

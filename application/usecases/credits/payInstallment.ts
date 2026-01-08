@@ -8,7 +8,7 @@ import { AccountRepository } from "@application/repositories/account";
 import { TransactionRepository } from "@application/repositories/transaction";
 import { TransferRepository } from "@application/repositories/transfer";
 import { CreditRepository } from "@application/repositories/credit";
-import { UnitOfWork } from "@application/services/UnitOfWork";
+import { UnitOfWorkFactory } from "@application/services/UnitOfWork";
 import { UuidGenerator } from "@application/services/UuidGenerator";
 import { BankConfiguration } from "@application/services/BankConfiguration";
 import { PayInstallmentRequest } from "@application/requests/credit";
@@ -27,7 +27,7 @@ export class PayInstallment {
     private readonly transactionRepository: TransactionRepository,
     private readonly transferRepository: TransferRepository,
     private readonly creditRepository: CreditRepository,
-    private readonly unitOfWork: UnitOfWork,
+    private readonly unitOfWorkFactory: UnitOfWorkFactory,
     private readonly uuidGenerator: UuidGenerator,
     private readonly bankConfiguration: BankConfiguration
   ) {}
@@ -61,7 +61,8 @@ export class PayInstallment {
       throw new ValidationError("Insufficient balance to pay this installment");
     }
 
-    await this.unitOfWork.begin();
+    const unitOfWork = this.unitOfWorkFactory();
+    await unitOfWork.begin();
     try {
       const transferId = this.uuidGenerator.generate();
       const transfer = new Transfer(
@@ -73,7 +74,7 @@ export class PayInstallment {
         StatusTransfer.VALIDATED
       );
 
-      await this.transferRepository.save(transfer, this.unitOfWork);
+      await this.transferRepository.save(transfer, unitOfWork);
 
       const debitTransactionId = this.uuidGenerator.generate();
       const debitTransaction = new Transaction(
@@ -87,7 +88,7 @@ export class PayInstallment {
         transferId
       );
 
-      await this.transactionRepository.createTransaction(debitTransaction, this.unitOfWork);
+      await this.transactionRepository.createTransaction(debitTransaction, unitOfWork);
 
       const creditTransactionId = this.uuidGenerator.generate();
       const creditTransaction = new Transaction(
@@ -101,7 +102,7 @@ export class PayInstallment {
         transferId
       );
 
-      await this.transactionRepository.createTransaction(creditTransaction, this.unitOfWork);
+      await this.transactionRepository.createTransaction(creditTransaction, unitOfWork);
 
       const paidDueDate = new DueDate(
         dueDate.id,
@@ -116,12 +117,12 @@ export class PayInstallment {
         transferId
       );
 
-      await this.dueDateRepository.update(paidDueDate, this.unitOfWork);
+      await this.dueDateRepository.update(paidDueDate, unitOfWork);
 
-      await this.accountRepository.updateBalance(customerAccount.id, -dueDate.totalAmount, this.unitOfWork);
-      await this.accountRepository.updateBalanceAvailable(customerAccount.id, -dueDate.totalAmount, this.unitOfWork);
-      await this.accountRepository.updateBalance(bankAccount.id, dueDate.totalAmount, this.unitOfWork);
-      await this.accountRepository.updateBalanceAvailable(bankAccount.id, dueDate.totalAmount, this.unitOfWork);
+      await this.accountRepository.updateBalance(customerAccount.id, -dueDate.totalAmount, unitOfWork);
+      await this.accountRepository.updateBalanceAvailable(customerAccount.id, -dueDate.totalAmount, unitOfWork);
+      await this.accountRepository.updateBalance(bankAccount.id, dueDate.totalAmount, unitOfWork);
+      await this.accountRepository.updateBalanceAvailable(bankAccount.id, dueDate.totalAmount, unitOfWork);
 
       // Vérifier si toutes les échéances sont payées pour clôturer le crédit
       const allDueDates = await this.dueDateRepository.findByCreditId(credit.id);
@@ -139,13 +140,13 @@ export class PayInstallment {
           CreditStatus.COMPLETED,
           credit.customerId
         );
-        await this.creditRepository.update(completedCredit, this.unitOfWork);
+        await this.creditRepository.update(completedCredit, unitOfWork);
       }
 
-      await this.unitOfWork.commit();
+      await unitOfWork.commit();
       return paidDueDate;
     } catch (error) {
-      await this.unitOfWork.rollback();
+      await unitOfWork.rollback();
       throw error;
     }
   }

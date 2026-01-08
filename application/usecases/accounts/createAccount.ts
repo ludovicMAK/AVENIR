@@ -25,6 +25,7 @@ export class CreateAccount {
       throw new ConnectedError("User is not connected");
     }
     const accountType = AccountType.from(request.accountType);
+    const isSavings = accountType.equals(AccountType.SAVINGS);
     const id = this.uuidGenerator.generate();
     const iban = this.ibanGenerator.generate();
 
@@ -33,9 +34,9 @@ export class CreateAccount {
       accountType,
       iban,
       request.accountName,
-      request.authorizedOverdraft ?? false,
-      request.overdraftLimit ?? 0,
-      request.overdraftFees ?? 0,
+      isSavings ? false : request.authorizedOverdraft ?? false,
+      isSavings ? 0 : request.overdraftLimit ?? 0,
+      isSavings ? 0 : request.overdraftFees ?? 0,
       StatusAccount.OPEN,
       request.idOwner,
       0,
