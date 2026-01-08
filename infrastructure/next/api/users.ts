@@ -1,7 +1,7 @@
 import { ApiError } from "@/lib/errors";
 import { isJsonObject } from "@/lib/json";
 import { JsonValue } from "@/types/json";
-import { UserSummary } from "@/types/users";
+import { UserRole, UserSummary } from "@/types/users";
 import { request } from "./client";
 
 type UsersResponseBody = {
@@ -21,6 +21,9 @@ const invalidUsersResponseError = () =>
     "INFRASTRUCTURE_ERROR",
     "Invalid users payload received from API."
   );
+
+const isRole = (value: string): value is UserRole =>
+  value === "customer" || value === "bankManager" || value === "bankAdvisor";
 
 const toUserSummary = (value: JsonValue): UserSummary => {
   if (!isJsonObject(value)) throw invalidUsersResponseError();
@@ -45,7 +48,6 @@ const toUserSummary = (value: JsonValue): UserSummary => {
 const extractUsers = (response: JsonValue): UserSummary[] => {
   if (!isJsonObject(response)) throw invalidUsersResponseError();
 
-  // Le client API retourne directement {users} après avoir extrait data
   const usersJson = response.users;
   if (!Array.isArray(usersJson)) throw invalidUsersResponseError();
 
@@ -55,7 +57,6 @@ const extractUsers = (response: JsonValue): UserSummary[] => {
 const extractUser = (response: JsonValue): UserSummary => {
   if (!isJsonObject(response)) throw invalidUsersResponseError();
 
-  // Le client API retourne directement {user} après avoir extrait data
   const userJson = response.user;
   if (userJson === undefined || !isJsonObject(userJson))
     throw invalidUsersResponseError();

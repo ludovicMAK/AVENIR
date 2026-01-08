@@ -221,7 +221,8 @@ export const transactionRepository: TransactionRepository =
   buildTransactionRepository(repositoryDriver);
 export const transferRepository: TransferRepository =
   buildTransferRepository(repositoryDriver);
-export const unitOfWork: UnitOfWork = buildUnitOfWork(repositoryDriver);
+export const unitOfWorkFactory: () => UnitOfWork = () =>
+  buildUnitOfWork(repositoryDriver);
 export const sessionRepository: SessionRepository =
   buildSessionRepository(repositoryDriver);
 export const conversationRepository: ConversationRepository =

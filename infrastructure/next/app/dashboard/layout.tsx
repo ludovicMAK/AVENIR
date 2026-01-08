@@ -98,6 +98,16 @@ export default async function DashboardLayout({
                 Virements
               </Link>
             </Button>
+            <Button
+              variant="ghost"
+              className="w-full justify-start hover:bg-primary/10 hover:text-primary"
+              asChild
+            >
+              <Link href="/dashboard/savings">
+                <PiggyBank className="mr-3 h-4 w-4" />
+                Épargne
+              </Link>
+            </Button>
 
             <Separator className="my-4 bg-primary/20" />
 

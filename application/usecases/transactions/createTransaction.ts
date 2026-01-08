@@ -13,7 +13,7 @@ import {
   UnprocessableError,
 } from "@application/errors/index";
 import { AccountRepository } from "@application/repositories/account";
-import { UnitOfWork } from "@application/services/UnitOfWork";
+import { UnitOfWorkFactory } from "@application/services/UnitOfWork";
 import { StatusTransfer } from "@domain/values/statusTransfer";
 import { SessionRepository } from "@application/repositories/session";
 
@@ -23,7 +23,7 @@ export class CreateTransaction {
     private readonly uuidGenerator: UuidGenerator,
     private readonly transferRepository: TransferRepository,
     private readonly accountRepository: AccountRepository,
-    private readonly unitOfWork: UnitOfWork,
+    private readonly unitOfWorkFactory: UnitOfWorkFactory,
     private readonly sessionRepository: SessionRepository
   ) {}
 
@@ -71,9 +71,10 @@ export class CreateTransaction {
       StatusTransfer.VALIDATED
     );
 
-    await this.unitOfWork.begin();
+    const unitOfWork = this.unitOfWorkFactory();
+    await unitOfWork.begin();
     try {
-      await this.transferRepository.save(transfer, this.unitOfWork);
+      await this.transferRepository.save(transfer, unitOfWork);
 
       const commonData = {
         transferId: transfer.id,
@@ -93,7 +94,7 @@ export class CreateTransaction {
           StatusTransaction.POSTED,
           commonData.transferId
         ),
-        this.unitOfWork
+        unitOfWork
       );
 
       await this.transactionRepository.createTransaction(
@@ -107,18 +108,18 @@ export class CreateTransaction {
           StatusTransaction.POSTED,
           commonData.transferId
         ),
-        this.unitOfWork
+        unitOfWork
       );
 
       await this.accountRepository.updateBalanceAvailable(
         accountFrom.id,
         -input.amount,
-        this.unitOfWork
+        unitOfWork
       );
       await this.accountRepository.updateBalanceAvailable(
         accountTo.id,
         input.amount,
-        this.unitOfWork
+        unitOfWork
       );
 
       await this.unitOfWork.commit();
