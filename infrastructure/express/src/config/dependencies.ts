@@ -518,7 +518,6 @@ export const httpRouter = createHttpRouter(
   transferHttpHandler,
   conversationHttpHandler,
   creditHttpHandler,
-  savingsHttpHandler
 );
 
 export {

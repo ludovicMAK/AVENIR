@@ -122,9 +122,9 @@ export class CreateTransaction {
         unitOfWork
       );
 
-      await this.unitOfWork.commit();
+      await unitOfWork.commit();
     } catch (error) {
-      await this.unitOfWork.rollback();
+      await unitOfWork.rollback();
       throw error;
     }
   }

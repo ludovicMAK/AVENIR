@@ -18,6 +18,7 @@ import {
   Briefcase,
   MessageSquare,
   DollarSign,
+  PiggyBank,
 } from "lucide-react";
 import { UserProvider } from "@/lib/auth/UserContext";
 
