@@ -4,9 +4,9 @@ services:
     container_name: avenir-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-avenir_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-avenir_password}
-      POSTGRES_DB: ${POSTGRES_DB:-avenir_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-avenir_bank}
     env_file:
       - .env
     ports:
@@ -18,7 +18,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "pg_isready -U ${POSTGRES_USER:-avenir_user} -d ${POSTGRES_DB:-avenir_db}",
+          "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-avenir_bank}",
         ]
       interval: 10s
       timeout: 5s

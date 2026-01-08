@@ -80,18 +80,12 @@ export function RenameAccountDialog({
     setIsSubmitting(true);
 
     try {
-      console.log("Renaming account:", {
-        accountId,
-        newName: values.accountName,
-      });
       await accountsApi.updateName(accountId, values.accountName);
-      console.log("Rename successful");
       toast.success("Compte renommé avec succès");
       onOpenChange(false);
       form.reset();
       onSuccess();
     } catch (error) {
-      console.error("Rename error:", error);
       const errorMessage =
         error instanceof Error
           ? error.message

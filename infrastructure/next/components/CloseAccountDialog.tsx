@@ -48,7 +48,6 @@ export function CloseAccountDialog({
       onOpenChange(false);
       onSuccess();
     } catch (error) {
-      console.error("Close account error:", error);
       const errorMessage =
         error instanceof Error
           ? error.message

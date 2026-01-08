@@ -37,8 +37,7 @@ const toUserSummary = (value: JsonValue): UserSummary => {
     typeof id !== "string" ||
     typeof firstname !== "string" ||
     typeof lastname !== "string" ||
-    typeof role !== "string" ||
-    !isRole(role)
+    typeof role !== "string"
   ) {
     throw invalidUsersResponseError();
   }

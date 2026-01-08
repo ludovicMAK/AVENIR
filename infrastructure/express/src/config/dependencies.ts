@@ -19,6 +19,8 @@ import { GetAccountStatement } from "@application/usecases/accounts/getAccountSt
 import { CreateShare } from "@application/usecases/shares/createShare";
 import { GetAllShares } from "@application/usecases/shares/getAllShares";
 import { GetShareById } from "@application/usecases/shares/getShareById";
+import { UpdateShare } from "@application/usecases/shares/updateShare";
+import { DeleteShare } from "@application/usecases/shares/deleteShare";
 import { PlaceOrder } from "@application/usecases/shares/placeOrder";
 import { CancelOrder } from "@application/usecases/shares/cancelOrder";
 import { GetClientPositions } from "@application/usecases/shares/getClientPositions";
@@ -92,6 +94,7 @@ import { GetCustomerCreditsWithDueDates } from "@application/usecases/credits/ge
 import { GetMyCredits } from "@application/usecases/credits/getMyCredits";
 import { GetCreditStatus } from "@application/usecases/credits/getCreditStatus";
 import { GetPaymentHistory } from "@application/usecases/credits/getPaymentHistory";
+import { GetCreditDueDates } from "@application/usecases/credits/getCreditDueDates";
 import { EarlyRepayCredit } from "@application/usecases/credits/earlyRepayCredit";
 import { MarkOverdueDueDates } from "@application/usecases/credits/markOverdueDueDates";
 import { GetOverdueDueDates } from "@application/usecases/credits/getOverdueDueDates";
@@ -187,6 +190,12 @@ const accountController = new AccountController(
 const createShare = new CreateShare(shareRepository, uuidGenerator);
 const getAllShares = new GetAllShares(shareRepository);
 const getShareById = new GetShareById(shareRepository);
+const updateShare = new UpdateShare(shareRepository);
+const deleteShare = new DeleteShare(
+  shareRepository,
+  orderRepository,
+  securitiesPositionRepository
+);
 const placeOrder = new PlaceOrder(
   orderRepository,
   shareRepository,
@@ -216,6 +225,8 @@ const shareController = new ShareController(
   createShare,
   getAllShares,
   getShareById,
+  updateShare,
+  deleteShare,
   placeOrder,
   cancelOrder,
   getClientPositions,
@@ -396,6 +407,11 @@ const getCreditStatusUsecase = new GetCreditStatus(
   creditRepository,
   dueDateRepository
 );
+const getCreditDueDatesUsecase = new GetCreditDueDates(
+  sessionRepository,
+  creditRepository,
+  dueDateRepository
+);
 const getPaymentHistoryUsecase = new GetPaymentHistory(
   sessionRepository,
   creditRepository,
@@ -446,6 +462,7 @@ const creditController = new CreditController(
   getMyCreditsUsecase,
   getCreditStatusUsecase,
   getPaymentHistoryUsecase,
+  getCreditDueDatesUsecase,
   earlyRepayCreditUsecase,
   markOverdueDueDatesUsecase,
   getOverdueDueDatesUsecase,

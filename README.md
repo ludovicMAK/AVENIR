@@ -1,801 +1,692 @@
 # 🏦 AVENIR - Banking Application
 
-**Alliance de Valeurs Économiques et Nationnales Investies Responsablement**
+**Alliance de Valeurs Économiques et Nationales Investies Responsablement**
+
+Une plateforme bancaire moderne développée en Clean Architecture avec TypeScript.
 
 ---
 
-## 📋 Introduction
+## 📋 Table des Matières
 
-La banque AVENIR vous a recruté comme développeur Web afin de développer une application moderne permettant à ses clients de gérer efficacement leurs liquidités, épargne et investissements, et ainsi concurrencer les banques traditionnelles.
-
----
-
-## ⚙️ Contraintes Techniques
-
-### 1. **Langage**
-
-- Développement en **TypeScript** (backend et frontend)
-
-### 2. **Clean Architecture**
-
-- **Séparation stricte des couches** :
-  - **Domain** : Entités métier
-  - **Application** : Use Cases
-  - **Interface** : API/Interface utilisateur
-  - **Infrastructure** : Base de données, frameworks
-- Chaque couche doit être **indépendante** des frameworks spécifiques
-- **2 adaptateurs** pour les bases de données (in-memory, SQL, NoSQL, etc.)
-- **2 frameworks backend** (Nest.js, Express, Fastify, etc.)
-
-### 3. **Clean Code**
-
-- Respect des principes de Clean Code
-- Références : livres de Robert C. Martin (Uncle Bob)
+- [Introduction](#-introduction)
+- [Spécifications Fonctionnelles](#-spécifications-fonctionnelles)
+- [Architecture du Projet](#-architecture-du-projet)
+- [État d'Implémentation](#-état-dimplémentation)
+- [Installation et Démarrage](#-installation-et-démarrage)
+- [Technologies Utilisées](#-technologies-utilisées)
+- [Structure de la Base de Données](#-structure-de-la-base-de-données)
 
 ---
 
-## 🎯 Fonctionnalités
+## 📖 Introduction
 
-### 👤 Client
+La banque AVENIR est une plateforme bancaire moderne permettant à ses clients de gérer efficacement leurs liquidités, épargne et investissements. Ce projet a été développé en suivant les principes de **Clean Architecture** et **Clean Code** de Robert C. Martin (Uncle Bob).
+
+### Contraintes Techniques
+
+- **Langage** : TypeScript (backend et frontend)
+- **Clean Architecture** : Séparation stricte Domain/Application/Infrastructure
+- **2 adaptateurs de base de données** : PostgreSQL (production) + InMemory (tests)
+- **2 frameworks backend** : Express.js (API REST) + Next.js API Routes
+- **Clean Code** : Respect des principes SOLID, fonctions courtes, nommage explicite
+
+---
+
+## 📋 Spécifications Fonctionnelles
+
+### 👤 **CLIENT**
 
 #### **Authentification**
+
+En tant que client, je dois pouvoir m'inscrire sur cette nouvelle plateforme. Je dois pouvoir renseigner mes informations afin de recevoir un lien me permettant de confirmer mon inscription et accéder à mon compte (qui sera automatiquement créé à l'inscription).
+
+**Fonctionnalités** :
 
 - Inscription avec confirmation par email
 - Création automatique du premier compte à l'inscription
 - Connexion sécurisée
 
-#### **Gestion des Comptes**
+#### **Comptes**
 
-- Créer autant de comptes que souhaité
+En tant que client, je dois pouvoir disposer d'autant de comptes que je le souhaite. Ainsi, un nouvel IBAN unique et valide mathématiquement doit être généré chaque fois que je crée un compte. Je dois pouvoir supprimer le compte, et modifier son nom personnalisé si je le souhaite.
+
+**Fonctionnalités** :
+
+- Créer un compte (checking ou savings)
 - Génération automatique d'IBAN unique et mathématiquement valide
 - Renommer un compte (nom personnalisé)
 - Supprimer un compte (si solde = 0 et aucune transaction en attente)
 - Consulter le solde (somme des opérations de débit et crédit)
+- Consulter les transactions avec filtres et pagination
+- Générer un relevé de compte sur une période
 
-#### **Opérations Bancaires**
+#### **Opérations**
 
-- **Créer un transfert** entre comptes (uniquement au sein de la banque AVENIR)
-  - Vérification du solde disponible (incluant découvert autorisé)
-  - Création immédiate des transactions en statut `POSTED`
-  - Mise à jour du solde disponible
-  - Le transfert reste en statut `PENDING` jusqu'à validation
-- **Validation des transferts** par un administrateur (conseiller ou directeur)
-  - Passage du transfert de `PENDING` à `VALIDATED`
-  - Passage des transactions de `POSTED` à `VALIDATED`
-  - Mise à jour du solde réel
-- Consulter l'historique des transactions avec filtres et pagination
-- Consulter le relevé de compte sur une période donnée
-- Le solde reflète la somme de toutes les transactions (débit/crédit)
+En tant que client, je dois pouvoir effectuer des opérations courantes, tel qu'un transfert d'un compte à un autre (uniquement au sein de notre banque). Le solde d'un compte doit refléter la somme des opérations de débit (sortant du compte, entrant dans un autre) et de crédit (entrant vers le compte, en provenance d'un autre compte).
+
+**Fonctionnalités** :
+
+- Créer un transfert entre comptes AVENIR
+- Vérification du solde disponible (incluant découvert autorisé)
+- Consulter l'historique des transferts
 
 #### **Épargne**
 
-- Ouvrir un compte d'épargne
-- Effectuer des opérations entrantes et sortantes
-- **Rémunération quotidienne** au taux en vigueur (fixé par le directeur)
-- Calcul automatique des intérêts journaliers
+En tant que client, je dois pouvoir ouvrir un compte d'épargne. Celui-ci doit pouvoir me permettre, comme pour un compte, d'effectuer des opérations entrantes et sortantes. Néanmoins, ce dernier sera rémunéré tous les jours, au taux en vigueur (fixé par les administrateurs de la banque).
+
+**Fonctionnalités** :
+
+- Ouvrir un compte d'épargne (type `savings`)
+- Effectuer des opérations entrantes et sortantes (via transferts)
+- Rémunération quotidienne au taux en vigueur ⚠️ **Non implémenté**
 
 #### **Investissement**
 
-- Enregistrer des **ordres d'achat** ou de **vente** d'actions
-- Consulter la liste des actions disponibles (définies par le directeur)
-- Le cours est calculé selon le **prix d'équilibre** du carnet d'ordres
-- **Pas de frais d'arbitrage** (banque moderne)
-- Frais fixes : **1€ à l'achat** et **1€ à la vente**
-- Propriété réelle des actions (pas de prêt de titres)
+En tant que client, je dois pouvoir enregistrer des ordres d'achat ou de vente d'une action. Une action est un titre financier d'appartenance à une entreprise côté sur un marché financier. La liste des actions disponibles est définie par le directeur de la banque. Le cours est calculé en fonction du prix d'équilibre entre un prix de vente et un prix d'achat, selon le carnet d'ordre global pour une action. Étant donné que nous sommes une banque moderne, nous n'avons pas de frais d'arbitrage. Les seuls frais sont de 1€ à l'achat, comme à la vente.
+
+**Fonctionnalités** :
+
+- Consulter la liste des actions disponibles
+- Passer un ordre d'achat ou de vente (ordre limité avec prix)
+- Blocage des fonds (achat) ou titres (vente)
+- Frais fixes : 1€ à l'achat et 1€ à la vente
+- Consulter mes ordres (pending, executed, cancelled)
+- Annuler un ordre en attente
+- Consulter mon portefeuille (positions détenues)
+- Consulter le carnet d'ordres d'une action
+- Consulter l'historique des transactions d'une action
+- Calcul automatique du prix d'équilibre (matching buy/sell)
 
 ---
 
-### 👑 Directeur de Banque
+### 👑 **DIRECTEUR DE BANQUE**
 
 #### **Authentification**
 
-- Connexion sécurisée avec rôle directeur
+En tant que directeur de banque, je dois pouvoir m'authentifier.
 
-#### **Gestion des Utilisateurs**
+**Fonctionnalités** :
 
-- Créer, modifier ou supprimer un compte client
-- Bannir ou débannir un utilisateur
+- Connexion sécurisée avec rôle `bankManager`
 
-#### **Gestion du Taux d'Épargne**
+#### **Gestion des comptes**
 
-- Modifier le taux d'épargne applicable à tous les comptes épargne
-- **Notification automatique** à tous les clients ayant un compte épargne lors d'un changement de taux
+En tant que directeur de banque, je dois pouvoir créer, modifier ou supprimer un compte client ou le bannir.
 
-#### **Gestion des Actions**
+**Fonctionnalités** :
 
-- Créer, modifier et supprimer des actions disponibles
-- Activer/désactiver une action sur le marché
-- **Le cours n'est pas modifiable manuellement** (calculé automatiquement par le carnet d'ordres)
-- Les clients sont **propriétaires réels** de leurs actions
+- Consulter la liste des utilisateurs ✅
+- Créer, modifier ou supprimer un compte client ⚠️ **Non implémenté**
+- Bannir/débannir un utilisateur ⚠️ **Non implémenté**
+
+#### **Fixation du taux d'épargne**
+
+En tant que directeur de la banque, je dois pouvoir effectuer une modification du taux d'épargne disponible pour les comptes d'épargne. Ce faisant, tous les clients ayant actuellement un compte d'épargne doivent avoir une notification en ce qui concerne le changement du taux qui a été fixé lors de la modification.
+
+**Fonctionnalités** :
+
+- Modifier le taux d'épargne ⚠️ **Non implémenté**
+- Notification automatique aux clients avec compte épargne ⚠️ **Non implémenté**
+
+#### **Actions**
+
+En tant que directeur de banque, je suis celui qui créé, modifie et supprime les actions. Je n'ai pas la possibilité de modifier le cours d'une action, mais c'est moi qui décide quelles sont les actions disponibles de celles qui ne le sont pas. Les clients sont propriétaires de leur actions, contrairement à certains de nos concurrents qui ne le disent pas, nous l'affichons fièrement.
+
+**Fonctionnalités** :
+
+- Créer une action (nom, symbole, nombre total de parts) ✅
+- Modifier une action (nom, symbole, total parts) ✅
+- Supprimer une action (si aucun ordre actif et aucun client ne la possède) ✅
+- Interface admin pour gérer les actions ✅ (`/dashboard/admin/shares`)
+- ⚠️ Le cours est calculé automatiquement (pas de modification manuelle)
+- Activer/désactiver une action ⚠️ **Non implémenté**
 
 ---
 
-### 💼 Conseiller Bancaire
+### 🧑‍💼 **CONSEILLER BANCAIRE**
 
 #### **Authentification**
 
-- Connexion sécurisée avec rôle conseiller
+En tant que conseiller bancaire, je peux m'authentifier.
 
-#### **Gestion des Crédits**
+**Fonctionnalités** :
 
-- Octroyer des crédits aux clients
-- Paramètres du crédit :
-  - **Taux annuel d'intérêts** (calculé sur le capital restant)
-  - **Assurance obligatoire** (taux fixe sur le montant total du crédit)
-  - **Mensualités constantes** (méthode de calcul standard)
-  - Génération automatique du tableau d'amortissement
-- Suivi des échéances et des paiements
+- Connexion sécurisée avec rôle `bankAdvisor`
 
-#### **Messagerie Instantanée**
+#### **Crédit**
 
-- Consulter tous les messages en attente de réponse (visibles par tous les conseillers)
-- Répondre aux messages clients
-- **Attribution automatique** : le premier conseiller qui répond devient le gestionnaire principal de la conversation
-- **Transfert de conversation** : possibilité de transférer une discussion à un autre conseiller
-- Historique complet des échanges et transferts
+En tant que conseiller bancaire, je peux être amené à octroyer des crédits. Un crédit a un taux annuel d'intérêts à rembourser sur le capital restant chaque mois, une assurance (obligatoire) à un taux dont le montant est calculé sur le total du crédit accordé et prélevé sur les mensualités, et des mensualités qui correspondent au montant du crédit remboursé chaque mois. Nous utilisons la méthode de calcul du crédit à mensualité constante.
 
----
+**Fonctionnalités** :
 
-## 📊 Modèle de Données
+- Octroyer un crédit ✅
+  - Taux d'intérêt annuel (sur capital restant)
+  - Assurance obligatoire (taux sur total du crédit)
+  - Mensualités constantes (méthode amortissement français)
+  - Génération automatique de l'échéancier
+- Simuler un échéancier d'amortissement ✅
+- Consulter les crédits d'un client avec échéances ✅
+- Consulter l'historique des paiements d'un crédit ✅
+- Payer une échéance (prélèvement automatique sur compte) ✅
+- Remboursement anticipé total ou partiel ✅
+- Marquer les échéances en retard (CRON quotidien) ✅
+- Consulter les échéances impayées ✅
+- Interface conseiller pour gérer les crédits ⚠️ **Non implémenté (frontend)**
 
-### 👤 **User** (Utilisateur)
+#### **Messagerie instantanée**
 
-**Attributs :**
+En tant que conseiller bancaire, je peux répondre aux messages qui me sont envoyés de la part de mes clients, étant donné que nous sommes une banque moderne, chaque fois qu'un message est envoyé et en attente de réponse, tous les conseillers peuvent le voir, néanmoins à partir du premier message, la discussion est reliée au conseiller bancaire qui a répondu en premier au client. En cas de besoin, la discussion peut être transférée d'un conseiller à un autre, auquel cas le transfert de la discussion se fait entre les deux conseillers.
 
-- `id` : Identifiant unique
-- `lastName` : Nom de famille
-- `firstName` : Prénom
-- `email` : Adresse email (unique)
-- `password` : Mot de passe hashé
-- `role` : Rôle (`customer` / `advisor` / `director`)
-- `status` : Statut (`active` / `banned`)
-- `dateInscription` : Date d'inscription
+**Fonctionnalités** :
 
-**Relations :**
-
-- 1 user **a** 0..\* accounts
-- 1 customer **peut avoir** 0..1 assigned advisor
-- 1 customer **peut avoir** 0..\* credits
-- 1 customer **place** 0..\* orders
-- 1 customer **ouvre** 0..\* conversations
-- 1 advisor **gère** 0..\* conversations
-
-**Description :**  
-Représente une personne dans le système (client, conseiller, directeur). Utilisé pour l'authentification, les droits et le lien avec les actions (comptes, ordres, messages, etc.).
+- Créer une conversation (client → conseiller) ✅
+- Envoyer un message (temps réel via WebSocket) ✅
+- Consulter les messages d'une conversation ✅
+- Système de file d'attente : toutes les conversations sans conseiller sont visibles par tous ✅
+- Attribution automatique : le premier conseiller qui répond devient l'interlocuteur ✅
+- Transférer une conversation à un autre conseiller ✅
+- Fermer une conversation ✅
+- Conversations de groupe (multi-participants) ✅
+- Ajouter un participant à une conversation ✅
+- Interface messagerie ⚠️ **Non implémenté (frontend)**
 
 ---
 
-### 💳 **Account** (Compte)
-
-**Attributs :**
-
-- `id` : Identifiant unique
-- `accountType` : Type de compte (`current` / `savings`)
-- `iban` : IBAN unique et valide
-- `accountName` : Nom personnalisé du compte
-- `authorizedOverdraft` : Découvert autorisé (boolean)
-- `overdraftLimit` : Limite de découvert (en centimes)
-- `overdraftFees` : Frais de découvert (en centimes)
-- `status` : Statut (`open` / `closed`)
-- `ownerId` : ID du propriétaire (User)
-
-**Relations :**
-
-- 1 account **appartient à** 1 user (customer)
-- 1 account **a** 0..\* transactions
-- 1 account **reçoit/émet** 0..\* transfers
-
-**Règles métier :**
-
-- Peut être fermé uniquement si solde = 0 et aucune transaction en attente
-- L'IBAN doit être mathématiquement valide et unique
-- Le compte dispose de **deux types de soldes** :
-  - **Balance** (solde réel) : Transactions validées uniquement
-  - **BalanceAvailable** (solde disponible) : Transactions postées (incluant les transferts en attente de validation)
-
-**Description :**  
-C'est le "portefeuille" bancaire d'un client (courant ou épargne). L'argent entre ou sort via des transactions. Le système maintient deux soldes distincts pour gérer les transferts en attente de validation administrative.
-
----
-
-### 💸 **Transaction** (Mouvement comptable)
-
-**Attributs :**
-
-- `id` : Identifiant unique
-- `accountIBAN` : IBAN du compte concerné
-- `direction` : Direction (`debit` / `credit`)
-- `amount` : Montant (en centimes)
-- `reason` : Description/Motif de la transaction
-- `accountDate` : Date comptable de la transaction
-- `status` : Statut (`posted` / `validated` / `cancelled`)
-- `transferId` : ID du transfert associé (obligatoire pour les virements)
-
-**Relations :**
-
-- 1 transaction **concerne** 1 account (identifié par IBAN)
-- 1 transaction **est liée à** 1 transfer (pour les virements)
-
-**Statuts des transactions :**
-
-- `POSTED` : Transaction créée et comptabilisée (affecte le solde disponible)
-- `VALIDATED` : Transaction validée par un administrateur (affecte le solde réel)
-- `CANCELLED` : Transaction annulée
-
-**Description :**  
-C'est une **ligne comptable** sur un compte : entrée (crédit) ou sortie (débit). Tous les mouvements d'argent passent par des transactions. Pour les virements, chaque Transfer génère exactement 2 transactions (une DEBIT sur le compte source, une CREDIT sur le compte destination).
-
----
-
-### 🔄 **Transfer** (Virement)
-
-**Attributs :**
-
-- `id` : Identifiant unique
-- `amount` : Montant (en centimes)
-- `dateRequested` : Date de demande du transfert
-- `dateExecuted` : Date d'exécution prévue/effective
-- `description` : Description du virement
-- `status` : Statut (`pending` / `validated` / `cancelled`)
-
-**Relations :**
-
-- 1 transfer **génère** exactement 2 transactions (débit source, crédit cible)
-- Les comptes source et destination sont identifiés via les transactions associées
-
-**Règles métier :**
-
-- À la création d'un transfert (`CreateTransaction`) :
-  - Le Transfer est créé avec statut `PENDING`
-  - 2 Transactions sont immédiatement créées avec statut `POSTED` (une DEBIT, une CREDIT)
-  - Le solde disponible des comptes est mis à jour immédiatement
-  - Validation des fonds disponibles avant création
-- Lors de la validation par un administrateur (`ValidTransferByAdmin`) :
-  - Le Transfer passe de `PENDING` à `VALIDATED`
-  - Les Transactions passent de `POSTED` à `VALIDATED`
-  - Le solde réel des comptes est mis à jour
-
-**Description :**  
-Une **opération** qui transfère de l'argent d'un compte à un autre au sein de la banque AVENIR. Le transfert est créé en statut `PENDING` et nécessite une validation administrative pour être finalisé. Les transactions sont créées immédiatement avec le transfert, permettant un suivi précis des mouvements.
-
-**Flux de transfert :**
-
-1. **Création** (`CreateTransaction`) :
-
-   - Le client demande un transfert entre deux comptes AVENIR
-   - Validation : solde disponible suffisant (incluant découvert)
-   - Création d'un Transfer en statut `PENDING`
-   - Création de 2 Transactions en statut `POSTED` :
-     - Transaction DEBIT sur le compte source
-     - Transaction CREDIT sur le compte destination
-   - Mise à jour immédiate du **solde disponible** (balanceAvailable)
-   - ⚠️ Le **solde réel** (balance) n'est pas encore modifié
-
-2. **Validation** (`ValidTransferByAdmin`) :
-   - Un conseiller ou directeur valide le transfert
-   - Le Transfer passe de `PENDING` à `VALIDATED`
-   - Les 2 Transactions passent de `POSTED` à `VALIDATED`
-   - Mise à jour du **solde réel** (balance) des deux comptes
-   - Le transfert est définitivement exécuté
-
----
-
-### 💰 **SavingsRate** (Taux d'épargne)
-
-**Attributs :**
-
-- `id` : Identifiant unique
-- `rate` : Taux (en pourcentage)
-- `dateEffect` : Date de prise d'effet
-
-**Relations :**
-
-- 1 rate **s'applique** à 0..\* calculs d'intérêts (selon la date)
-
-**Description :**  
-Conserve **l'historique** des taux appliqués aux comptes d'épargne. Permet de savoir quel taux utiliser à une date donnée pour calculer les intérêts.
-
----
-
-### 📈 **DailyInterest** (Intérêts journaliers)
-
-**Attributs :**
-
-- `id` : Identifiant unique
-- `date` : Date du calcul
-- `calculationBase` : Base de calcul (montant de référence en centimes)
-- `appliedRate` : Taux appliqué (en pourcentage)
-- `calculatedInterest` : Intérêts calculés (en centimes)
-- `creditMode` : Mode de crédit (`daily` / `monthly`)
-- `accountId` : ID du compte épargne concerné
-
-**Relations :**
-
-- 1 interest **concerne** 1 account (savings)
-- 0..1 lien vers une transaction créée au moment du crédit
-
-**Description :**  
-Trace le **calcul d'intérêts** d'un compte épargne pour un jour donné, et peut créer la transaction qui crédite ces intérêts sur le compte.
-
----
-
-### 📊 **Share** (Action)
-
-**Attributs :**
-
-- `id` : Identifiant unique
-- `name` : Nom de l'action
-- `symbol` : Symbole boursier
-- `totalNumberOfShares` : Nombre total de parts
-- `initialPrice` : Prix initial (en centimes)
-- `currentPrice` : Prix actuel (en centimes, calculé)
-- `isActive` : Active sur le marché (boolean)
-
-**Relations :**
-
-- 1 share **a** 0..\* orders
-- 1 share **a** 0..\* shareTransactions
-- 1 share **est dans** 0..\* positions client
-
-**Description :**  
-Définit un **titre financier** coté sur la bourse interne (nom, nombre d'actions, prix initial). Sert de support pour les ordres et transactions.
-
----
-
-### 📝 **Order** (Ordre d'achat/vente)
-
-**Attributs :**
-
-- `id` : Identifiant unique
-- `direction` : Direction (`buy` / `sell`)
-- `quantity` : Quantité
-- `priceLimit` : Prix limite (en centimes)
-- `validity` : Validité (`day` / `until_cancelled`)
-- `status` : Statut (`active` / `executed` / `cancelled`)
-- `dateCaptured` : Date de saisie
-- `customerId` : ID du client
-- `shareId` : ID de l'action
-
-**Relations :**
-
-- 1 order **est placé par** 1 customer
-- 1 order **concerne** 1 share
-- 1 order **peut participer à** 0..\* shareTransactions
-
-**Règles métier :**
-
-- À l'achat : bloquer l'argent nécessaire (+ frais de 1€)
-- À la vente : bloquer les titres
-- Pas de vente à découvert (quantité négative interdite)
-
-**Description :**  
-L'**intention** d'acheter ou de vendre une action, avec une quantité et un prix limite. L'ordre reste actif jusqu'à exécution ou annulation.
-
----
-
-### 💹 **ShareTransaction** (Transaction boursière)
-
-**Attributs :**
-
-- `id` : Identifiant unique
-- `priceExecuted` : Prix d'exécution (en centimes)
-- `quantity` : Quantité échangée
-- `dateExecuted` : Date d'exécution
-- `buyerFee` : Frais acheteur (1€)
-- `sellerFee` : Frais vendeur (1€)
-- `shareId` : ID de l'action
-- `buyOrderId` : ID de l'ordre d'achat
-- `sellOrderId` : ID de l'ordre de vente
-
-**Relations :**
-
-- 1 shareTransaction **concerne** 1 share
-- 1 shareTransaction **associe** 1 ordre d'achat et 1 ordre de vente
-- 1 shareTransaction **met à jour** 2 positions client (acheteur/vendeur)
-- 1 shareTransaction **génère** des transactions (cash, frais)
-
-**Règle métier :**
-
-- Le **prix affiché** d'une action = **dernier prix exécuté**
-
-**Description :**  
-C'est l'**échange réel** entre un ordre d'achat et un ordre de vente à un prix donné. Met à jour les positions de chacun et déclenche les mouvements (cash + frais).
-
----
-
-### 🎯 **SecuritiesPosition** (Position titres)
-
-**Attributs :**
-
-- `id` : Identifiant unique
-- `totalQuantity` : Quantité totale détenue
-- `customerId` : ID du client
-- `shareId` : ID de l'action
-
-**Relations :**
-
-- 1 position **appartient à** 1 customer
-- 1 position **concerne** 1 share
-
-**Description :**  
-Indique **combien d'actions** d'un titre un client possède. Augmente après des achats et diminue après des ventes (jamais négatif si vente à découvert interdite).
-
----
-
-### 🏦 **Credit** (Crédit)
-
-**Attributs :**
-
-- `id` : Identifiant unique
-- `amountBorrowed` : Montant emprunté (en centimes)
-- `annualRate` : Taux annuel d'intérêts (en pourcentage)
-- `insuranceRate` : Taux d'assurance (en pourcentage)
-- `durationInMonths` : Durée (en mois)
-- `startDate` : Date de début
-- `status` : Statut (`in_progress` / `completed`)
-- `customerId` : ID du client
-- `advisorId` : ID du conseiller qui a octroyé le crédit
-
-**Relations :**
-
-- 1 credit **appartient à** 1 customer
-- 1 credit **a** 1..\* due dates (échéances)
-
-**Règles métier :**
-
-- Mensualités constantes (méthode de calcul standard)
-- Intérêts calculés sur le capital restant dû
-- Assurance obligatoire calculée sur le montant total
-
-**Description :**  
-Représente un **prêt** accordé au client (montant, taux, durée, statut). Il déclenche un versement initial puis des remboursements mensuels.
-
----
-
-### 📅 **DueDate** (Échéance)
-
-**Attributs :**
-
-- `id` : Identifiant unique
-- `dueDate` : Date d'échéance
-- `totalAmount` : Montant total (en centimes)
-- `interestShare` : Part d'intérêts (en centimes)
-- `insuranceShare` : Part d'assurance (en centimes)
-- `repaymentPortion` : Part de remboursement capital (en centimes)
-- `status` : Statut (`payable` / `paid` / `overdue`)
-- `paymentDate` : Date de paiement (si payé)
-- `creditId` : ID du crédit concerné
-
-**Relations :**
-
-- 1 dueDate **concerne** 1 credit
-- 1 dueDate **génère** 0..1 transaction (débit du compte)
-
-**Description :**  
-C'est un **paiement mensuel** d'un crédit (montant et répartition intérêts/assurance/remboursement). Quand elle est payée, un virement client-vers-banque est effectué.
-
----
-
-### 💬 **Conversation** (Discussion)
-
-**Attributs :**
-
-- `id` : Identifiant unique
-- `status` : Statut (`open` / `transferred` / `closed`)
-- `dateOpened` : Date d'ouverture
-- `customerId` : ID du client
-
-**Relations :**
-
-- 1 conversation **est ouverte par** 1 customer
-- 1 conversation **est gérée par** 0..\* advisors (via ParticipantConversation)
-- 1 conversation **contient** 1..\* messages
-
-**Description :**  
-Thread de **messagerie** entre un client et un ou plusieurs conseillers. Contient tous les messages et reste actif jusqu'à la clôture du sujet.
-
----
-
-### 👥 **ParticipantConversation** (Participant)
-
-**Attributs :**
-
-- `id` : Identifiant unique
-- `dateAdded` : Date d'ajout
-- `dateEnd` : Date de fin (si retiré, sinon vide)
-- `isPrincipal` : Principal (boolean) - le premier répondant peut être marqué principal
-- `conversationId` : ID de la conversation
-- `advisorId` : ID du conseiller
-
-**Relations :**
-
-- 1 participant **concerne** 1 conversation
-- 1 participant **désigne** 1 advisor
-
-**Règles :**
-
-- Lors d'un **transfert**, le nouveau conseiller est **ajouté** comme participant (l'ancien n'est pas supprimé)
-- **Tous les participants** peuvent envoyer des messages
-
-**Description :**  
-Liste les **conseillers autorisés** à participer à une conversation (le premier répondant, puis ceux ajoutés lors d'un transfert).
-
----
-
-### 📧 **Message** (Message)
-
-**Attributs :**
-
-- `id` : Identifiant unique
-- `text` : Contenu du message
-- `sendDate` : Date d'envoi
-- `senderId` : ID de l'expéditeur (User)
-- `conversationId` : ID de la conversation
-
-**Relations :**
-
-- 1 message **appartient à** 1 conversation
-- 1 message **est envoyé par** 1 user
-- Si sender = advisor, il **doit être participant** à la conversation
-
-**Description :**  
-Contenu d'un **échange** dans une conversation (qui parle, quoi, quand). Constitue l'historique visible côté client et conseiller.
-
----
-
-### 🔀 **TransferConversation** (Transfert de conversation)
-
-**Attributs :**
-
-- `id` : Identifiant unique
-- `fromAdvisorId` : ID du conseiller source
-- `toAdvisorId` : ID du conseiller cible
-- `reason` : Raison du transfert
-- `transferDate` : Date du transfert
-- `conversationId` : ID de la conversation
-
-**Relations :**
-
-- 1 transferConversation **concerne** 1 conversation
-
-**Règle :**
-
-- Lors du transfert, **ajouter** `toAdvisor` à **ParticipantConversation** (l'ancien reste, les deux peuvent intervenir)
-
-**Description :**  
-Trace le **passage** d'un **conseiller** à un autre. À chaque transfert, le nouveau conseiller est ajouté comme participant ; les deux peuvent écrire.
-
----
-
-### 🔐 **EmailConfirmationToken** (Token de confirmation)
-
-**Attributs :**
-
-- `id` : Identifiant unique
-- `token` : Token de confirmation (unique)
-- `userId` : ID de l'utilisateur
-- `expiresAt` : Date d'expiration
-- `isUsed` : Utilisé (boolean)
-
-**Relations :**
-
-- 1 token **concerne** 1 user
-
-**Description :**  
-Utilisé pour confirmer l'inscription d'un utilisateur via email.
-
----
-
-### 🔑 **Session** (Session utilisateur)
-
-**Attributs :**
-
-- `id` : Identifiant unique
-- `token` : Token de session (unique)
-- `userId` : ID de l'utilisateur
-- `expiresAt` : Date d'expiration
-
-**Relations :**
-
-- 1 session **concerne** 1 user
-
-**Description :**  
-Gère l'authentification et les sessions actives des utilisateurs.
-
----
-
-## 🚀 État d'Avancement du Projet
-
-### ✅ **Entités Implémentées (10/14)**
-
-- ✅ User
-- ✅ Account
-- ✅ Transaction
-- ✅ Transfer
-- ✅ Share
-- ✅ Order
-- ✅ ShareTransaction
-- ✅ SecuritiesPosition
-- ✅ Conversation
-- ✅ ParticipantConversation
-- ✅ Message
-- ✅ TransferConversation
-- ✅ EmailConfirmationToken
-- ✅ Session
-
-### ❌ **Entités Manquantes (1/16)**
-
-- ❌ **SavingsRate** (Taux d'épargne)
-- ❌ **DailyInterest** (Intérêts journaliers)
-
-**Note** : Les entités Credit et DueDate sont **déjà implémentées** ✅
-
----
-
-### 📦 **Use Cases Implémentés**
-
-#### ✅ **Utilisateurs**
-
-- ✅ `registerUser` - Inscription
-- ✅ `loginUser` - Connexion
-- ✅ `confirmRegistration` - Confirmation email
-- ✅ `getAllUsers` - Liste des utilisateurs
-
-#### ✅ **Comptes**
-
-- ✅ `createAccount` - Créer un compte
-- ✅ `getAccountById` - Récupérer un compte
-- ✅ `getAccountsFromOwnerId` - Comptes d'un propriétaire
-- ✅ `updateNameAccount` - Renommer un compte
-- ✅ `closeOwnAccount` - Fermer un compte
-- ✅ `getAccountBalance` - Récupérer le solde détaillé d'un compte
-- ✅ `getAccountTransactions` - Liste paginée des transactions avec filtres
-- ✅ `getAccountStatement` - Relevé de compte sur une période
-
-#### ✅ **Actions/Investissement**
-
-- ✅ `createShare` - Créer une action (directeur)
-- ✅ `getAllShares` - Lister les actions disponibles
-- ✅ `getShareById` - Récupérer une action par ID
-- ✅ `placeOrder` - Placer un ordre d'achat/vente
-- ✅ `cancelOrder` - Annuler un ordre en attente
-- ✅ `getOrdersByCustomer` - Ordres d'un client
-- ✅ `getClientPositions` - Positions (portefeuille) d'un client
-- ✅ `executeMatchingOrders` - Matcher et exécuter les ordres buy/sell
-- ✅ `calculateSharePrice` - Calculer le prix d'équilibre
-- ✅ `getOrderBook` - Afficher le carnet d'ordres pour une action
-- ✅ `getShareTransactionHistory` - Historique des transactions d'une action
-
-#### ✅ **Conversations**
-
-- ✅ `createConversation` - Créer une conversation
-- ✅ `createGroupConversation` - Conversation de groupe
-- ✅ `addParticipant` - Ajouter un participant
-- ✅ `closeConversation` - Fermer une conversation
-- ✅ `transferConversation` - Transférer une conversation
-- ✅ `sendMessage` - Envoyer un message
-- ✅ `✅ **Transactions & Transferts**
-
-- ✅ `createTransaction` - Créer un transfert avec ses 2 transactions
-  - Crée un Transfer en statut `PENDING`
-  - Génère 2 Transactions en statut `POSTED` (DEBIT + CREDIT)
-  - Met à jour le solde disponible des comptes
-  - Valide les fonds disponibles (incluant découvert)
-- ✅ `validTransferByAdmin` - Valider un transfert par un administrateur
-  - Passage du Transfer de `PENDING` à `VALIDATED`
-  - Passage des Transactions de `POSTED` à `VALIDATED`
-  - Mise à jour du solde réel des comptes
-  - Réservé aux conseillers et directeurs
-
-#### ⚠️ **Transferts** (Minimal)
-
-- ✅ `validTransferByAdmin` - Valider un transfert (admin)
-
----
-
-### 🔴 **Use Cases Manquants (Critiques)**
-
-#### ❌ **Crédits** (Complètement implémentés - voir TODO.md)
-
-Les use cases pour les crédits sont **déjà implémentés** :
-
-- ✅ `grantCredit` - Octroyer un crédit (conseiller)
-- ✅ `getCreditStatus` - Statut d'un crédit
-- ✅ `getCustomerCreditsWithDueDates` - Crédits avec échéances
-- ✅ `getMyCredits` - Mes crédits (client)
-- ✅ `getOverdueDueDates` - Échéances en retard
-- ✅ `getPaymentHistory` - Historique des paiements
-- ✅ `payInstallment` - Payer une échéance
-- ✅ `simulateAmortizationSchedule` - Simuler un crédit
-- ✅ `markOverdueDueDates` - Marquer échéances en retard
-- ✅ `earlyRepayCredit` - Remboursement anticipé
-
-#### ❌ **Transferts** (Extensions possibles)
-
-- ❌ `getTransferHistory` - Historique des transferts avec filtres
-- ❌ `getTransferById` - Récupérer un transfert par ID
-- ❌ `cancelTransfer` - Annuler un transfert en `PENDING`
-
-#### ❌ **Épargne** (Complètement absent)
-
-- ❌ `calculateDailyInterest` - Calculer intérêts journaliers (CRON)
-- ❌ `creditDailyInterest` - Créditer les intérêts
-- ❌ `updateSavingsRate` - Modifier le taux (directeur)
-- ❌ `getSavingsRateHistory` - Historique des taux
-- ❌ `notifyCustomersOfRateChange` - Notifier changement de taux
-
-#### ❌ **Directeur**
-
-- ❌ `banUser` - Bannir un utilisateur
-- ❌ `unbanUser` - Débannir un utilisateur
-- ❌ `deleteUser` - Supprimer un utilisateur
-- ❌ `updateShare` - Modifier une action
-- ❌ `deleteShare` - Supprimer une action
-- ❌ `activateShare` / `deactivateShare` - Activer/désactiver une action
-
----
-
-## 📌 Priorités de Développement
-
-### 🔴 **Priorité 1 - Fonctionnalités essentielles**
-
-1. Système d'**épargne** (SavingsRate, DailyInterest, calcul d'intérêts)
-2. Extensions **transferts** (historique, annulation)
-3. Gestion **directeur** (ban/unban, CRUD actions)
-
-### 🟠 **Priorité 2 - Fonctionnalités métier**
-
-1. **Notifications** (changement de taux, ordres exécutés)
-2. **Dashboard** utilisateurs avec statistiques
-3. Rapports et **analytics** (performance portefeuille)
-
----
-
-## 📁 Architecture du Projet
+## 🏗️ Architecture du Projet
 
 ```
 AVENIR/
-├── domain/                    # Couche Domain (Entités)
-│   ├── entities/             # ✅ 14 entités
-│   ├── values/               # ✅ Value Objects
-│   └── errors/               # ✅ Erreurs métier
+├── domain/                    # Couche Domain (entités, value objects, types)
+│   ├── entities/              # 16 Entités métier pures
+│   │   ├── users.ts
+│   │   ├── account.ts
+│   │   ├── transaction.ts
+│   │   ├── transfer.ts
+│   │   ├── credit.ts
+│   │   ├── dueDate.ts
+│   │   ├── share.ts
+│   │   ├── order.ts
+│   │   ├── shareTransaction.ts
+│   │   ├── securitiesPosition.ts
+│   │   ├── conversation.ts
+│   │   ├── message.ts
+│   │   ├── participantConversation.ts
+│   │   ├── transferConversation.ts
+│   │   ├── emailConfirmationToken.ts
+│   │   └── session.ts
+│   ├── values/                # Value Objects
+│   │   ├── role.ts            # customer | bankAdvisor | bankManager
+│   │   ├── accountType.ts     # checking | savings
+│   │   ├── statusAccount.ts
+│   │   ├── statusTransaction.ts
+│   │   ├── statusTransfer.ts
+│   │   ├── creditStatus.ts
+│   │   ├── dueDateStatus.ts
+│   │   ├── orderStatus.ts
+│   │   ├── orderDirection.ts
+│   │   ├── conversationStatus.ts
+│   │   └── ...
+│   ├── types/                 # Types métier
+│   └── errors/                # Erreurs métier
 │
-├── application/              # Couche Application (Use Cases)
+├── application/               # Couche Application (Use Cases)
 │   ├── usecases/
-│   │   ├── users/           # ✅ 5 use cases (auth, gestion)
-│   │   ├── accounts/        # ✅ 8 use cases (CRUD, solde, transactions)
-│   │   ├── shares/          # ✅ 11 use cases (CRUD, ordres, matching, prix)
-│   │   ├── conversations/   # ✅ 9 use cases (messagerie conseiller)
-│   │   ├── credits/         # ✅ 10 use cases (octroi, paiement, simulation)
-│   │   ├── transactions/    # ✅ 1 use case (createTransaction)
-│   │   └── transfer/        # ✅ 1 use case (validTransferByAdmin)
-│   ├── repositories/        # ✅ Interfaces repositories
-│   ├── services/            # ✅ Services (Email, Hash, IBAN, etc.)
-│   └── requests/            # ✅ DTOs de requêtes
+│   │   ├── users/             # 6 use cases
+│   │   ├── accounts/          # 8 use cases
+│   │   ├── transactions/      # 3 use cases
+│   │   ├── transfer/          # 2 use cases
+│   │   ├── credits/           # 10 use cases
+│   │   ├── shares/            # 13 use cases
+│   │   └── conversations/     # 9 use cases
+│   ├── repositories/          # Interfaces des repositories
+│   ├── services/              # Interfaces des services
+│   └── requests/              # DTOs de requêtes
 │
-└── infrastructure/          # Couche Infrastructure
-    ├── adaptaters/          # Implémentation repositories
-    ├── express/             # ✅ Backend Express
-    └── next/                # ✅ Frontend Next.js
+└── infrastructure/            # Couche Infrastructure (Adaptateurs)
+    ├── adaptaters/
+    │   ├── repositories/      # Implémentations (PostgreSQL + InMemory)
+    │   │   ├── postgresql/
+    │   │   └── inMemory/
+    │   └── services/          # Services externes
+    │       ├── NodemailerEmailSender.ts
+    │       ├── BcryptPasswordHasher.ts
+    │       ├── JWTTokenGenerator.ts
+    │       ├── IBANGenerator.ts
+    │       └── ...
+    │
+    ├── express/               # Backend Express
+    │   ├── src/
+    │   │   ├── http/          # HTTP Handlers
+    │   │   ├── routes/        # Routes API
+    │   │   ├── middleware/    # Middlewares (auth, roles)
+    │   │   ├── socket/        # WebSocket (messagerie temps réel)
+    │   │   ├── db/            # Migrations SQL
+    │   │   └── config/        # Configuration et DI
+    │   └── controllers/       # Controllers
+    │
+    └── next/                  # Frontend Next.js 15
+        ├── app/
+        │   ├── auth/          # Pages d'authentification
+        │   └── dashboard/     # Interface utilisateur
+        │       ├── accounts/  # Gestion des comptes ✅
+        │       ├── transfers/ # Transferts ⚠️ (partiel)
+        │       ├── investments/ # Investissements ⚠️ (marché uniquement)
+        │       └── admin/     # Interface directeur ✅
+        ├── api/               # Client API
+        ├── hooks/             # React Hooks
+        ├── lib/               # Utilitaires
+        └── components/        # Composants UI (shadcn/ui)
 ```
 
 ---
 
-## 🛠️ Technologies
+## 📊 État d'Implémentation
 
-- **Backend** : Express.js (TypeScript)
-- **Frontend** : Next.js (TypeScript)
-- **Base de données** : À implémenter (2 adaptateurs requis)
-- **Architecture** : Clean Architecture
-- **Code Quality** : Clean Code principles
+### ✅ **BACKEND (Express) - 51 Use Cases Implémentés**
+
+| Module            | Use Cases | Routes HTTP                                                                                    | Statut                |
+| ----------------- | --------- | ---------------------------------------------------------------------------------------------- | --------------------- |
+| **Users**         | 6/6       | ✅ Register, Login, Confirm, List, Me, GetById                                                 | **✅ Complet**        |
+| **Accounts**      | 8/8       | ✅ Create, List, GetById, UpdateName, Close, Balance, Transactions, Statement                  | **✅ Complet**        |
+| **Transactions**  | 3/3       | ✅ Create, History, GetByAccountIBAN                                                           | **✅ Complet**        |
+| **Transfers**     | 2/2       | ✅ Validate, Cancel                                                                            | **✅ Complet**        |
+| **Credits**       | 10/10     | ✅ Grant, Simulate, List, Status, PayHistory, Pay, EarlyRepay, MarkOverdue, Overdue, MyCredits | **✅ Complet**        |
+| **Shares**        | 13/13     | ✅ CRUD, PlaceOrder, CancelOrder, MyOrders, Positions, Execute, Price, OrderBook, History      | **✅ Complet**        |
+| **Conversations** | 9/9       | ✅ Create, Group, Send, Messages, Transfer, Close, AddParticipant, GetConversations            | **✅ Complet**        |
+| **Épargne**       | 0/6       | ❌                                                                                             | **❌ Non implémenté** |
+
+**Routes principales** :
+
+- `POST /users/register` - Inscription
+- `POST /login` - Connexion
+- `GET /users/confirm-registration` - Confirmation email
+- `POST /accounts` - Créer un compte
+- `GET /accounts/:accountId` - Détail compte
+- `GET /accounts/:accountId/balance` - Solde détaillé
+- `GET /accounts/:accountId/transactions` - Transactions paginées
+- `GET /accounts/:accountId/statement` - Relevé de compte
+- `POST /transaction` - Créer un transfert
+- `PATCH /transfers/validate` - Valider un transfert (admin)
+- `PATCH /transfers/cancel` - Annuler un transfert (admin)
+- `GET /transactions/history` - Historique transactions
+- `POST /shares` - Créer une action (directeur)
+- `PUT /shares/:id` - Modifier une action (directeur)
+- `DELETE /shares/:id` - Supprimer une action (directeur)
+- `POST /orders` - Passer un ordre
+- `DELETE /orders/:orderId` - Annuler un ordre
+- `GET /my-orders` - Mes ordres
+- `GET /positions` - Mon portefeuille
+- `GET /shares/:shareId/order-book` - Carnet d'ordres
+- `GET /shares/:shareId/transactions` - Historique transactions action
+- `POST /shares/:shareId/execute-matching` - Exécuter les ordres
+- `GET /shares/:shareId/price` - Prix d'équilibre
+- `POST /credits/grant` - Octroyer un crédit (conseiller)
+- `POST /credits/simulate-schedule` - Simuler échéancier
+- `GET /my-credits` - Mes crédits
+- `POST /due-dates/:dueDateId/pay` - Payer une échéance
+- `POST /credits/:creditId/early-repayment` - Remboursement anticipé
+- `POST /conversations` - Créer une conversation
+- `POST /conversations/messages` - Envoyer un message
+- `POST /conversations/transfer` - Transférer une conversation
+- `GET /conversations/:conversationId/messages` - Messages conversation
 
 ---
 
-## 📝 Notes Importantes
+### ✅ **FRONTEND (Next.js) - Implémentation Complète**
 
-- **IBAN** : Doit être mathématiquement valide et unique
-- **Mensualités** : Méthode de calcul à mensualité constante
-- **Intérêts** : Calculés quotidiennement sur comptes épargne
-- **Actions** : Les clients sont propriétaires réels de leurs actions
-- **Frais** : 1€ à l'achat et 1€ à la vente (pas de frais d'arbitrage)
-- **Carnet d'ordres** : Le prix est calculé par matching automatique
+| Module             | Pages                                 | API Client              | Hooks                                  | Statut         |
+| ------------------ | ------------------------------------- | ----------------------- | -------------------------------------- | -------------- |
+| **Auth**           | ✅ Login, Register                    | ✅                      | ✅ useCurrentUser                      | **✅ Complet** |
+| **Dashboard**      | ✅ Vue d'ensemble                     | ✅                      | ✅                                     | **✅ Complet** |
+| **Accounts**       | ✅ Liste, Détail, Création, Statement | ✅ accountsApi          | ✅ useAccounts, useAccountTransactions | **✅ Complet** |
+| **Transfers**      | ✅ Historique, Nouveau transfert      | ✅ transfersApi         | ✅ useTransfers                        | **✅ Complet** |
+| **Investments**    | ✅ Marché, Ordres, Portefeuille       | ✅ sharesApi, ordersApi | ✅ useShares, useOrders                | **✅ Complet** |
+| **Admin (Shares)** | ✅ Gestion actions CRUD               | ✅                      | ✅                                     | **✅ Complet** |
+| **Credits**        | ✅ Liste, Détail, Simulateur          | ✅ creditsApi           | ✅ useCredits                          | **✅ Complet** |
+| **Messages**       | ✅ Liste, Chat WebSocket              | ✅ conversationsApi     | ✅ useConversations                    | **✅ Complet** |
+
+#### **Pages Implémentées** ✅
+
+**Authentification** :
+
+- `/auth/login` - Connexion
+- `/auth/register` - Inscription
+- `/auth/confirm` - Confirmation email
+
+**Dashboard** :
+
+- `/dashboard` - Vue d'ensemble (liste comptes, soldes)
+
+**Comptes** :
+
+- `/dashboard/accounts` - Liste de mes comptes
+- `/dashboard/accounts/new` - Créer un compte
+- `/dashboard/accounts/[id]` - Détail compte + transactions
+- `/dashboard/accounts/[id]/statement` - Relevé de compte
+
+**Transferts** :
+
+- `/dashboard/transfers` - Historique des transferts
+- `/dashboard/transfers/new` - Créer un transfert
+
+**Investissements** :
+
+- `/dashboard/investments/market` - Marché (liste actions)
+- `/dashboard/investments/market/[shareId]` - Détail action + carnet d'ordres + passer ordre ✅
+- `/dashboard/investments/orders` - Liste mes ordres (pending/executed/cancelled) + annuler ✅
+- `/dashboard/investments/portfolio` - Mon portefeuille détaillé (positions, valeur totale) ✅
+
+**Crédits** :
+
+- `/dashboard/credits` - Liste mes crédits + échéancier ✅
+- `/dashboard/credits/[id]` - Détail crédit + tableau amortissement + paiement échéance ✅
+- `/dashboard/credits/simulator` - Simulateur d'emprunt ✅
+
+**Messagerie** :
+
+- `/dashboard/messages` - Liste conversations ✅
+- `/dashboard/messages/[id]` - Interface chat temps réel (WebSocket) ✅
+
+**Admin (Directeur)** :
+
+- `/dashboard/admin/shares` - Gestion des actions (CRUD)
+
+---
+
+## 🚀 Installation et Démarrage
+
+### **Prérequis**
+
+- Node.js >= 18
+- PostgreSQL >= 14
+- npm ou yarn
+
+### **1. Cloner le projet**
+
+```bash
+git clone <repository-url>
+cd AVENIR
+```
+
+### **2. Installer les dépendances**
+
+```bash
+# Installation globale (root)
+npm install
+
+# Installation backend Express
+cd infrastructure/express
+npm install
+
+# Installation frontend Next.js
+cd ../next
+npm install
+```
+
+### **3. Configuration**
+
+Créer un fichier `.env` à la racine de chaque module :
+
+**infrastructure/express/.env** :
+
+```env
+DATABASE_URL=postgresql://user:password@localhost:5432/avenir
+PORT=8000
+JWT_SECRET=your-secret-key
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASS=your-password
+```
+
+**infrastructure/next/.env.local** :
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
+
+### **4. Initialiser la base de données**
+
+```bash
+cd infrastructure/express
+npm run migrate  # Exécuter les migrations SQL
+```
+
+### **5. Démarrer l'application**
+
+**Terminal 1 - Backend Express** :
+
+```bash
+npm run dev:express
+# API disponible sur http://localhost:8000
+```
+
+**Terminal 2 - Frontend Next.js** :
+
+```bash
+npm run dev:next
+# Interface disponible sur http://localhost:3000
+```
+
+### **6. Tester l'API (Postman)**
+
+Une collection Postman est disponible dans `/postman` :
+
+- `AVENIR_Collection.postman_collection.json`
+- `AVENIR_Environment.postman_environment.json`
+
+Importer ces fichiers dans Postman pour tester les endpoints.
+
+---
+
+## 🛠️ Technologies Utilisées
+
+### **Backend**
+
+- **Express.js** : Framework web minimaliste
+- **TypeScript** : Typage statique
+- **PostgreSQL** : Base de données relationnelle
+- **Socket.IO** : WebSocket pour messagerie temps réel
+- **Nodemailer** : Envoi d'emails
+- **bcrypt** : Hachage des mots de passe
+- **jsonwebtoken** : Authentification JWT
+
+### **Frontend**
+
+- **Next.js 15** : Framework React avec App Router
+- **React 19** : Bibliothèque UI
+- **shadcn/ui** : Composants UI (Radix + Tailwind)
+- **TailwindCSS** : Framework CSS utility-first
+- **Zod** : Validation de schémas
+- **React Hook Form** : Gestion de formulaires
+- **date-fns** : Manipulation de dates
+
+### **Architecture**
+
+- **Clean Architecture** : Séparation stricte des couches (Domain/Application/Infrastructure)
+- **Dependency Injection** : Inversion de dépendances
+- **Repository Pattern** : Abstraction de la persistance
+- **Use Case Pattern** : Encapsulation de la logique métier
+- **Value Objects** : Objets immuables pour les concepts métier
+
+---
+
+## 🗄️ Structure de la Base de Données
+
+### **Tables Principales**
+
+| Table                         | Description                                     | Statut |
+| ----------------------------- | ----------------------------------------------- | ------ |
+| **users**                     | Utilisateurs (clients, conseillers, directeurs) | ✅     |
+| **email_confirmation_tokens** | Tokens de confirmation email                    | ✅     |
+| **sessions**                  | Sessions utilisateur (JWT)                      | ✅     |
+| **accounts**                  | Comptes bancaires (checking, savings)           | ✅     |
+| **transactions**              | Transactions bancaires                          | ✅     |
+| **transfers**                 | Transferts entre comptes                        | ✅     |
+| **credits**                   | Crédits accordés                                | ✅     |
+| **due_dates**                 | Échéances de crédit                             | ✅     |
+| **shares**                    | Actions disponibles                             | ✅     |
+| **orders**                    | Ordres d'achat/vente                            | ✅     |
+| **share_transactions**        | Historique des transactions d'actions           | ✅     |
+| **securities_positions**      | Portefeuilles clients (positions détenues)      | ✅     |
+| **conversations**             | Conversations client-conseiller                 | ✅     |
+| **messages**                  | Messages de conversation                        | ✅     |
+| **participant_conversations** | Participants aux conversations                  | ✅     |
+| **transfer_conversations**    | Historique des transferts de conversations      | ✅     |
+
+### **Schéma ERD (Relations principales)**
+
+```
+users (1) ──→ (N) accounts
+users (1) ──→ (N) credits (customer)
+users (1) ──→ (N) credits (advisor)
+users (1) ──→ (N) orders
+users (1) ──→ (N) securities_positions
+users (1) ──→ (N) conversations (customer)
+users (1) ──→ (N) participant_conversations (advisor)
+
+accounts (1) ──→ (N) transactions
+accounts (2) ──→ (1) transfers (source + destination via transactions)
+
+credits (1) ──→ (N) due_dates
+
+shares (1) ──→ (N) orders
+shares (1) ──→ (N) share_transactions
+shares (1) ──→ (N) securities_positions
+
+conversations (1) ──→ (N) messages
+conversations (1) ──→ (N) participant_conversations
+conversations (1) ──→ (N) transfer_conversations
+```
+
+---
+
+## 📝 Use Cases Implémentés (Détail)
+
+### **Users (6)** ✅
+
+1. `registerUser` - Inscription avec envoi email confirmation
+2. `confirmRegistration` - Confirmation via token email
+3. `loginUser` - Connexion avec JWT
+4. `getUserByToken` - Récupération utilisateur par token
+5. `getUserById` - Récupération par ID
+6. `getAllUsers` - Liste tous les utilisateurs (admin)
+
+### **Accounts (8)** ✅
+
+1. `createAccount` - Créer un compte (checking/savings) avec IBAN unique
+2. `getAccountsFromOwnerId` - Lister comptes d'un propriétaire
+3. `getAccountById` - Détail d'un compte
+4. `updateNameAccount` - Renommer un compte
+5. `closeOwnAccount` - Supprimer un compte (si solde=0)
+6. `getAccountBalance` - Solde détaillé (réel, disponible, découvert)
+7. `getAccountTransactions` - Transactions paginées avec filtres
+8. `getAccountStatement` - Relevé de compte sur période
+
+### **Transactions (3)** ✅
+
+1. `createTransaction` - Créer un transfert avec 2 transactions (DEBIT + CREDIT)
+2. `getTransactionHistory` - Historique transactions utilisateur
+3. `getAccountTransactionsByAdmin` - Transactions par compte (admin)
+
+### **Transfers (2)** ✅
+
+1. `validTransferByAdmin` - Valider un transfert PENDING → VALIDATED
+2. `cancelTransfer` - Annuler un transfert
+
+### **Credits (10)** ✅
+
+1. `grantCredit` - Octroyer un crédit (conseiller)
+2. `simulateAmortizationSchedule` - Simuler échéancier
+3. `getCustomerCreditsWithDueDates` - Crédits client avec échéances
+4. `getMyCredits` - Mes crédits (client)
+5. `getCreditStatus` - Statut d'un crédit
+6. `getPaymentHistory` - Historique paiements
+7. `payInstallment` - Payer une échéance
+8. `earlyRepayCredit` - Remboursement anticipé
+9. `markOverdueDueDates` - Marquer échéances en retard (CRON)
+10. `getOverdueDueDates` - Liste échéances impayées
+
+### **Shares (13)** ✅
+
+1. `createShare` - Créer une action (directeur)
+2. `updateShare` - Modifier une action (directeur)
+3. `deleteShare` - Supprimer une action (directeur)
+4. `getAllShares` - Liste toutes les actions
+5. `getShareById` - Détail d'une action
+6. `placeOrder` - Passer un ordre d'achat/vente
+7. `cancelOrder` - Annuler un ordre en attente
+8. `getOrdersByCustomer` - Mes ordres
+9. `getClientPositions` - Mon portefeuille (positions)
+10. `calculateSharePrice` - Prix d'équilibre (algorithme matching)
+11. `getOrderBook` - Carnet d'ordres (bids/asks)
+12. `executeMatchingOrders` - Matcher et exécuter ordres compatibles
+13. `getShareTransactionHistory` - Historique transactions d'une action
+
+### **Conversations (9)** ✅
+
+1. `createConversation` - Créer une conversation client-conseiller
+2. `createGroupConversation` - Créer conversation de groupe
+3. `sendMessage` - Envoyer un message (WebSocket temps réel)
+4. `getConversationMessages` - Messages d'une conversation
+5. `getCustomerConversations` - Conversations d'un client
+6. `getAdvisorConversations` - Conversations d'un conseiller
+7. `transferConversation` - Transférer à un autre conseiller
+8. `closeConversation` - Fermer une conversation
+9. `addParticipant` - Ajouter un participant
+
+---
+
+## 📌 Prochaines Étapes (Roadmap)
+
+### **🟠 Priorité 1 - Module Épargne (Backend + Frontend)**
+
+#### **Entités à créer**
+
+- `SavingsRate` - Taux d'épargne
+- `DailyInterest` - Intérêts journaliers
+
+#### **Use Cases à créer**
+
+1. `calculateDailyInterest` - Calculer intérêts journaliers (CRON)
+2. `creditDailyInterest` - Créditer les intérêts (quotidien/mensuel)
+3. `updateSavingsRate` - Modifier le taux (directeur)
+4. `getSavingsRateHistory` - Historique des taux
+5. `notifyCustomersOfRateChange` - Notifier changement taux
+6. `getAccountInterestHistory` - Historique intérêts d'un compte
+
+---
+
+### **🟡 Priorité 3 - Fonctionnalités Directeur**
+
+#### **Gestion Utilisateurs**
+
+- `banUser` - Bannir un utilisateur
+- `unbanUser` - Débannir
+- `deleteUser` - Supprimer (RGPD)
+
+#### **Gestion Actions**
+
+- `activateShare` - Activer une action sur le marché
+- `deactivateShare` - Désactiver (bloquer nouveaux ordres)
+
+---
+
+## 📚 Références
+
+- **Clean Architecture** : Robert C. Martin (Uncle Bob)
+- **Clean Code** : Robert C. Martin
+- **Domain-Driven Design** : Eric Evans
+- **Patterns of Enterprise Application Architecture** : Martin Fowler
+
+---
+
+## 👥 Contributeurs
+
+Projet développé dans le cadre du cours de Clean Architecture à l'ESGI (5IW).
+
+---
+
+## 📄 Licence
+
+Ce projet est un projet étudiant à des fins pédagogiques.

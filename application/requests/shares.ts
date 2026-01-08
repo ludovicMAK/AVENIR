@@ -51,3 +51,13 @@ export type CalculateSharePriceInput = {
 export type ExecuteMatchingOrdersInput = {
   shareId: string;
 };
+
+export type UpdateShareInput = {
+  shareId: string;
+  name?: string;
+  totalNumberOfParts?: number;
+};
+
+export type DeleteShareInput = {
+  shareId: string;
+};

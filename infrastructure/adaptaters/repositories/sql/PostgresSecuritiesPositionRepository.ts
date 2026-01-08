@@ -54,6 +54,19 @@ export class PostgresSecuritiesPositionRepository
     }
   }
 
+  async findByShareId(shareId: string): Promise<SecuritiesPosition[]> {
+    try {
+      const result = await this.pool.query<SecuritiesPositionRow>(
+        `SELECT id, customer_id, share_id, total_quantity, blocked_quantity
+                 FROM securities_positions WHERE share_id = $1`,
+        [shareId]
+      );
+      return result.rows.map((row) => this.mapRowToPosition(row));
+    } catch (error) {
+      this.handleDatabaseError(error);
+    }
+  }
+
   async findByCustomerIdAndShareId(
     customerId: string,
     shareId: string

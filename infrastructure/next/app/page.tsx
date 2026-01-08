@@ -1,5 +1,7 @@
+"use client";
+
 import Link from "next/link";
-import { getCurrentUser } from "@/lib/users/server";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -13,8 +15,8 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
-export default async function LandingPage() {
-  const user = await getCurrentUser();
+export default function LandingPage() {
+  const { user } = useCurrentUser();
 
   const features = [
     {

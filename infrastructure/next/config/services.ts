@@ -3,12 +3,14 @@ import { PasswordHasher } from "@application/services/PasswordHasher";
 import { UuidGenerator } from "@application/services/UuidGenerator";
 import { TokenGenerator } from "@application/services/TokenGenerator";
 import { IBANGenerator } from "@application/services/IBANGenreator";
+import { GenerateAmortizationService } from "@application/services/GenerateAmortizationService";
 import { CryptoPasswordHasher } from "@adapters/services/CryptoPasswordHasher";
 import { NodeUuidGenerator } from "@adapters/services/NodeUuidGenerator";
 import { NodeTokenGenerator } from "@adapters/services/NodeTokenGenerator";
 import { ConsoleEmailSender } from "@adapters/services/ConsoleEmailSender";
 import { SmtpEmailSender } from "@adapters/services/SmtpEmailSender";
 import { NodeIBANGenerator } from "@adapters/services/NodeIBANGenerator";
+import { NodeGenerateAmortizationService } from "@adapters/services/NodeGenerateAmortizationService";
 
 type EmailDriver = "console" | "smtp";
 
@@ -33,10 +35,10 @@ function buildEmailSender(driver: EmailDriver): EmailSender {
 }
 
 export const emailDriver: EmailDriver = resolveEmailDriver();
-console.log(`Email driver: ${emailDriver}`);
 
 export const emailSender: EmailSender = buildEmailSender(emailDriver);
 export const passwordHasher: PasswordHasher = new CryptoPasswordHasher();
 export const uuidGenerator: UuidGenerator = new NodeUuidGenerator();
 export const tokenGenerator: TokenGenerator = new NodeTokenGenerator();
 export const ibanGenerator: IBANGenerator = new NodeIBANGenerator();
+export const nodeGenerateAmortizationService: GenerateAmortizationService = new NodeGenerateAmortizationService();

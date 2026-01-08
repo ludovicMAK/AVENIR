@@ -65,6 +65,49 @@ export type creditsWithDueDatesData = {
   creditWithDueDates: CreditWithDueDates[];
 };
 
+export type SerializedDueDate = {
+  id: string;
+  creditId: string;
+  dueDate: Date;
+  amountDue: number;
+  principal: number;
+  interest: number;
+  insurance: number;
+  status: string;
+  paidDate?: Date;
+  paidAmount?: number;
+};
+
+export type SerializedCreditWithDueDates = {
+  id: string;
+  customerId: string;
+  advisorId: string;
+  accountId: string;
+  amountBorrowed: number;
+  annualRate: number;
+  insuranceRate: number;
+  durationInMonths: number;
+  monthlyPayment: number;
+  status: string;
+  dateGranted: Date;
+  totalAmountDue: number;
+  totalPaid: number;
+  remainingAmount: number;
+  dueDates: SerializedDueDate[];
+};
+
+export type CreditsWithDueDatesResponseData = {
+  credits: SerializedCreditWithDueDates[];
+};
+
+export type SerializedCreditsWithDueDatesData = {
+  creditWithDueDates: SerializedCreditWithDueDates[];
+};
+
+export type DueDatesResponseData = {
+  dueDates: SerializedDueDate[];
+};
+
 export type ConversationView = {
   id: string;
   status: string;
@@ -103,15 +146,19 @@ export type PaymentHistoryItemData = {
   payments: PaymentHistoryItem[];
 };
 
-export type AccountInterestHistoryResponseData = {
-  interests: DailyInterestDto[];
+export type ShareView = {
+  id: string;
+  name: string;
+  totalNumberOfParts: number;
+  initialPrice: number;
+  lastExecutedPrice: number | null;
 };
 
-export type ProcessDailyInterestResponseData = {
-  date: string;
-  processedAccounts: number;
-  skippedAccounts: number;
-};
+export type ShareResponseData = { id: string; share: ShareView };
+export type ShareUpdateResponseData = { share: ShareView };
+export type ShareDeleteResponseData = Record<string, never>;
+
+export type OrderResponseData = { orderId: string };
 
 export type SuccessData =
   | UserResponseData
@@ -128,8 +175,11 @@ export type SuccessData =
   | CreditResponseData
   | CreditsResponseData
   | DueDateResponseData
+  | DueDatesResponseData
   | AmortizationScheduleResponseData
   | creditsWithDueDatesData
+  | CreditsWithDueDatesResponseData
+  | SerializedCreditsWithDueDatesData
   | CreditStatusResponseData
   | PaymentHistoryItemData
   | AccountInterestHistoryResponseData
@@ -137,6 +187,10 @@ export type SuccessData =
   | MarkOverdueResult
   | OverdueDueDateWithCreditData
   | TransactionHistoryResult
+  | ShareResponseData
+  | ShareUpdateResponseData
+  | ShareDeleteResponseData
+  | OrderResponseData
   | undefined;
 
 export type SuccessPayload<ResponseData extends SuccessData = SuccessData> = {

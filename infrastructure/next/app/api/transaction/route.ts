@@ -49,7 +49,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true }, { status: 201 });
   } catch (error: any) {
-    console.error("[POST /api/transaction] Error:", error);
     return NextResponse.json(
       { error: error.message || "Failed to create transaction" },
       { status: 400 }

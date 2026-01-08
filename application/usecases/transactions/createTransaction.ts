@@ -34,27 +34,12 @@ export class CreateTransaction {
     );
     if (!connect) throw new ConnectedError();
 
-    console.log(
-      "[CreateTransaction UseCase] Searching for accounts with IBANs:",
-      {
-        accountIBANFrom: input.accountIBANFrom,
-        accountIBANTo: input.accountIBANTo,
-      }
-    );
-
     const accountFrom = await this.accountRepository.findByIBAN(
       input.accountIBANFrom
     );
     const accountTo = await this.accountRepository.findByIBAN(
       input.accountIBANTo
     );
-
-    console.log("[CreateTransaction UseCase] Accounts found:", {
-      accountFrom: accountFrom
-        ? { id: accountFrom.id, IBAN: accountFrom.IBAN }
-        : null,
-      accountTo: accountTo ? { id: accountTo.id, IBAN: accountTo.IBAN } : null,
-    });
 
     if (!accountFrom || !accountTo) {
       throw new NotFoundError("Compte source ou destination introuvable.");
@@ -137,19 +122,9 @@ export class CreateTransaction {
         unitOfWork
       );
 
-      await unitOfWork.commit();
-      console.log("[CreateTransaction] Successfully committed transfer:", {
-        transferId: transfer.id,
-        amount: input.amount,
-        from: input.accountIBANFrom,
-        to: input.accountIBANTo,
-      });
+      await this.unitOfWork.commit();
     } catch (error) {
-      console.error(
-        "[CreateTransaction] Transaction failed, rolling back:",
-        error
-      );
-      await unitOfWork.rollback();
+      await this.unitOfWork.rollback();
       throw error;
     }
   }

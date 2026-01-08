@@ -4,9 +4,55 @@ import { sendSuccess } from "../responses/success";
 import { mapErrorToHttpResponse } from "../responses/error";
 import { ValidationError } from "@application/errors";
 import { GrantCreditRequest, PayInstallmentRequest, GetCustomerCreditsWithDueDatesRequest, GetMyCreditsRequest, GetCreditStatusRequest, GetPaymentHistoryRequest, EarlyRepaymentRequest } from "@application/requests/credit";
+import { CreditsWithDueDatesResponseData, SerializedCreditsWithDueDatesData, SerializedCreditWithDueDates, DueDatesResponseData } from "@express/types/responses";
 
 export class CreditHttpHandler {
   constructor(private readonly controller: CreditController) {}
+
+  private serializeCreditWithDueDates(creditWithDueDates: any): SerializedCreditWithDueDates {
+    const credit = creditWithDueDates.credit;
+    const dueDates = creditWithDueDates.dueDates;
+    
+    // Calculer les montants depuis les méthodes et les due dates
+    const monthlyPayment = credit.getMonthlyPayment();
+    const totalAmountDue = credit.getTotalAmountToPay();
+    
+    // Calculer le montant total payé depuis les due dates
+    const totalPaid = dueDates
+      .filter((dd: any) => dd.isPaid())
+      .reduce((sum: number, dd: any) => sum + Number(dd.totalAmount), 0);
+    
+    const remainingAmount = totalAmountDue - totalPaid;
+    
+    return {
+      id: credit.id,
+      customerId: credit.customerId,
+      advisorId: '', // Non disponible dans l'entité Credit
+      accountId: '', // Non disponible dans l'entité Credit
+      amountBorrowed: credit.amountBorrowed,
+      annualRate: credit.annualRate,
+      insuranceRate: credit.insuranceRate,
+      durationInMonths: credit.durationInMonths,
+      monthlyPayment,
+      status: typeof credit.status === 'string' ? credit.status : credit.status.getValue(),
+      dateGranted: credit.startDate,
+      totalAmountDue,
+      totalPaid,
+      remainingAmount,
+      dueDates: dueDates.map((dd: any) => ({
+        id: dd.id,
+        creditId: dd.creditId,
+        dueDate: dd.dueDate,
+        amountDue: dd.totalAmount,
+        principal: dd.repaymentPortion,
+        interest: dd.shareInterest,
+        insurance: dd.shareInsurance,
+        status: typeof dd.status === 'string' ? dd.status : dd.status.getValue(),
+        paidDate: dd.paymentDate,
+        paidAmount: dd.totalAmount,
+      })),
+    };
+  }
 
   public async grantCredit(request: Request, response: Response) {
     try {
@@ -70,12 +116,13 @@ export class CreditHttpHandler {
       };
 
       const creditsWithDueDates = await this.controller.getCustomerCreditsWithDueDates(getCustomerCreditsWithDueDatesRequest);
+      const serializedCredits = creditsWithDueDates.map((c) => this.serializeCreditWithDueDates(c));
 
-      return sendSuccess(response, {
+      return sendSuccess<SerializedCreditsWithDueDatesData>(response, {
         status: 200,
         code: "CREDITS_WITH_DUE_DATES_FOUND",
         message: "Credits with due dates retrieved successfully.",
-        data: { creditWithDueDates:creditsWithDueDates },
+        data: { creditWithDueDates: serializedCredits },
       });
     } catch (error) {
       return mapErrorToHttpResponse(response, error);
@@ -98,12 +145,13 @@ export class CreditHttpHandler {
       };
 
       const myCredits = await this.controller.getMyCredits(getMyCreditsRequest);
+      const serializedCredits = myCredits.map((c) => this.serializeCreditWithDueDates(c));
 
-      return sendSuccess(response, {
+      return sendSuccess<CreditsWithDueDatesResponseData>(response, {
         status: 200,
         code: "MY_CREDITS_FOUND",
         message: "My credits retrieved successfully.",
-        data: { creditWithDueDates: myCredits },
+        data: { credits: serializedCredits },
       });
     } catch (error) {
       return mapErrorToHttpResponse(response, error);
@@ -173,6 +221,52 @@ export class CreditHttpHandler {
         code: "PAYMENT_HISTORY_FOUND",
         message: "Payment history retrieved successfully.",
         data: { payments: paymentHistory },
+      });
+    } catch (error) {
+      return mapErrorToHttpResponse(response, error);
+    }
+  }
+
+  public async getCreditDueDates(request: Request, response: Response) {
+    try {
+      const userId = request.headers["x-user-id"] as string;
+      const authHeader = request.headers["authorization"];
+      const token = authHeader && authHeader.split(" ")[1];
+      const { creditId } = request.params;
+
+      if (!userId || !token) {
+        throw new ValidationError("Authentication required");
+      }
+
+      if (!creditId) {
+        throw new ValidationError("Credit ID is required");
+      }
+
+      const dueDates = await this.controller.getCreditDueDates({
+        creditId,
+        userId,
+        token: token || "",
+      });
+
+      // Sérialiser les dueDates
+      const serializedDueDates = dueDates.map((dd) => ({
+        id: dd.id,
+        creditId: dd.creditId,
+        dueDate: dd.dueDate,
+        amountDue: dd.totalAmount,
+        principal: dd.repaymentPortion,
+        interest: dd.shareInterest,
+        insurance: dd.shareInsurance,
+        status: typeof dd.status === 'string' ? dd.status : dd.status.getValue(),
+        paidDate: dd.paymentDate,
+        paidAmount: dd.totalAmount,
+      }));
+
+      return sendSuccess<DueDatesResponseData>(response, {
+        status: 200,
+        code: "DUE_DATES_FOUND",
+        message: "Due dates retrieved successfully.",
+        data: { dueDates: serializedDueDates },
       });
     } catch (error) {
       return mapErrorToHttpResponse(response, error);

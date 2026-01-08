@@ -41,7 +41,6 @@ export class TransferHttpHandler {
     });
 
   } catch (error) {
-    console.error("Validation Error:", error);
     return mapErrorToHttpResponse(response, error);
   }
 }
@@ -76,7 +75,6 @@ export class TransferHttpHandler {
       });
 
     } catch (error) {
-      console.error("Cancel Transfer Error:", error);
       return mapErrorToHttpResponse(response, error);
     }
   }

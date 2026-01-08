@@ -75,6 +75,33 @@ export class PostgresShareRepository implements ShareRepository {
     }
   }
 
+  async update(share: Share): Promise<void> {
+    try {
+      await this.pool.query(
+        `UPDATE shares 
+         SET name = $1, total_number_of_parts = $2, initial_price = $3, last_executed_price = $4
+         WHERE id = $5`,
+        [
+          share.name,
+          share.totalNumberOfParts,
+          share.initialPrice,
+          share.lastExecutedPrice,
+          share.id,
+        ]
+      );
+    } catch (error) {
+      this.handleDatabaseError(error);
+    }
+  }
+
+  async delete(shareId: string): Promise<void> {
+    try {
+      await this.pool.query(`DELETE FROM shares WHERE id = $1`, [shareId]);
+    } catch (error) {
+      this.handleDatabaseError(error);
+    }
+  }
+
   private mapRowToShare(row: ShareRow): Share {
     return new Share(
       row.id,

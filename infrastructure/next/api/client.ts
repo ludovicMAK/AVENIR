@@ -32,12 +32,6 @@ export async function request<ResponseBody extends JsonValue = JsonValue>(
     const token = getAuthenticationToken();
     const userId = getCurrentUserId();
 
-    console.log("[API Client] Auth state:", {
-      hasToken: !!token,
-      tokenPreview: token ? token.substring(0, 10) + "..." : null,
-      userId,
-    });
-
     if (token) {
       headers.set("Authorization", `Bearer ${token}`);
     }
@@ -49,7 +43,6 @@ export async function request<ResponseBody extends JsonValue = JsonValue>(
   }
 
   const fullUrl = `${API_BASE_URL}${path}`;
-  console.log("[API Client] Calling:", fullUrl, "| BASE_URL:", API_BASE_URL);
 
   let response: Response;
   try {

@@ -3,6 +3,7 @@ import { GetCustomerCreditsWithDueDates } from "@application/usecases/credits/ge
 import { GetMyCredits } from "@application/usecases/credits/getMyCredits";
 import { GetCreditStatus } from "@application/usecases/credits/getCreditStatus";
 import { GetPaymentHistory } from "@application/usecases/credits/getPaymentHistory";
+import { GetCreditDueDates } from "@application/usecases/credits/getCreditDueDates";
 import { EarlyRepayCredit } from "@application/usecases/credits/earlyRepayCredit";
 import { MarkOverdueDueDates } from "@application/usecases/credits/markOverdueDueDates";
 import { GetOverdueDueDates } from "@application/usecases/credits/getOverdueDueDates";
@@ -26,6 +27,7 @@ export class CreditController {
     private readonly getMyCreditsUsecase: GetMyCredits,
     private readonly getCreditStatusUsecase: GetCreditStatus,
     private readonly getPaymentHistoryUsecase: GetPaymentHistory,
+    private readonly getCreditDueDatesUsecase: GetCreditDueDates,
     private readonly earlyRepayCreditUsecase: EarlyRepayCredit,
     private readonly markOverdueDueDatesUsecase: MarkOverdueDueDates,
     private readonly getOverdueDueDatesUsecase: GetOverdueDueDates,
@@ -51,6 +53,10 @@ export class CreditController {
 
   public async getPaymentHistory(request: GetPaymentHistoryRequest): Promise<PaymentHistoryItem[]> {
     return await this.getPaymentHistoryUsecase.execute(request);
+  }
+
+  public async getCreditDueDates(request: {creditId: string; userId: string; token: string}): Promise<DueDate[]> {
+    return await this.getCreditDueDatesUsecase.execute(request);
   }
 
   public async earlyRepayCredit(request: EarlyRepaymentRequest): Promise<EarlyRepaymentResult> {

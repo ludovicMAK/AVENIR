@@ -20,6 +20,12 @@ export class InMemorySecuritiesPositionRepository
     );
   }
 
+  async findByShareId(shareId: string): Promise<SecuritiesPosition[]> {
+    return Array.from(this.positions.values()).filter(
+      (position) => position.shareId === shareId
+    );
+  }
+
   async findByCustomerIdAndShareId(
     customerId: string,
     shareId: string

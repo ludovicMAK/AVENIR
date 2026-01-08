@@ -1,6 +1,8 @@
 import { CreateShare } from "@application/usecases/shares/createShare";
 import { GetAllShares } from "@application/usecases/shares/getAllShares";
 import { GetShareById } from "@application/usecases/shares/getShareById";
+import { UpdateShare } from "@application/usecases/shares/updateShare";
+import { DeleteShare } from "@application/usecases/shares/deleteShare";
 import { PlaceOrder } from "@application/usecases/shares/placeOrder";
 import { CancelOrder } from "@application/usecases/shares/cancelOrder";
 import { GetClientPositions } from "@application/usecases/shares/getClientPositions";
@@ -11,6 +13,8 @@ import { GetOrderBook } from "@application/usecases/shares/getOrderBook";
 import { GetShareTransactionHistory } from "@application/usecases/shares/getShareTransactionHistory";
 import {
   CreateShareInput,
+  UpdateShareInput,
+  DeleteShareInput,
   PlaceOrderInput,
   CancelOrderInput,
   GetPositionsInput,
@@ -30,6 +34,8 @@ export class ShareController {
     private readonly createShare: CreateShare,
     private readonly getAllShares: GetAllShares,
     private readonly getShareById: GetShareById,
+    private readonly updateShare: UpdateShare,
+    private readonly deleteShare: DeleteShare,
     private readonly placeOrder: PlaceOrder,
     private readonly cancelOrder: CancelOrder,
     private readonly getClientPositions: GetClientPositions,
@@ -50,6 +56,14 @@ export class ShareController {
 
   async getById(payload: GetShareInput): Promise<Share> {
     return this.getShareById.execute(payload);
+  }
+
+  async update(payload: UpdateShareInput): Promise<Share> {
+    return this.updateShare.execute(payload);
+  }
+
+  async delete(payload: DeleteShareInput): Promise<void> {
+    return this.deleteShare.execute(payload);
   }
 
   async order(payload: PlaceOrderInput): Promise<Order> {
