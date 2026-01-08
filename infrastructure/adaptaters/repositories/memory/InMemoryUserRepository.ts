@@ -71,4 +71,15 @@ export class InMemoryUserRepository implements UserRepository {
       (user) => user.role.getValue() === role
     );
   }
+
+  async updateStatus(userId: string, status: string): Promise<void> {
+    const user = this.items.get(userId);
+    if (user) {
+      this.items.set(userId, user.withStatus(status));
+    }
+  }
+
+  async delete(userId: string): Promise<void> {
+    this.items.delete(userId);
+  }
 }

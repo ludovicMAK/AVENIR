@@ -16,8 +16,20 @@ export function createUserRoutes(userHttpHandler: UserHttpHandler): Router {
   router.get("/users", (request, response) =>
     userHttpHandler.list(request, response)
   );
+  router.get("/users/stats", (request, response) =>
+    userHttpHandler.listWithStats(request, response)
+  );
   router.get("/users/me", (request, response) =>
     userHttpHandler.me(request, response)
+  );
+  router.patch("/users/:userId/ban", (request, response) =>
+    userHttpHandler.ban(request, response)
+  );
+  router.patch("/users/:userId/unban", (request, response) =>
+    userHttpHandler.unban(request, response)
+  );
+  router.delete("/users/:userId", (request, response) =>
+    userHttpHandler.delete(request, response)
   );
 
   return router;

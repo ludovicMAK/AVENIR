@@ -15,6 +15,22 @@ export type UserView = {
   lastname: string;
   email: string;
   role: string;
+  status: string;
+};
+export type UserStatsView = UserView & {
+  accountsCount: number;
+  openAccountsCount: number;
+  totalBalance: number;
+  totalAvailableBalance: number;
+};
+
+export type ShareView = {
+  id: string;
+  name: string;
+  totalNumberOfParts: number;
+  initialPrice: number;
+  lastExecutedPrice: number | null;
+  isActive: boolean;
 };
 
 export type AccountView = {
@@ -54,6 +70,7 @@ export type SingleAccountResponseData = { account: AccountView };
 export type UserResponseData = { user: UserView };
 
 export type UserListResponseData = { users: UserView[] };
+export type UserStatsListResponseData = { users: UserStatsView[] };
 
 export type UserRegistrationResponseData = { userId: string };
 
@@ -163,6 +180,7 @@ export type OrderResponseData = { orderId: string };
 export type SuccessData =
   | UserResponseData
   | UserListResponseData
+  | UserStatsListResponseData
   | UserRegistrationResponseData
   | SavingsRateResponseData
   | SavingsRateHistoryResponseData

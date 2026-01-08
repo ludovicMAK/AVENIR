@@ -2,9 +2,13 @@
 import { RegisterUser } from "@application/usecases/users/registerUser";
 import { LoginUser } from "@application/usecases/users/loginUser";
 import { GetAllUsers } from "@application/usecases/users/getAllUsers";
+import { GetAllUsersWithStats } from "@application/usecases/users/getAllUsersWithStats";
 import { GetUserById } from "@application/usecases/users/getUserById";
 import { GetUserByToken } from "@application/usecases/users/getUserByToken";
 import { ConfirmRegistration } from "@application/usecases/users/confirmRegistration";
+import { BanUser } from "@application/usecases/users/banUser";
+import { UnbanUser } from "@application/usecases/users/unbanUser";
+import { DeleteUser } from "@application/usecases/users/deleteUser";
 
 // Accounts use cases
 import { GetAccountsFromOwnerId } from "@application/usecases/accounts/getAccountsFromOwnerId";
@@ -19,8 +23,6 @@ import { GetAccountStatement } from "@application/usecases/accounts/getAccountSt
 import { CreateShare } from "@application/usecases/shares/createShare";
 import { GetAllShares } from "@application/usecases/shares/getAllShares";
 import { GetShareById } from "@application/usecases/shares/getShareById";
-import { UpdateShare } from "@application/usecases/shares/updateShare";
-import { DeleteShare } from "@application/usecases/shares/deleteShare";
 import { PlaceOrder } from "@application/usecases/shares/placeOrder";
 import { CancelOrder } from "@application/usecases/shares/cancelOrder";
 import { GetClientPositions } from "@application/usecases/shares/getClientPositions";
@@ -29,6 +31,10 @@ import { ExecuteMatchingOrders } from "@application/usecases/shares/executeMatch
 import { CalculateSharePrice } from "@application/usecases/shares/calculateSharePrice";
 import { GetOrderBook } from "@application/usecases/shares/getOrderBook";
 import { GetShareTransactionHistory } from "@application/usecases/shares/getShareTransactionHistory";
+import { UpdateShare } from "@application/usecases/shares/updateShare";
+import { DeleteShare } from "@application/usecases/shares/deleteShare";
+import { ActivateShare } from "@application/usecases/shares/activateShare";
+import { DeactivateShare } from "@application/usecases/shares/deactivateShare";
 
 // Conversations use cases
 import { CreateConversation } from "@application/usecases/conversations/createConversation";
@@ -111,6 +117,7 @@ import { GetAccountInterestHistory } from "@application/usecases/savings/getAcco
 import { SavingsController } from "@express/controllers/SavingsController";
 import { SavingsHttpHandler } from "../http/SavingsHttpHandler";
 import { AuthenticateUser } from "@application/usecases/auth/authenticateUser";
+import { AuthGuard } from "@express/src/http/AuthGuard";
 
 const registerUser = new RegisterUser(
   userRepository,
@@ -128,6 +135,10 @@ const loginUser = new LoginUser(
   sessionRepository
 );
 const getAllUsers = new GetAllUsers(userRepository);
+const getAllUsersWithStats = new GetAllUsersWithStats(
+  userRepository,
+  accountRepository
+);
 const getUserById = new GetUserById(userRepository);
 const getUserByToken = new GetUserByToken(userRepository, sessionRepository);
 const confirmRegistration = new ConfirmRegistration(
@@ -137,14 +148,27 @@ const confirmRegistration = new ConfirmRegistration(
   ibanGenerator,
   uuidGenerator
 );
+const banUser = new BanUser(userRepository);
+const unbanUser = new UnbanUser(userRepository);
+const deleteUserUsecase = new DeleteUser(
+  userRepository,
+  accountRepository,
+  orderRepository,
+  securitiesPositionRepository,
+  shareTransactionRepository
+);
 
 const userController = new UserController(
   registerUser,
   loginUser,
   getAllUsers,
+  getAllUsersWithStats,
   confirmRegistration,
   getUserById,
-  getUserByToken
+  getUserByToken,
+  banUser,
+  unbanUser,
+  deleteUserUsecase
 );
 const getAccountsFromOwnerId = new GetAccountsFromOwnerId(accountRepository);
 const createAccount = new CreateAccount(
@@ -190,12 +214,6 @@ const accountController = new AccountController(
 const createShare = new CreateShare(shareRepository, uuidGenerator);
 const getAllShares = new GetAllShares(shareRepository);
 const getShareById = new GetShareById(shareRepository);
-const updateShare = new UpdateShare(shareRepository);
-const deleteShare = new DeleteShare(
-  shareRepository,
-  orderRepository,
-  securitiesPositionRepository
-);
 const placeOrder = new PlaceOrder(
   orderRepository,
   shareRepository,
@@ -220,13 +238,22 @@ const getOrderBook = new GetOrderBook(orderRepository);
 const getShareTransactionHistory = new GetShareTransactionHistory(
   shareTransactionRepository
 );
+const updateShare = new UpdateShare(shareRepository);
+const deleteShareUsecase = new DeleteShare(
+  shareRepository,
+  orderRepository,
+  securitiesPositionRepository
+);
+const activateShare = new ActivateShare(shareRepository);
+const deactivateShare = new DeactivateShare(
+  shareRepository,
+  orderRepository
+);
 
 const shareController = new ShareController(
   createShare,
   getAllShares,
   getShareById,
-  updateShare,
-  deleteShare,
   placeOrder,
   cancelOrder,
   getClientPositions,
@@ -234,7 +261,11 @@ const shareController = new ShareController(
   executeMatchingOrders,
   calculateSharePrice,
   getOrderBook,
-  getShareTransactionHistory
+  getShareTransactionHistory,
+  updateShare,
+  deleteShareUsecase,
+  activateShare,
+  deactivateShare
 );
 const createTransaction = new CreateTransaction(
   transactionRepository,
@@ -366,21 +397,6 @@ const conversationController = new ConversationController(
   addParticipant
 );
 
-const userHttpHandler = new UserHttpHandler(userController);
-const accountHttpHandler = new AccountHttpHandler(
-  accountController,
-  sessionRepository,
-  transactionRepository
-);
-const shareHttpHandler = new ShareHttpHandler(shareController);
-const transactionHttpHandler = new TransactionHttpHandler(
-  transactionController,
-  transactionRepository
-);
-const transferHttpHandler = new TransferHttpHandler(transferController);
-const conversationHttpHandler = new ConversationHttpHandler(
-  conversationController
-);
 const grantCredit = new GrantCredit(
   sessionRepository,
   userRepository,
@@ -407,12 +423,12 @@ const getCreditStatusUsecase = new GetCreditStatus(
   creditRepository,
   dueDateRepository
 );
-const getCreditDueDatesUsecase = new GetCreditDueDates(
+const getPaymentHistoryUsecase = new GetPaymentHistory(
   sessionRepository,
   creditRepository,
   dueDateRepository
 );
-const getPaymentHistoryUsecase = new GetPaymentHistory(
+const getCreditDueDatesUsecase = new GetCreditDueDates(
   sessionRepository,
   creditRepository,
   dueDateRepository
@@ -497,6 +513,7 @@ const authenticateUserUsecase = new AuthenticateUser(
   sessionRepository,
   userRepository
 );
+const authGuard = new AuthGuard(authenticateUserUsecase);
 
 const savingsController = new SavingsController(
   updateSavingsRateUsecase,
@@ -507,7 +524,29 @@ const savingsController = new SavingsController(
 );
 const savingsHttpHandler = new SavingsHttpHandler(
   savingsController,
-  authenticateUserUsecase
+  authGuard
+);
+
+const userHttpHandler = new UserHttpHandler(
+  userController,
+  authGuard
+);
+const accountHttpHandler = new AccountHttpHandler(
+  accountController,
+  sessionRepository,
+  transactionRepository
+);
+const shareHttpHandler = new ShareHttpHandler(
+  shareController,
+  authGuard
+);
+const transactionHttpHandler = new TransactionHttpHandler(
+  transactionController,
+  transactionRepository
+);
+const transferHttpHandler = new TransferHttpHandler(transferController);
+const conversationHttpHandler = new ConversationHttpHandler(
+  conversationController
 );
 
 export const httpRouter = createHttpRouter(
@@ -518,7 +557,7 @@ export const httpRouter = createHttpRouter(
   transferHttpHandler,
   conversationHttpHandler,
   creditHttpHandler,
-  savingsHttpHandler
+  savingsHttpHandler,
 );
 
 export {

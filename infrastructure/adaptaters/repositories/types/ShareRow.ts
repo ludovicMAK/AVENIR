@@ -4,4 +4,5 @@ export type ShareRow = {
   total_number_of_parts: number;
   initial_price: number;
   last_executed_price: number | null;
+  is_active: boolean;
 };

@@ -2,17 +2,31 @@ import { Request, Response } from "express";
 import { UserController } from "@express/controllers/UserController";
 import { RegisterUserSchema } from "@express/schemas/RegisterUserSchema";
 import { LoginUserSchema } from "@express/schemas/LoginUserSchema";
-import { ValidationError, UnauthorizedError } from "@application/errors";
+import {
+  ValidationError,
+  UnauthorizedError,
+} from "@application/errors";
 import { mapErrorToHttpResponse } from "@express/src/responses/error";
 import { sendSuccess } from "@express/src/responses/success";
 import {
   UserView,
   UserRegistrationResponseData,
+  UserStatsView,
 } from "@express/types/responses";
 import { User } from "@domain/entities/users";
+import { AuthGuard } from "@express/src/http/AuthGuard";
+
+const isUuid = (value: string): boolean => {
+  const uuidRegex =
+    /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/;
+  return uuidRegex.test(value);
+};
 
 export class UserHttpHandler {
-  constructor(private readonly controller: UserController) {}
+  constructor(
+    private readonly controller: UserController,
+    private readonly authGuard: AuthGuard
+  ) {}
 
   public async register(request: Request, response: Response) {
     try {
@@ -81,24 +95,7 @@ export class UserHttpHandler {
 
   public async list(request: Request, response: Response) {
     try {
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers.authorization as string;
-      const token = authHeader?.startsWith("Bearer ")
-        ? authHeader.split(" ")[1]
-        : authHeader;
-
-      if (!userId) {
-        return response.status(400).send({
-          code: "MISSING_USER_ID",
-          message: "The user ID is required.",
-        });
-      }
-      if (!token) {
-        return response.status(400).send({
-          code: "MISSING_AUTH_TOKEN",
-          message: "The authentication token is required.",
-        });
-      }
+      await this.authGuard.requireManager(request);
 
       const users = await this.controller.list();
       return sendSuccess(response, {
@@ -134,6 +131,93 @@ export class UserHttpHandler {
     }
   }
 
+  public async listWithStats(request: Request, response: Response) {
+    try {
+      await this.authGuard.requireManager(request);
+
+      const usersWithStats = await this.controller.listWithStats();
+      return sendSuccess(response, {
+        status: 200,
+        code: "USER_STATS_FOUND",
+        data: { users: usersWithStats.map((item) => this.toUserStatsView(item)) },
+      });
+    } catch (error) {
+      return mapErrorToHttpResponse(response, error);
+    }
+  }
+
+  public async ban(request: Request, response: Response) {
+    try {
+      await this.authGuard.requireManager(request);
+
+      const userId =
+        request.params.userId || request.params.id || request.params.accountId;
+      if (!userId) {
+        throw new ValidationError("User id is required.");
+      }
+      if (!isUuid(userId)) {
+        throw new ValidationError("Invalid user id format (UUID expected).");
+      }
+
+      await this.controller.ban(userId);
+      return sendSuccess(response, {
+        status: 200,
+        code: "USER_BANNED",
+        message: "User has been banned.",
+      });
+    } catch (error) {
+      return mapErrorToHttpResponse(response, error);
+    }
+  }
+
+  public async unban(request: Request, response: Response) {
+    try {
+      await this.authGuard.requireManager(request);
+
+      const userId =
+        request.params.userId || request.params.id || request.params.accountId;
+      if (!userId) {
+        throw new ValidationError("User id is required.");
+      }
+      if (!isUuid(userId)) {
+        throw new ValidationError("Invalid user id format (UUID expected).");
+      }
+
+      await this.controller.unban(userId);
+      return sendSuccess(response, {
+        status: 200,
+        code: "USER_UNBANNED",
+        message: "User has been unbanned.",
+      });
+    } catch (error) {
+      return mapErrorToHttpResponse(response, error);
+    }
+  }
+
+  public async delete(request: Request, response: Response) {
+    try {
+      await this.authGuard.requireManager(request);
+
+      const userId =
+        request.params.userId || request.params.id || request.params.accountId;
+      if (!userId) {
+        throw new ValidationError("User id is required.");
+      }
+      if (!isUuid(userId)) {
+        throw new ValidationError("Invalid user id format (UUID expected).");
+      }
+
+      await this.controller.delete(userId);
+      return sendSuccess(response, {
+        status: 200,
+        code: "USER_DELETED",
+        message: "User removed successfully.",
+      });
+    } catch (error) {
+      return mapErrorToHttpResponse(response, error);
+    }
+  }
+
   private toUserView(user: User): UserView {
     return {
       id: user.id,
@@ -141,6 +225,23 @@ export class UserHttpHandler {
       lastname: user.lastname,
       email: user.email,
       role: user.role.getValue(),
+      status: user.status,
+    };
+  }
+
+  private toUserStatsView(item: {
+    user: User;
+    accountsCount: number;
+    openAccountsCount: number;
+    totalBalance: number;
+    totalAvailableBalance: number;
+  }): UserStatsView {
+    return {
+      ...this.toUserView(item.user),
+      accountsCount: item.accountsCount,
+      openAccountsCount: item.openAccountsCount,
+      totalBalance: item.totalBalance,
+      totalAvailableBalance: item.totalAvailableBalance,
     };
   }
 }

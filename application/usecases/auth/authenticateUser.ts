@@ -1,11 +1,11 @@
 import { SessionRepository } from "@application/repositories/session";
 import { UserRepository } from "@application/repositories/users";
-import { ConnectedError, ValidationError } from "@application/errors";
+import { ConnectedError } from "@application/errors";
 import { User } from "@domain/entities/users";
 
 export type AuthenticateUserRequest = {
-  userId?: string;
-  token?: string;
+  userId: string;
+  token: string;
 };
 
 export class AuthenticateUser {
@@ -16,15 +16,6 @@ export class AuthenticateUser {
 
   async execute(request: AuthenticateUserRequest): Promise<User> {
     const { userId, token } = request;
-
-    if (!userId || !token) {
-      throw new ValidationError("Authentication required");
-    }
-
-    if (!this.isUuid(userId)) {
-      throw new ValidationError("Invalid user id format (UUID expected).");
-    }
-
     const isConnected = await this.sessionRepository.isConnected(
       userId,
       token
@@ -38,12 +29,10 @@ export class AuthenticateUser {
       throw new ConnectedError("authentication failed: User not found.");
     }
 
-    return user;
-  }
+    if (!user.isActive()) {
+      throw new ConnectedError("authentication failed: User is banned.");
+    }
 
-  private isUuid(value: string): boolean {
-    const uuidRegex =
-      /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/;
-    return uuidRegex.test(value);
+    return user;
   }
 }

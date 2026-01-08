@@ -2,9 +2,11 @@
 import { RegisterUser } from "@application/usecases/users/registerUser";
 import { LoginUser } from "@application/usecases/users/loginUser";
 import { GetAllUsers } from "@application/usecases/users/getAllUsers";
-import { GetUserById } from "@application/usecases/users/getUserById";
-import { GetUserByToken } from "@application/usecases/users/getUserByToken";
 import { ConfirmRegistration } from "@application/usecases/users/confirmRegistration";
+import { BanUser } from "@application/usecases/users/banUser";
+import { UnbanUser } from "@application/usecases/users/unbanUser";
+import { DeleteUser } from "@application/usecases/users/deleteUser";
+import { GetAllUsersWithStats } from "@application/usecases/users/getAllUsersWithStats";
 
 // Accounts use cases
 import { GetAccountsFromOwnerId } from "@application/usecases/accounts/getAccountsFromOwnerId";
@@ -20,8 +22,6 @@ import { GetAccountStatement } from "@application/usecases/accounts/getAccountSt
 import { CreateShare } from "@application/usecases/shares/createShare";
 import { GetAllShares } from "@application/usecases/shares/getAllShares";
 import { GetShareById } from "@application/usecases/shares/getShareById";
-import { UpdateShare } from "@application/usecases/shares/updateShare";
-import { DeleteShare } from "@application/usecases/shares/deleteShare";
 import { PlaceOrder } from "@application/usecases/shares/placeOrder";
 import { CancelOrder } from "@application/usecases/shares/cancelOrder";
 import { GetClientPositions } from "@application/usecases/shares/getClientPositions";
@@ -30,6 +30,10 @@ import { ExecuteMatchingOrders } from "@application/usecases/shares/executeMatch
 import { CalculateSharePrice } from "@application/usecases/shares/calculateSharePrice";
 import { GetOrderBook } from "@application/usecases/shares/getOrderBook";
 import { GetShareTransactionHistory } from "@application/usecases/shares/getShareTransactionHistory";
+import { UpdateShare } from "@application/usecases/shares/updateShare";
+import { DeleteShare } from "@application/usecases/shares/deleteShare";
+import { ActivateShare } from "@application/usecases/shares/activateShare";
+import { DeactivateShare } from "@application/usecases/shares/deactivateShare";
 
 // Transactions use cases
 import { CreateTransaction } from "@application/usecases/transactions/createTransaction";
@@ -91,6 +95,9 @@ import {
   ibanGenerator,
   nodeGenerateAmortizationService,
 } from "./services";
+import { EnvironmentBankConfiguration } from "@adapters/services/EnvironmentBankConfiguration";
+
+const bankConfiguration = new EnvironmentBankConfiguration();
 
 // ===== Users Use Cases =====
 export const registerUser = new RegisterUser(
@@ -111,12 +118,18 @@ export const loginUser = new LoginUser(
 );
 
 export const getAllUsers = new GetAllUsers(userRepository);
-
-export const getUserById = new GetUserById(userRepository, sessionRepository);
-
-export const getUserByToken = new GetUserByToken(
+export const getAllUsersWithStats = new GetAllUsersWithStats(
   userRepository,
-  sessionRepository
+  accountRepository
+);
+export const banUser = new BanUser(userRepository);
+export const unbanUser = new UnbanUser(userRepository);
+export const deleteUserUsecase = new DeleteUser(
+  userRepository,
+  accountRepository,
+  orderRepository,
+  securitiesPositionRepository,
+  shareTransactionRepository
 );
 
 export const confirmRegistration = new ConfirmRegistration(
@@ -177,7 +190,11 @@ export const getShareById = new GetShareById(shareRepository);
 
 export const updateShare = new UpdateShare(shareRepository);
 
-export const deleteShare = new DeleteShare(shareRepository);
+export const deleteShare = new DeleteShare(
+  shareRepository,
+  orderRepository,
+  securitiesPositionRepository
+);
 
 export const placeOrder = new PlaceOrder(
   orderRepository,
@@ -212,6 +229,11 @@ export const getOrderBook = new GetOrderBook(orderRepository);
 export const getShareTransactionHistory = new GetShareTransactionHistory(
   shareTransactionRepository
 );
+export const activateShare = new ActivateShare(shareRepository);
+export const deactivateShare = new DeactivateShare(
+  shareRepository,
+  orderRepository
+);
 
 // ===== Transactions Use Cases =====
 export const createTransaction = new CreateTransaction(
@@ -225,7 +247,8 @@ export const createTransaction = new CreateTransaction(
 
 export const getTransactionHistory = new GetTransactionHistory(
   sessionRepository,
-  transactionRepository
+  transactionRepository,
+  accountRepository
 );
 
 // ===== Transfer Use Cases =====
@@ -239,46 +262,46 @@ export const validateTransferByAdmin = new ValidTransferByAdmin(
 
 export const cancelTransfer = new CancelTransfer(
   transferRepository,
-  sessionRepository,
-  accountRepository,
+  userRepository,
   transactionRepository,
-  unitOfWork
+  accountRepository,
+  unitOfWorkFactory
 );
 
 // ===== Credits Use Cases =====
 export const grantCredit = new GrantCredit(
-  creditRepository,
-  dueDateRepository,
+  sessionRepository,
   userRepository,
   accountRepository,
-  sessionRepository,
-  uuidGenerator,
+  creditRepository,
+  dueDateRepository,
   nodeGenerateAmortizationService,
-  unitOfWork
+  unitOfWorkFactory,
+  uuidGenerator
 );
 
 export const getCustomerCreditsWithDueDates = new GetCustomerCreditsWithDueDates(
+  userRepository,
   creditRepository,
-  dueDateRepository,
-  sessionRepository
+  dueDateRepository
 );
 
 export const getMyCredits = new GetMyCredits(
+  sessionRepository,
   creditRepository,
   dueDateRepository,
-  sessionRepository
 );
 
 export const getCreditStatus = new GetCreditStatus(
+  sessionRepository,
   creditRepository,
   dueDateRepository,
-  sessionRepository
 );
 
 export const getPaymentHistory = new GetPaymentHistory(
+  sessionRepository,
   creditRepository,
-  dueDateRepository,
-  sessionRepository
+  dueDateRepository
 );
 
 export const getCreditDueDates = new GetCreditDueDates(
@@ -288,23 +311,29 @@ export const getCreditDueDates = new GetCreditDueDates(
 );
 
 export const earlyRepayCredit = new EarlyRepayCredit(
-  creditRepository,
+  sessionRepository,
   dueDateRepository,
   accountRepository,
-  sessionRepository,
-  unitOfWork
+  transactionRepository,
+  transferRepository,
+  creditRepository,
+  unitOfWorkFactory,
+  uuidGenerator,
+  bankConfiguration
 );
 
 export const markOverdueDueDates = new MarkOverdueDueDates(
+  sessionRepository,
+  userRepository,
   dueDateRepository,
-  creditRepository,
-  unitOfWork
+  unitOfWorkFactory
 );
 
 export const getOverdueDueDates = new GetOverdueDueDates(
+  sessionRepository,
+  userRepository,
   dueDateRepository,
-  creditRepository,
-  sessionRepository
+  creditRepository
 );
 
 export const simulateAmortizationSchedule = new SimulateAmortizationSchedule(
@@ -312,11 +341,15 @@ export const simulateAmortizationSchedule = new SimulateAmortizationSchedule(
 );
 
 export const payInstallment = new PayInstallment(
-  creditRepository,
+  sessionRepository,
   dueDateRepository,
   accountRepository,
-  sessionRepository,
-  unitOfWork
+  transactionRepository,
+  transferRepository,
+  creditRepository,
+  unitOfWorkFactory,
+  uuidGenerator,
+  bankConfiguration
 );
 
 // ===== Conversations Use Cases =====

@@ -20,7 +20,24 @@ export class User {
     return this.status === "active";
   }
 
+  isBanned(): boolean {
+    return this.status === "banned";
+  }
+
   canLogin(): boolean {
     return this.isActive() && this.isEmailVerified();
+  }
+
+  withStatus(status: string): User {
+    return new User(
+      this.id,
+      this.lastname,
+      this.firstname,
+      this.email,
+      this.role,
+      this.password,
+      status,
+      this.emailVerifiedAt
+    );
   }
 }

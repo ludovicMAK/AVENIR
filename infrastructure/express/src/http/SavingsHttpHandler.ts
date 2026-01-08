@@ -7,28 +7,16 @@ import {
   toDailyInterestDto,
   toSavingsRateDto,
 } from "../mappers/savings";
-import {
-  AuthenticateUser,
-  AuthenticateUserRequest,
-} from "@application/usecases/auth/authenticateUser";
+import { AuthGuard } from "@express/src/http/AuthGuard";
 
 export class SavingsHttpHandler {
   constructor(
     private readonly controller: SavingsController,
-    private readonly authenticateUser: AuthenticateUser
+    private readonly authGuard: AuthGuard
   ) {}
 
-  private extractAuth(request: Request): AuthenticateUserRequest {
-    const authHeader = request.headers.authorization as string;
-    const token = authHeader?.startsWith("Bearer ")
-      ? authHeader.split(" ")[1]
-      : authHeader;
-    const userId = request.headers["x-user-id"] as string;
-    return { userId, token };
-  }
-
   private async authenticate(request: Request) {
-    return this.authenticateUser.execute(this.extractAuth(request));
+    return this.authGuard.requireAuthenticated(request);
   }
 
   async updateRate(request: Request, response: Response) {

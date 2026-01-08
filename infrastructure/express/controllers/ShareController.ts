@@ -13,29 +13,26 @@ import { GetOrderBook } from "@application/usecases/shares/getOrderBook";
 import { GetShareTransactionHistory } from "@application/usecases/shares/getShareTransactionHistory";
 import {
   CreateShareInput,
-  UpdateShareInput,
-  DeleteShareInput,
   PlaceOrderInput,
   CancelOrderInput,
   GetPositionsInput,
   GetShareInput,
-  GetShareTransactionHistoryInput,
-  GetOrderBookInput,
-  CalculateSharePriceInput,
-  ExecuteMatchingOrdersInput,
+  UpdateShareInput,
+  DeleteShareInput,
+  ToggleShareActivationInput,
 } from "@application/requests/shares";
 import { Share } from "@domain/entities/share";
 import { Order } from "@domain/entities/order";
 import { SecuritiesPosition } from "@domain/entities/securitiesPosition";
 import { ShareTransaction } from "@domain/entities/shareTransaction";
+import { ActivateShare } from "@application/usecases/shares/activateShare";
+import { DeactivateShare } from "@application/usecases/shares/deactivateShare";
 
 export class ShareController {
   constructor(
     private readonly createShare: CreateShare,
     private readonly getAllShares: GetAllShares,
     private readonly getShareById: GetShareById,
-    private readonly updateShare: UpdateShare,
-    private readonly deleteShare: DeleteShare,
     private readonly placeOrder: PlaceOrder,
     private readonly cancelOrder: CancelOrder,
     private readonly getClientPositions: GetClientPositions,
@@ -43,7 +40,11 @@ export class ShareController {
     private readonly executeMatchingOrdersUseCase: ExecuteMatchingOrders,
     private readonly calculateSharePriceUseCase: CalculateSharePrice,
     private readonly getOrderBookUseCase: GetOrderBook,
-    private readonly getShareTransactionHistoryUseCase: GetShareTransactionHistory
+    private readonly getShareTransactionHistoryUseCase: GetShareTransactionHistory,
+    private readonly updateShareUseCase: UpdateShare,
+    private readonly deleteShareUseCase: DeleteShare,
+    private readonly activateShareUseCase: ActivateShare,
+    private readonly deactivateShareUseCase: DeactivateShare
   ) {}
 
   async create(payload: CreateShareInput): Promise<Share> {
@@ -59,11 +60,11 @@ export class ShareController {
   }
 
   async update(payload: UpdateShareInput): Promise<Share> {
-    return this.updateShare.execute(payload);
+    return this.updateShareUseCase.execute(payload);
   }
 
   async delete(payload: DeleteShareInput): Promise<void> {
-    return this.deleteShare.execute(payload);
+    return this.deleteShareUseCase.execute(payload);
   }
 
   async order(payload: PlaceOrderInput): Promise<Order> {
@@ -98,5 +99,13 @@ export class ShareController {
 
   async getTransactionHistory(shareId: string): Promise<ShareTransaction[]> {
     return this.getShareTransactionHistoryUseCase.execute(shareId);
+  }
+
+  async activate(payload: ToggleShareActivationInput): Promise<Share> {
+    return this.activateShareUseCase.execute(payload);
+  }
+
+  async deactivate(payload: ToggleShareActivationInput): Promise<Share> {
+    return this.deactivateShareUseCase.execute(payload);
   }
 }

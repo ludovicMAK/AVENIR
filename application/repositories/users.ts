@@ -13,4 +13,6 @@ export interface UserRepository {
     token: string
   ): Promise<UserInfoConnected | null>;
   findByRole(role: string): Promise<User[]>;
+  updateStatus(userId: string, status: string): Promise<void>;
+  delete(userId: string): Promise<void>;
 }
