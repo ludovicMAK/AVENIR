@@ -25,11 +25,6 @@ export class GetTransactionHistory {
 
     // Get all accounts of the user
     const accounts = await this.accountRepository.findByOwnerId(request.userId);
-    console.log("[GetTransactionHistory] User accounts:", {
-      userId: request.userId,
-      accountCount: accounts.length,
-      ibans: accounts.map((a) => a.IBAN),
-    });
 
     // Get all transactions for all user's accounts
     const allTransactions = await Promise.all(
@@ -38,15 +33,7 @@ export class GetTransactionHistory {
       )
     );
 
-    // Flatten the array of arrays
     const transactions = allTransactions.flat();
-    console.log("[GetTransactionHistory] Transactions found:", {
-      totalTransactions: transactions.length,
-      transactionIds: transactions.map((t) => ({
-        id: t.id,
-        transferId: t.transferId,
-      })),
-    });
 
     return { transactions };
   }

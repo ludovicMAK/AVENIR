@@ -11,12 +11,10 @@ export class InMemoryTransferRepository implements TransferRepository {
             unitOfWork.registerChange({
                 execute: async () => {
                     this.items.set(transfer.id, transfer);
-                    console.log("Transfer saved in memory:", this.items);
                 }
             });
         } else {
             this.items.set(transfer.id, transfer);
-            console.log("Transfer saved in memory:", this.items);
         }
         return true;
     }
@@ -29,12 +27,10 @@ export class InMemoryTransferRepository implements TransferRepository {
             unitOfWork.registerChange({
                 execute: async () => {
                     this.items.set(transfer.id, transfer);
-                    console.log("Transfer updated in memory:", this.items);
                 }
             });
         } else {
             this.items.set(transfer.id, transfer);
-            console.log("Transfer updated in memory:", this.items);
         }
         return true;
     }

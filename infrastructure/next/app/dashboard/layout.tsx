@@ -11,6 +11,13 @@ import {
   Globe,
   User,
   ArrowLeftRight,
+  TrendingUp,
+  ShoppingBag,
+  PieChart,
+  Shield,
+  Briefcase,
+  MessageSquare,
+  DollarSign,
 } from "lucide-react";
 import { UserProvider } from "@/lib/auth/UserContext";
 
@@ -93,6 +100,84 @@ export default async function DashboardLayout({
             </Button>
 
             <Separator className="my-4 bg-primary/20" />
+
+            <Button
+              variant="ghost"
+              className="w-full justify-start hover:bg-primary/10 hover:text-primary"
+              asChild
+            >
+              <Link href="/dashboard/investments/market">
+                <TrendingUp className="mr-3 h-4 w-4" />
+                Marché
+              </Link>
+            </Button>
+            <Button
+              variant="ghost"
+              className="w-full justify-start hover:bg-primary/10 hover:text-primary"
+              asChild
+            >
+              <Link href="/dashboard/investments/orders">
+                <ShoppingBag className="mr-3 h-4 w-4" />
+                Mes ordres
+              </Link>
+            </Button>
+            <Button
+              variant="ghost"
+              className="w-full justify-start hover:bg-primary/10 hover:text-primary"
+              asChild
+            >
+              <Link href="/dashboard/investments/portfolio">
+                <PieChart className="mr-3 h-4 w-4" />
+                Mon portefeuille
+              </Link>
+            </Button>
+
+            <Separator className="my-4 bg-primary/20" />
+
+            <Button
+              variant="ghost"
+              className="w-full justify-start hover:bg-primary/10 hover:text-primary"
+              asChild
+            >
+              <Link href="/dashboard/credits">
+                <DollarSign className="mr-3 h-4 w-4" />
+                Mes crédits
+              </Link>
+            </Button>
+            <Button
+              variant="ghost"
+              className="w-full justify-start hover:bg-primary/10 hover:text-primary"
+              asChild
+            >
+              <Link href="/dashboard/messages">
+                <MessageSquare className="mr-3 h-4 w-4" />
+                Messagerie
+              </Link>
+            </Button>
+
+            <Separator className="my-4 bg-primary/20" />
+
+            {/* Section Administration - Visible uniquement pour le directeur */}
+            {user.role === "bankManager" && (
+              <>
+                <div className="px-3 py-2">
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Administration
+                  </h3>
+                </div>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start hover:bg-primary/10 hover:text-primary"
+                  asChild
+                >
+                  <Link href="/dashboard/admin/shares">
+                    <Briefcase className="mr-3 h-4 w-4" />
+                    Gestion des actions
+                  </Link>
+                </Button>
+                <Separator className="my-4 bg-primary/20" />
+              </>
+            )}
 
             <Button
               variant="ghost"

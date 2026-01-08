@@ -30,8 +30,16 @@ export class InMemoryCreditRepository implements CreditRepository {
     return Array.from(this.items.values()).filter((c) => c.status.getValue() === status);
   }
 
-  async update(credit: Credit): Promise<void> {
-    this.items.set(credit.id, credit);
+  async update(credit: Credit, unitOfWork?: UnitOfWork): Promise<void> {
+    if (unitOfWork instanceof InMemoryUnitOfWork) {
+      unitOfWork.registerChange({
+        execute: async () => {
+          this.items.set(credit.id, credit);
+        },
+      });
+    } else {
+      this.items.set(credit.id, credit);
+    }
   }
 
   async delete(creditId: string): Promise<void> {

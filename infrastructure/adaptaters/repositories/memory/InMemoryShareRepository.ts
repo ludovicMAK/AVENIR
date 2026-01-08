@@ -41,4 +41,12 @@ export class InMemoryShareRepository implements ShareRepository {
       this.shares.set(shareId, updatedShare);
     }
   }
+
+  async update(share: Share): Promise<void> {
+    this.shares.set(share.id, share);
+  }
+
+  async delete(shareId: string): Promise<void> {
+    this.shares.delete(shareId);
+  }
 }

@@ -28,16 +28,18 @@ const toUserSummary = (value: JsonValue): UserSummary => {
   const id = value.id;
   const firstname = value.firstname;
   const lastname = value.lastname;
+  const role = value.role;
 
   if (
     typeof id !== "string" ||
     typeof firstname !== "string" ||
-    typeof lastname !== "string"
+    typeof lastname !== "string" ||
+    typeof role !== "string"
   ) {
     throw invalidUsersResponseError();
   }
 
-  return { id, firstname, lastname };
+  return { id, firstname, lastname, role };
 };
 
 const extractUsers = (response: JsonValue): UserSummary[] => {

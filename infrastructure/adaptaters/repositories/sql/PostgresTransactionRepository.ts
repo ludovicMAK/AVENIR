@@ -181,9 +181,6 @@ export class PostgresTransactionRepository implements TransactionRepository {
 
       const queryParams = [...params, limit, offset];
       const result = await this.pool.query(query, queryParams);
-      console.log(
-        `[PostgresTransactionRepository.findByAccountIBAN] IBAN: ${iban}, Found: ${result.rows.length}/${total} transactions (page ${page})`
-      );
 
       const transactions = result.rows.map(
         (row) =>
@@ -214,9 +211,6 @@ export class PostgresTransactionRepository implements TransactionRepository {
             `;
 
       const result = await this.pool.query(query, [iban]);
-      console.log(
-        `[PostgresTransactionRepository.findByIban] IBAN: ${iban}, Found: ${result.rows.length} transactions`
-      );
 
       return result.rows.map(
         (row) =>

@@ -11,6 +11,7 @@ import {
 } from "@/lib/auth/client";
 import { sanitizeRedirectPath } from "@/lib/auth/redirect";
 import { ApiError } from "@/lib/errors";
+import { setCurrentUserId } from "@/api/client";
 import { Button } from "@/components/Button";
 import {
   Card,
@@ -84,8 +85,9 @@ export default function Page() {
     try {
       const response = await authApi.login(data);
       const sessionToken = response?.token;
+      const userId = response?.user?.id;
 
-      if (!sessionToken) {
+      if (!sessionToken || !userId) {
         throw new ApiError(
           "INFRASTRUCTURE_ERROR",
           "Invalid authentication response."
@@ -93,6 +95,7 @@ export default function Page() {
       }
 
       persistAuthentication(sessionToken);
+      setCurrentUserId(userId);
 
       const redirectPath = sanitizeRedirectPath(getRedirectHint());
       clearRedirectHint();

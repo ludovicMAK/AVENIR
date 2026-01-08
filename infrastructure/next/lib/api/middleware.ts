@@ -33,9 +33,7 @@ export function addCorsHeaders(response: NextResponse): NextResponse {
  * Log API requests (development only)
  */
 export function logRequest(request: NextRequest): void {
-  if (process.env.NODE_ENV === "development") {
-    console.log(`[API] ${request.method} ${request.nextUrl.pathname}`);
-  }
+  // Logging disabled in production
 }
 
 /**

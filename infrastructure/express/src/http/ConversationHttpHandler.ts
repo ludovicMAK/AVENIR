@@ -245,6 +245,52 @@ export class ConversationHttpHandler {
     }
   }
 
+  public async getMyConversations(request: Request, response: Response) {
+    try {
+      const userId = request.headers["x-user-id"] as string;
+      const authHeader = request.headers.authorization as string;
+      const token = authHeader?.startsWith("Bearer ")
+        ? authHeader.substring(7)
+        : "";
+
+      if (!userId) {
+        return response.status(400).send({
+          code: "MISSING_USER_ID",
+          message: "L'ID de l'utilisateur est requis.",
+        });
+      }
+      if (!token) {
+        return response.status(400).send({
+          code: "MISSING_AUTH_TOKEN",
+          message: "Le token d'authentification est requis.",
+        });
+      }
+
+      const conversations = await this.controller.getCustomerConversationsList(
+        userId,
+        token
+      );
+
+      // Sérialiser les conversations pour convertir les Value Objects en strings
+      const serializedConversations = conversations.map((conv) => ({
+        id: conv.id,
+        status: typeof conv.status === 'string' ? conv.status : conv.status.toString(),
+        type: typeof conv.type === 'string' ? conv.type : conv.type.toString(),
+        dateOuverture: conv.dateOuverture,
+        customerId: conv.customerId,
+      }));
+
+      return sendSuccess<ConversationsListResponseData>(response, {
+        status: 200,
+        code: "CONVERSATIONS_FOUND",
+        message: "Customer conversations retrieved successfully.",
+        data: { conversations: serializedConversations },
+      });
+    } catch (error) {
+      return mapErrorToHttpResponse(response, error);
+    }
+  }
+
   public async getCustomerConversations(request: Request, response: Response) {
     try {
       const userId = request.headers["x-user-id"] as string;

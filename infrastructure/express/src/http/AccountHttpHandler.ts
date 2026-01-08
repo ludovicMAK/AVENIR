@@ -134,7 +134,6 @@ export class AccountHttpHandler {
         data: undefined,
       });
     } catch (error) {
-      console.error("Error in AccountHttpHandler.close:", error);
       return mapErrorToHttpResponse(response, error);
     }
   }

@@ -36,13 +36,6 @@ export class TransactionHttpHandler {
       const { amount, description, accountIBANFrom, accountIBANTo, direction } =
         result.data;
 
-      console.log("[CreateTransaction] IBANs received:", {
-        accountIBANFrom,
-        accountIBANTo,
-        fromLength: accountIBANFrom.length,
-        toLength: accountIBANTo.length,
-      });
-
       const userId = request.headers["x-user-id"] as string;
       const authHeader = request.headers.authorization as string;
       const token = authHeader?.startsWith("Bearer ")
@@ -72,7 +65,6 @@ export class TransactionHttpHandler {
         message: "Transaction registration is pending.",
       });
     } catch (error) {
-      console.error("[CreateTransactionHandler] Error:", error);
       return mapErrorToHttpResponse(response, error);
     }
   }
@@ -133,7 +125,6 @@ export class TransactionHttpHandler {
         data: { transactions: enrichedTransactions },
       });
     } catch (error) {
-      console.error("Get Transaction History Error:", error);
       return mapErrorToHttpResponse(response, error);
     }
   }
@@ -171,7 +162,6 @@ export class TransactionHttpHandler {
         data: result,
       });
     } catch (error) {
-      console.error("Get Account Transactions By Admin Error:", error);
       return mapErrorToHttpResponse(response, error);
     }
   }

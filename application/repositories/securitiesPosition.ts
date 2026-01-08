@@ -4,6 +4,7 @@ export interface SecuritiesPositionRepository {
   save(position: SecuritiesPosition): Promise<void>;
   findById(id: string): Promise<SecuritiesPosition | null>;
   findByCustomerId(customerId: string): Promise<SecuritiesPosition[]>;
+  findByShareId(shareId: string): Promise<SecuritiesPosition[]>;
   findByCustomerIdAndShareId(
     customerId: string,
     shareId: string

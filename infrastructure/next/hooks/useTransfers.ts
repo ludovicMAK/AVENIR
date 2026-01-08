@@ -9,10 +9,10 @@ export function useTransferHistory() {
   const [transfers, setTransfers] = useState<Transfer[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<ApiError | Error | null>(null);
-  const { user } = useUser();
+  const { user, isLoading: isUserLoading } = useUser();
 
   const fetchHistory = useCallback(async () => {
-    if (!user) return; // Ne pas appeler l'API si l'utilisateur n'est pas chargé
+    if (!user || isUserLoading) return; // Attendre que l'utilisateur soit chargé
 
     setIsLoading(true);
     setError(null);
@@ -29,7 +29,7 @@ export function useTransferHistory() {
     } finally {
       setIsLoading(false);
     }
-  }, [user]);
+  }, [user, isUserLoading]);
 
   useEffect(() => {
     fetchHistory();

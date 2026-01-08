@@ -1,15 +1,57 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { accountsApi } from "@/api/account";
 import { Account, AccountTypeValue } from "@/types/accounts";
 import { ApiError } from "@/lib/errors";
+import { useCurrentUser } from "./useCurrentUser";
 
 type UseAccountsState = {
   accounts: Account[];
   isLoading: boolean;
   error: ApiError | null;
 };
+
+/**
+ * Hook pour récupérer les comptes de l'utilisateur connecté
+ */
+export function useAccounts() {
+  const { user } = useCurrentUser();
+  const [state, setState] = useState<UseAccountsState>({
+    accounts: [],
+    isLoading: false,
+    error: null,
+  });
+
+  const fetchAccounts = useCallback(async () => {
+    if (!user?.id) return;
+
+    setState((prev) => ({ ...prev, isLoading: true, error: null }));
+    try {
+      const accounts = await accountsApi.getByOwnerId(user.id);
+      setState({ accounts, isLoading: false, error: null });
+    } catch (error) {
+      setState({
+        accounts: [],
+        isLoading: false,
+        error:
+          error instanceof ApiError
+            ? error
+            : new ApiError("INFRASTRUCTURE_ERROR", "An error occurred"),
+      });
+    }
+  }, [user?.id]);
+
+  useEffect(() => {
+    fetchAccounts();
+  }, [fetchAccounts]);
+
+  const refresh = useCallback(() => {
+    return fetchAccounts();
+  }, [fetchAccounts]);
+
+  return { ...state, refresh, fetchAccounts };
+}
 
 type UseAccountDetailsState = {
   account: Account | null;

@@ -36,6 +36,11 @@ export function createConversationRoutes(
     conversationHttpHandler.getMessages(request, response)
   );
 
+  // Get conversations for the current customer
+  router.get("/customers/me/conversations", (request, response) =>
+    conversationHttpHandler.getMyConversations(request, response)
+  );
+
   // Get conversations for a customer
   router.get("/customers/:customerId/conversations", (request, response) =>
     conversationHttpHandler.getCustomerConversations(request, response)

@@ -45,15 +45,7 @@ export const transfersApi = {
     const response = await request(`/transactions/history`, {
       method: "GET",
     });
-    console.log(
-      "[transfersApi.getHistory] Response:",
-      JSON.stringify(response, null, 2)
-    );
     if (!isJsonObject(response) || !Array.isArray(response.transactions)) {
-      console.error(
-        "[transfersApi.getHistory] Invalid response structure:",
-        response
-      );
       throw new ApiError(
         "INFRASTRUCTURE_ERROR",
         "Invalid transaction history response"
