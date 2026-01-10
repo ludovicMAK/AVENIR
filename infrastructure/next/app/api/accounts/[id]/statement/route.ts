@@ -21,7 +21,6 @@ export async function GET(
       );
     }
 
-    // Récupérer les query params pour les dates
     const searchParams = request.nextUrl.searchParams;
     const fromDate = searchParams.get("fromDate");
     const toDate = searchParams.get("toDate");
@@ -32,7 +31,7 @@ export async function GET(
           status: 400,
           code: "MISSING_DATES",
           message:
-            "Les dates de début (fromDate) et de fin (toDate) sont requises.",
+            "Start date (fromDate) and end date (toDate) are required.",
         },
         { status: 400 }
       );

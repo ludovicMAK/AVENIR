@@ -9,7 +9,6 @@ import { getAuthenticationToken } from "@/lib/auth/client";
 // - If empty → Use Next.js API routes (/api/*)
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
-// Store pour l'userId côté client
 let cachedUserId: string | null = null;
 
 export function setCurrentUserId(userId: string | null) {
@@ -27,7 +26,6 @@ export async function request<ResponseBody extends JsonValue = JsonValue>(
   const headers = new Headers(options.headers);
   headers.set("Content-Type", "application/json");
 
-  // Ajouter le token d'authentification si disponible (pour les requêtes côté client)
   if (typeof window !== "undefined") {
     const token = getAuthenticationToken();
     const userId = getCurrentUserId();
@@ -36,7 +34,6 @@ export async function request<ResponseBody extends JsonValue = JsonValue>(
       headers.set("Authorization", `Bearer ${token}`);
     }
 
-    // Ajouter x-user-id si disponible
     if (userId) {
       headers.set("x-user-id", userId);
     }
@@ -49,7 +46,7 @@ export async function request<ResponseBody extends JsonValue = JsonValue>(
     response = await fetch(fullUrl, {
       ...options,
       headers,
-      credentials: "include", // Envoyer les cookies d'authentification
+      credentials: "include",
     });
   } catch {
     throw new ApiError(
@@ -60,10 +57,8 @@ export async function request<ResponseBody extends JsonValue = JsonValue>(
 
   const data = (await response.json().catch(() => null)) as JsonValue | null;
 
-  // Express format: {status, code, message, data}
   const responseBody: JsonObject | null = isJsonObject(data) ? data : null;
 
-  // Check Express status field OR HTTP response.ok
   const isSuccess =
     response.ok ||
     (typeof responseBody?.status === "number" &&
@@ -85,8 +80,6 @@ export async function request<ResponseBody extends JsonValue = JsonValue>(
     throw new ApiError(resolvedCode, message, payload);
   }
 
-  // If response has Express format {status, code, message, data}, extract data field
-  // Otherwise return the full response (for Next.js API routes compatibility)
   if (
     responseBody &&
     "data" in responseBody &&

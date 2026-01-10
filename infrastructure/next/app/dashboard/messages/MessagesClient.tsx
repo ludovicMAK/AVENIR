@@ -110,7 +110,6 @@ export default function MessagesClient() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Messagerie</h1>
@@ -124,7 +123,6 @@ export default function MessagesClient() {
         </Button>
       </div>
 
-      {/* Stats */}
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="pb-3">
@@ -165,7 +163,6 @@ export default function MessagesClient() {
         </Card>
       </div>
 
-      {/* Liste des conversations */}
       {conversations.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
@@ -184,7 +181,6 @@ export default function MessagesClient() {
         </Card>
       ) : (
         <div className="space-y-4">
-          {/* Conversations ouvertes */}
           {openConversations.length > 0 && (
             <div className="space-y-4">
               <h2 className="text-xl font-semibold">Conversations ouvertes</h2>
@@ -238,7 +234,6 @@ export default function MessagesClient() {
             </div>
           )}
 
-          {/* Conversations fermées */}
           {closedConversations.length > 0 && (
             <div className="space-y-4">
               <h2 className="text-xl font-semibold">Conversations fermées</h2>
@@ -282,7 +277,6 @@ export default function MessagesClient() {
         </div>
       )}
 
-      {/* Dialog nouvelle conversation */}
       <Dialog
         open={newConversationDialog}
         onOpenChange={setNewConversationDialog}

@@ -18,7 +18,6 @@ export class GetOrderBook {
   constructor(private readonly orderRepository: OrderRepository) {}
 
   async execute(shareId: string): Promise<OrderBook> {
-    // Récupérer tous les ordres actifs
     const buyOrders =
       await this.orderRepository.findActiveByShareIdAndDirection(
         shareId,
@@ -30,15 +29,12 @@ export class GetOrderBook {
         OrderDirection.SELL
       );
 
-    // Agréger les ordres d'achat par niveau de prix
     const buyLevels = this.aggregateOrdersByPrice(buyOrders);
     const sortedBuyLevels = buyLevels.sort((a, b) => b.price - a.price);
 
-    // Agréger les ordres de vente par niveau de prix
     const sellLevels = this.aggregateOrdersByPrice(sellOrders);
     const sortedSellLevels = sellLevels.sort((a, b) => a.price - b.price);
 
-    // Calculer le spread (différence entre meilleur prix d'achat et de vente)
     let spread: number | null = null;
     if (sortedBuyLevels.length > 0 && sortedSellLevels.length > 0) {
       const bestBid = sortedBuyLevels[0].price;

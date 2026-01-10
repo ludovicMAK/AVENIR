@@ -30,7 +30,6 @@ async function bootstrap() {
 
     const httpServer = createServer(app);
 
-    // Initialize WebSocket server and inject into use cases
     initializeWebSocket(httpServer, conversationController, {
       createConversation,
       createGroupConversation,

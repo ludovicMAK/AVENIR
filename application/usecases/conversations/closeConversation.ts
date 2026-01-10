@@ -82,7 +82,6 @@ export class CloseConversation {
       ConversationStatus.CLOSED
     );
 
-    // Emit WebSocket event if service is available
     if (this.webSocketService) {
       await this.webSocketService.emitConversationClosed(
         request.conversationId

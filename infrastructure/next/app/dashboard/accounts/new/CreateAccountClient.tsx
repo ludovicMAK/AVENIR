@@ -36,7 +36,6 @@ import { ArrowLeft, Plus, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { AccountTypeValue } from "@/types/accounts";
 
-// Schéma de validation Zod
 const createAccountSchema = z
   .object({
     accountName: z
@@ -54,7 +53,6 @@ const createAccountSchema = z
   })
   .refine(
     (data) => {
-      // Si c'est un compte courant avec découvert autorisé, vérifier les limites
       if (data.accountType === "current" && data.authorizedOverdraft) {
         return data.overdraftLimit !== undefined && data.overdraftLimit > 0;
       }
@@ -111,7 +109,6 @@ export default function CreateAccountClient({
         accountName: values.accountName,
       };
 
-      // Ajouter les données de découvert seulement si applicable
       if (values.accountType === "current" && values.authorizedOverdraft) {
         data.authorizedOverdraft = true;
         data.overdraftLimit = values.overdraftLimit;
@@ -244,7 +241,6 @@ export default function CreateAccountClient({
                 )}
               />
 
-              {/* Options de découvert (seulement pour compte courant) */}
               {accountType === "current" && (
                 <div className="space-y-4 p-4 border border-primary/20 rounded-lg bg-primary/5">
                   <h3 className="font-medium">Options de découvert</h3>

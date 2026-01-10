@@ -26,7 +26,6 @@ export default function PortfolioClient() {
   const router = useRouter();
   const { positions, isLoading, error } = usePositions();
 
-  // Calculs
   const totalValue = positions.reduce((sum, p) => sum + p.totalValue, 0);
   const totalInvested = positions.reduce(
     (sum, p) => sum + p.quantity * p.averagePrice,
@@ -75,7 +74,6 @@ export default function PortfolioClient() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Mon portefeuille</h1>
@@ -88,7 +86,6 @@ export default function PortfolioClient() {
         </Button>
       </div>
 
-      {/* Stats principales */}
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="pb-3">
@@ -156,7 +153,6 @@ export default function PortfolioClient() {
         </Card>
       </div>
 
-      {/* Positions détaillées */}
       <Card>
         <CardHeader>
           <CardTitle>Mes positions</CardTitle>

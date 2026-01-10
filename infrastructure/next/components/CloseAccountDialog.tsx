@@ -32,7 +32,6 @@ export function CloseAccountDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleClose = async () => {
-    // Vérifications avant fermeture
     if (account.balance !== 0) {
       toast.error("Impossible de fermer un compte avec un solde non nul", {
         description: `Solde actuel : ${(account.balance / 100).toFixed(2)} €`,

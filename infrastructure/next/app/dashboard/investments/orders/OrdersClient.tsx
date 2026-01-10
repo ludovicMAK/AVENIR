@@ -178,7 +178,6 @@ export default function OrdersClient() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Mes ordres</h1>
@@ -191,7 +190,6 @@ export default function OrdersClient() {
         </Button>
       </div>
 
-      {/* Stats */}
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="pb-3">
@@ -213,7 +211,6 @@ export default function OrdersClient() {
         </Card>
       </div>
 
-      {/* Tabs */}
       <Card>
         <CardHeader>
           <CardTitle>Historique des ordres</CardTitle>
@@ -254,7 +251,6 @@ export default function OrdersClient() {
         </CardContent>
       </Card>
 
-      {/* Dialog de confirmation d'annulation */}
       <AlertDialog
         open={!!orderToCancel}
         onOpenChange={(open) => !open && setOrderToCancel(null)}

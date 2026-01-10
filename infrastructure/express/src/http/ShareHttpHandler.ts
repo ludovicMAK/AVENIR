@@ -180,7 +180,6 @@ export class ShareHttpHandler {
         customerId: user.id,
       };
       
-      // Récupérer les positions du client
       const positions = await this.controller.getPositions(payload);
       
       const enrichedPositions = await Promise.all(

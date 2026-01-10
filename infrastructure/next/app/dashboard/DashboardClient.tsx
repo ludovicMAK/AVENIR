@@ -48,8 +48,7 @@ export default function DashboardClient({ userId }: DashboardClientProps) {
 
   useEffect(() => {
     fetchAccounts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId]);
+  }, [fetchAccounts]);
 
   if (isLoading) {
     return (
@@ -116,7 +115,6 @@ export default function DashboardClient({ userId }: DashboardClientProps) {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Tableau de bord</h1>
@@ -130,7 +128,6 @@ export default function DashboardClient({ userId }: DashboardClientProps) {
         </Button>
       </div>
 
-      {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-3">
         {stats.map((stat) => {
           const Icon = stat.icon;
@@ -169,7 +166,6 @@ export default function DashboardClient({ userId }: DashboardClientProps) {
         })}
       </div>
 
-      {/* Accounts List */}
       <Card>
         <CardHeader>
           <CardTitle>Vos comptes</CardTitle>
@@ -262,7 +258,6 @@ export default function DashboardClient({ userId }: DashboardClientProps) {
         </CardContent>
       </Card>
 
-      {/* Recent Activity */}
       <Card>
         <CardHeader>
           <CardTitle>Activité récente</CardTitle>

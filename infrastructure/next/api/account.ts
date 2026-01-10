@@ -81,7 +81,6 @@ const toAccount = (value: JsonValue): Account => {
 const extractAccounts = (response: JsonValue): Account[] => {
   if (!isJsonObject(response)) throw invalidAccountsResponseError();
 
-  // Le client API retourne directement {accounts} après avoir extrait data
   const accountsJson = response.accounts;
   if (!Array.isArray(accountsJson)) throw invalidAccountsResponseError();
 
@@ -130,7 +129,6 @@ export const accountsApi = {
       method: "PATCH",
       body: JSON.stringify({ newName: accountName }),
     });
-    // Le backend ne retourne que le message de succès, pas l'account
     return response;
   },
 

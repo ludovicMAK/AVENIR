@@ -32,7 +32,7 @@ export class TransactionHttpHandler {
     const user = await this.authGuard.requireAuthenticated(request);
     const token = this.extractToken(request);
     if (!token) {
-      throw new UnauthorizedError("Identification manquante (ID ou Token).");
+      throw new UnauthorizedError("Missing identification (ID or token).");
     }
     return { user, token };
   }
@@ -47,7 +47,7 @@ export class TransactionHttpHandler {
           .join(" | ");
 
         throw new ValidationError(
-          "Données de transaction invalides" +
+          "Invalid transaction data" +
             (errorMessages ? ` - ${errorMessages}` : "")
         );
       }
@@ -91,18 +91,15 @@ export class TransactionHttpHandler {
 
       const result = await this.controller.getTransactionHistory(input);
 
-      // Enrich transactions with counterparty IBAN
       const enrichedTransactions = await Promise.all(
         result.transactions.map(async (t: Transaction) => {
           let counterpartyIBAN: string | undefined;
 
           if (t.transferId) {
-            // Get all transactions for this transfer
             const transferTransactions =
               await this.transactionRepository.getAllTransactionsByTransferId(
                 t.transferId
               );
-            // Find the other transaction (the one with a different IBAN)
             const otherTransaction = transferTransactions.find(
               (tt) => tt.accountIBAN !== t.accountIBAN
             );

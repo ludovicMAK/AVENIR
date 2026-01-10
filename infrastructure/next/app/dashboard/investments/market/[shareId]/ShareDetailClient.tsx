@@ -126,16 +126,14 @@ export default function ShareDetailClient({
   const isPositive = priceChange >= 0;
 
   const estimatedTotal = quantity && priceLimit
-    ? parseFloat(priceLimit) * parseInt(quantity) + 1 // +1€ de frais
+    ? parseFloat(priceLimit) * parseInt(quantity) + 1
     : 0;
 
-  // Protection contre orderBook undefined
   const bids = orderBook?.bids || [];
   const asks = orderBook?.asks || [];
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button variant="ghost" onClick={() => router.back()}>
@@ -165,7 +163,6 @@ export default function ShareDetailClient({
         )}
       </div>
 
-      {/* Prix actuel */}
       <Card>
         <CardHeader>
           <CardTitle>Prix actuel</CardTitle>
@@ -183,9 +180,7 @@ export default function ShareDetailClient({
         </CardContent>
       </Card>
 
-      {/* Grille principale */}
       <div className="grid gap-6 md:grid-cols-2">
-        {/* Carnet d'ordres */}
         <Card>
           <CardHeader>
             <CardTitle>Carnet d&apos;ordres</CardTitle>
@@ -269,7 +264,6 @@ export default function ShareDetailClient({
           </CardContent>
         </Card>
 
-        {/* Formulaire d'ordre */}
         <Card>
           <CardHeader>
             <CardTitle>Passer un ordre</CardTitle>
@@ -279,7 +273,6 @@ export default function ShareDetailClient({
           </CardHeader>
           <CardContent>
             <form onSubmit={handlePlaceOrder} className="space-y-4">
-              {/* Type d'ordre */}
               <div className="space-y-2">
                 <Label>Type d&apos;ordre</Label>
                 <div className="grid grid-cols-2 gap-2">
@@ -304,7 +297,6 @@ export default function ShareDetailClient({
                 </div>
               </div>
 
-              {/* Quantité */}
               <div className="space-y-2">
                 <Label htmlFor="quantity">Quantité</Label>
                 <Input
@@ -317,7 +309,6 @@ export default function ShareDetailClient({
                 />
               </div>
 
-              {/* Prix limite */}
               <div className="space-y-2">
                 <Label htmlFor="priceLimit">Prix limite (€)</Label>
                 <Input
@@ -331,7 +322,6 @@ export default function ShareDetailClient({
                 />
               </div>
 
-              {/* Validité */}
               <div className="space-y-2">
                 <Label htmlFor="validity">Validité</Label>
                 <Select
@@ -352,7 +342,6 @@ export default function ShareDetailClient({
                 </Select>
               </div>
 
-              {/* Estimation */}
               {estimatedTotal > 0 && (
                 <div className="rounded-lg border bg-muted/50 p-4 space-y-2">
                   <div className="flex justify-between text-sm">
@@ -372,7 +361,6 @@ export default function ShareDetailClient({
                 </div>
               )}
 
-              {/* Bouton */}
               <Button
                 type="submit"
                 className="w-full"

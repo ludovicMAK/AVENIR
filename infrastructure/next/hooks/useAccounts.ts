@@ -12,9 +12,6 @@ type UseAccountsState = {
   error: ApiError | null;
 };
 
-/**
- * Hook pour récupérer les comptes de l'utilisateur connecté
- */
 export function useAccounts() {
   const { user } = useCurrentUser();
   const [state, setState] = useState<UseAccountsState>({
@@ -119,9 +116,6 @@ type UseAccountStatementState = {
   error: ApiError | null;
 };
 
-/**
- * Hook pour récupérer les comptes d'un propriétaire
- */
 export function useAccountsByOwner(ownerId?: string) {
   const [state, setState] = useState<UseAccountsState>({
     accounts: [],
@@ -155,9 +149,6 @@ export function useAccountsByOwner(ownerId?: string) {
   return { ...state, refresh, fetchAccounts };
 }
 
-/**
- * Hook pour récupérer les détails d'un compte
- */
 export function useAccountDetails(accountId?: string) {
   const [state, setState] = useState<UseAccountDetailsState>({
     account: null,
@@ -191,9 +182,6 @@ export function useAccountDetails(accountId?: string) {
   return { ...state, refresh, fetchAccount };
 }
 
-/**
- * Hook pour créer un compte
- */
 export function useCreateAccount() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
@@ -229,9 +217,6 @@ export function useCreateAccount() {
   return { createAccount, isLoading, error };
 }
 
-/**
- * Hook pour renommer un compte
- */
 export function useUpdateAccountName() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
@@ -260,9 +245,6 @@ export function useUpdateAccountName() {
   return { updateName, isLoading, error };
 }
 
-/**
- * Hook pour clôturer un compte
- */
 export function useCloseAccount() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
@@ -287,9 +269,6 @@ export function useCloseAccount() {
   return { closeAccount, isLoading, error };
 }
 
-/**
- * Hook pour récupérer le solde d'un compte
- */
 export function useAccountBalance(accountId?: string) {
   const [state, setState] = useState<UseAccountBalanceState>({
     balance: null,
@@ -323,9 +302,6 @@ export function useAccountBalance(accountId?: string) {
   return { ...state, refresh, fetchBalance };
 }
 
-/**
- * Hook pour récupérer les transactions d'un compte
- */
 export function useAccountTransactions(
   accountId?: string,
   params?: {
@@ -377,9 +353,6 @@ export function useAccountTransactions(
   return { ...state, refresh, fetchTransactions };
 }
 
-/**
- * Hook pour récupérer le relevé de compte
- */
 export function useAccountStatement(
   accountId?: string,
   params?: {

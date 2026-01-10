@@ -10,7 +10,6 @@ export class GetUserByToken {
   ) {}
 
   async execute(token: string): Promise<User> {
-    // Récupérer l'userId à partir du token
     const userId = await this.sessionRepository.getUserIdByToken(token);
 
     if (!userId) {

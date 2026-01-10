@@ -12,7 +12,7 @@ export function useTransferHistory() {
   const { user, isLoading: isUserLoading } = useUser();
 
   const fetchHistory = useCallback(async () => {
-    if (!user || isUserLoading) return; // Attendre que l'utilisateur soit chargé
+    if (!user || isUserLoading) return;
 
     setIsLoading(true);
     setError(null);

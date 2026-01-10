@@ -50,11 +50,9 @@ export default function NewTransferClient({ userId }: NewTransferClientProps) {
   const [ibanError, setIbanError] = useState("");
 
   useEffect(() => {
-    // Set default date to today
     const today = new Date().toISOString().split("T")[0];
     setDateExecuted(today);
 
-    // Fetch accounts
     if (userId) {
       fetchAccounts();
     }
@@ -65,7 +63,6 @@ export default function NewTransferClient({ userId }: NewTransferClientProps) {
   );
 
   const validateIBAN = (iban: string): boolean => {
-    // Simple IBAN validation - starts with 2 letters and has at least 15 chars
     const ibanRegex = /^[A-Z]{2}[0-9]{2}[A-Z0-9]+$/;
     return ibanRegex.test(iban.replace(/\s/g, ""));
   };
@@ -89,13 +86,13 @@ export default function NewTransferClient({ userId }: NewTransferClientProps) {
     }
 
     if (!validateIBAN(accountIBANTo)) {
-      setIbanError("IBAN invalide");
+      setIbanError("Invalid IBAN");
       return;
     }
 
     if (selectedAccount.IBAN === accountIBANTo) {
       setIbanError(
-        "Le compte destinataire ne peut pas être le même que le compte source"
+        "The destination account cannot be the same as the source account"
       );
       return;
     }
@@ -107,7 +104,6 @@ export default function NewTransferClient({ userId }: NewTransferClientProps) {
     if (!selectedAccount) return;
 
     try {
-      // Nettoyer les IBANs en enlevant tous les espaces
       const cleanIBANFrom = selectedAccount.IBAN!.replace(/\s/g, "");
       const cleanIBANTo = accountIBANTo.replace(/\s/g, "");
 
@@ -116,11 +112,10 @@ export default function NewTransferClient({ userId }: NewTransferClientProps) {
         accountIBANTo: cleanIBANTo,
         amount: parseFloat(amount),
         dateExecuted: new Date(dateExecuted).toISOString(),
-        description: description || "Virement",
+        description: description,
         direction: "debit",
       });
 
-      // Redirect and refresh the page to show the new transfer
       router.push("/dashboard/transfers");
       router.refresh();
     } catch (err) {
@@ -194,10 +189,10 @@ export default function NewTransferClient({ userId }: NewTransferClientProps) {
 
               {description && (
                 <div>
-                  <Label className="text-muted-foreground">Description</Label>
-                  <p>{description}</p>
-                </div>
-              )}
+                <Label className="text-muted-foreground">Description</Label>
+                <p>{description}</p>
+              </div>
+            )}
             </div>
 
             {error && (

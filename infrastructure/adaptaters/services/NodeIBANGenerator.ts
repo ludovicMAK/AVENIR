@@ -6,15 +6,13 @@ const BBAN_LENGTH = 23;
 
 function charToNumeric(char: string): string {
     const code = char.charCodeAt(0);
-    // 0-9
     if (code >= 48 && code <= 57) {
         return char;
     }
-    // A-Z
     if (code >= 65 && code <= 90) {
         return (code - 55).toString(); 
     }
-    throw new Error(`Caractère invalide dans l'IBAN : ${char}`);
+    throw new Error(`Invalid character in IBAN: ${char}`);
 }
 
 

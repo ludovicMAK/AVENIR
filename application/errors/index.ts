@@ -87,13 +87,13 @@ export class AccountNotFoundError extends NotFoundError {
   }
 }
 export class TransferCreationFailedError extends UnprocessableError {
-  constructor(message: string = "Le transfert n'a pas pu être créé.") {
+  constructor(message: string = "Transfer could not be created.") {
     super(message);
   }
 }
 
 export class ConnectedError extends UnauthorizedError {
-  constructor(message: string = "L'utilisateur n'est pas connecté.") {
+  constructor(message: string = "User is not connected.") {
     super(message);
   }
 }

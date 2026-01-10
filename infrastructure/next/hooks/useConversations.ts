@@ -79,7 +79,7 @@ export function useMessages(conversationId: string) {
     isLoading,
     error,
     refresh: fetchMessages,
-    setMessages, // Pour les mises à jour WebSocket
+    setMessages,
   };
 }
 

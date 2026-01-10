@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 
-/**
- * Extract authentication headers from request
- */
 export function getAuthHeaders(request: NextRequest): {
   userId: string | null;
   token: string | null;
@@ -14,9 +11,6 @@ export function getAuthHeaders(request: NextRequest): {
   return { userId, token };
 }
 
-/**
- * Verify authentication and return error response if missing
- */
 export function verifyAuth(request: NextRequest):
   | {
       userId: string;
@@ -38,9 +32,6 @@ export function verifyAuth(request: NextRequest):
   return { userId, token };
 }
 
-/**
- * Middleware wrapper for authenticated routes
- */
 export async function withAuth<T>(
   request: NextRequest,
   handler: (userId: string, token: string, request: NextRequest) => Promise<T>
@@ -61,9 +52,6 @@ export async function withAuth<T>(
   }
 }
 
-/**
- * Check if user has specific role
- */
 export function requireRole(
   userRole: string,
   requiredRoles: string[]

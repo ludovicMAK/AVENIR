@@ -71,7 +71,6 @@ export default function MarketClient() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div>
         <h1 className="text-3xl font-bold">Marché</h1>
         <p className="text-muted-foreground">
@@ -79,7 +78,6 @@ export default function MarketClient() {
         </p>
       </div>
 
-      {/* Trading Account Warning */}
       {!accountsLoading && !hasTradingAccount && (
         <Card className="border-yellow-500/50 bg-yellow-50 dark:bg-yellow-950/20">
           <CardContent className="p-6">
@@ -106,7 +104,6 @@ export default function MarketClient() {
         </Card>
       )}
 
-      {/* Search */}
       <Card>
         <CardContent className="p-6">
           <div className="relative">
@@ -121,7 +118,6 @@ export default function MarketClient() {
         </CardContent>
       </Card>
 
-      {/* Shares Grid */}
       {filteredShares.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center text-muted-foreground">

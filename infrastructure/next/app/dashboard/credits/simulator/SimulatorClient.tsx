@@ -77,7 +77,6 @@ export default function SimulatorClient() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" onClick={() => router.back()}>
           <ArrowLeft className="mr-2 h-4 w-4" />
@@ -92,7 +91,6 @@ export default function SimulatorClient() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        {/* Formulaire de simulation */}
         <Card>
           <CardHeader>
             <CardTitle>Paramètres du crédit</CardTitle>
@@ -161,7 +159,6 @@ export default function SimulatorClient() {
           </CardContent>
         </Card>
 
-        {/* Résultats de la simulation */}
         {schedule.length > 0 && (
           <Card>
             <CardHeader>
@@ -230,7 +227,6 @@ export default function SimulatorClient() {
         )}
       </div>
 
-      {/* Tableau d'amortissement */}
       {schedule.length > 0 && (
         <Card>
           <CardHeader>

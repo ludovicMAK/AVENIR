@@ -14,10 +14,22 @@ export class Credit {
 
 
   getMonthlyPayment(): number {
+    if (this.durationInMonths <= 0) {
+      return 0;
+    }
+
     const monthlyRate = (this.annualRate / 100) / 12;
-    
-    const capitalAndInterest = (this.amountBorrowed * monthlyRate) / 
-                               (1 - Math.pow(1 + monthlyRate, -this.durationInMonths));
+
+    if (monthlyRate === 0) {
+      const principal = this.amountBorrowed / this.durationInMonths;
+      const monthlyInsurance =
+        (this.amountBorrowed * (this.insuranceRate / 100)) / 12;
+      return Number((principal + monthlyInsurance).toFixed(2));
+    }
+
+    const capitalAndInterest =
+      (this.amountBorrowed * monthlyRate) /
+      (1 - Math.pow(1 + monthlyRate, -this.durationInMonths));
 
     const monthlyInsurance = (this.amountBorrowed * (this.insuranceRate / 100)) / 12;
 

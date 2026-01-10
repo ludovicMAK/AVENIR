@@ -74,7 +74,6 @@ export default function AccountDetailClient({
   const limit = 20;
   const [closeDialogOpen, setCloseDialogOpen] = useState(false);
 
-  // Charger les données du compte
   useEffect(() => {
     async function loadAccount() {
       setIsLoadingAccount(true);
@@ -97,12 +96,10 @@ export default function AccountDetailClient({
     loadAccount();
   }, [accountId]);
 
-  // Rediriger après fermeture du compte
   const handleCloseSuccess = () => {
     router.push("/dashboard/accounts");
   };
 
-  // Charger les transactions
   useEffect(() => {
     fetchTransactions({ page: currentPage, limit });
   }, [currentPage, fetchTransactions]);
@@ -163,7 +160,6 @@ export default function AccountDetailClient({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <Link
           href="/dashboard/accounts"
@@ -195,7 +191,6 @@ export default function AccountDetailClient({
         </div>
       </div>
 
-      {/* Account Info Card */}
       <Card className="border-primary/20">
         <CardHeader>
           <div className="flex items-start justify-between">
@@ -273,7 +268,6 @@ export default function AccountDetailClient({
         )}
       </Card>
 
-      {/* Transactions Card */}
       <Card>
         <CardHeader>
           <CardTitle>Transactions</CardTitle>
@@ -374,7 +368,6 @@ export default function AccountDetailClient({
                 </TableBody>
               </Table>
 
-              {/* Pagination */}
               {pagination && pagination.totalPages > 1 && (
                 <div className="flex items-center justify-between mt-6">
                   <p className="text-sm text-muted-foreground">
@@ -408,7 +401,6 @@ export default function AccountDetailClient({
         </CardContent>
       </Card>
 
-      {/* Close Account Dialog */}
       {account && (
         <CloseAccountDialog
           account={account}

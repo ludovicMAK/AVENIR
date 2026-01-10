@@ -31,7 +31,6 @@ export default function TransfersClient({ userId }: TransfersClientProps) {
   const [filterEndDate, setFilterEndDate] = useState("");
   const [showFilters, setShowFilters] = useState(false);
 
-  // Refresh transfers when the page becomes visible
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
@@ -156,7 +155,6 @@ export default function TransfersClient({ userId }: TransfersClientProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Virements</h1>
@@ -178,7 +176,6 @@ export default function TransfersClient({ userId }: TransfersClientProps) {
         </div>
       </div>
 
-      {/* Filters */}
       <Card className="border-primary/20">
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -259,7 +256,6 @@ export default function TransfersClient({ userId }: TransfersClientProps) {
         )}
       </Card>
 
-      {/* Transfers List */}
       <Card className="border-primary/20">
         <CardHeader>
           <CardTitle>

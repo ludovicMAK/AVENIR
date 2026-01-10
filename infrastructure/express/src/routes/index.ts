@@ -36,7 +36,6 @@ export function createHttpRouter(
 ): Router {
   const router = Router();
 
-  // Middleware de protection pour le rôle MANAGER (directeur)
   const directorMiddleware = createRoleMiddleware(
     userRepository,
     sessionRepository,

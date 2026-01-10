@@ -21,7 +21,6 @@ export async function GET(
       );
     }
 
-    // Récupérer les query params pour les filtres et la pagination
     const searchParams = request.nextUrl.searchParams;
     const startDate = searchParams.get("startDate") || undefined;
     const endDate = searchParams.get("endDate") || undefined;

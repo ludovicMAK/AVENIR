@@ -16,7 +16,6 @@ const UserContext = createContext<UserContextValue | undefined>(undefined);
 export function UserProvider({ children }: { children: ReactNode }) {
   const { user, isLoading, error } = useCurrentUser();
 
-  // Mettre à jour l'userId dans le client API quand l'utilisateur change
   useEffect(() => {
     setCurrentUserId(user?.id || null);
   }, [user]);

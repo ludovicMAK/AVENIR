@@ -6,12 +6,12 @@ import { Conversation } from "@domain/entities/conversation";
 
 export class SocketIOService implements WebSocketService {
   private io: Server;
-  private userSockets: Map<string, string[]> = new Map(); // userId -> socketIds
+  private userSockets: Map<string, string[]> = new Map();
 
   constructor(httpServer: HttpServer) {
     this.io = new Server(httpServer, {
       cors: {
-        origin: "*", // TODO: Configure this properly for production
+        origin: "*",
         methods: ["GET", "POST"],
       },
     });
@@ -21,7 +21,6 @@ export class SocketIOService implements WebSocketService {
     this.io.on("connection", (socket: Socket) => {
       console.log(`Client connected: ${socket.id}`);
 
-      // Store socket connection - will be associated with user after auth
       socket.on("authenticate", (data: { userId: string }) => {
         this.associateUserWithSocket(data.userId, socket.id);
         socket.data.userId = data.userId;
@@ -65,7 +64,6 @@ export class SocketIOService implements WebSocketService {
   }
 
   async emitConversationCreated(conversation: Conversation): Promise<void> {
-    // Emit to customer if private conversation
     if (conversation.customerId) {
       this.emitToUser(conversation.customerId, "conversation:created", {
         id: conversation.id,

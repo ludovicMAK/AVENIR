@@ -118,7 +118,6 @@ export default function CreditsClient() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Mes crédits</h1>
@@ -132,7 +131,6 @@ export default function CreditsClient() {
         </Button>
       </div>
 
-      {/* Stats */}
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="pb-3">
@@ -187,7 +185,6 @@ export default function CreditsClient() {
         </Card>
       </div>
 
-      {/* Liste des crédits */}
       {credits.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
@@ -239,7 +236,6 @@ export default function CreditsClient() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {/* Progression */}
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Progression</span>
@@ -255,7 +251,6 @@ export default function CreditsClient() {
                     </div>
                   </div>
 
-                  {/* Détails */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t">
                     <div>
                       <p className="text-sm text-muted-foreground">Emprunté</p>
@@ -283,7 +278,6 @@ export default function CreditsClient() {
                     </div>
                   </div>
 
-                  {/* Prochaine échéance */}
                   {nextDueDate && (
                     <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
                       <div className="flex items-center gap-3">

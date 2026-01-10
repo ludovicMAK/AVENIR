@@ -203,7 +203,6 @@ export class ConversationHttpHandler {
         token
       );
 
-      // Sérialiser les conversations pour convertir les Value Objects en strings
       const serializedConversations = conversations.map((conv) => ({
         id: conv.id,
         status: typeof conv.status === 'string' ? conv.status : conv.status.toString(),

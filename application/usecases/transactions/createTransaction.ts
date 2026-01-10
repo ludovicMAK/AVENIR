@@ -42,22 +42,22 @@ export class CreateTransaction {
     );
 
     if (!accountFrom || !accountTo) {
-      throw new NotFoundError("Compte source ou destination introuvable.");
+      throw new NotFoundError("Source or destination account not found.");
     }
 
     if (accountFrom.idOwner !== input.idUser) {
       throw new UnauthorizedError(
-        "Vous n'êtes pas autorisé à débiter ce compte."
+        "You are not authorized to debit this account."
       );
     }
 
     if (!accountFrom.isOpen() || !accountTo.isOpen()) {
-      throw new UnprocessableError("L'un des comptes n'est pas actif.");
+      throw new UnprocessableError("One of the accounts is not active.");
     }
 
     if (!accountFrom.canAfford(input.amount)) {
       throw new UnprocessableError(
-        "Solde disponible insuffisant (incluant le découvert)."
+        "Insufficient available balance (including overdraft)."
       );
     }
 

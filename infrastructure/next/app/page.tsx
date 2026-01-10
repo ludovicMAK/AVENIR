@@ -55,7 +55,6 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted">
-      {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -87,7 +86,6 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* Hero Section */}
       <section className="container mx-auto px-4 py-20 text-center">
         <div className="max-w-3xl mx-auto space-y-6">
           <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
@@ -113,7 +111,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Features Grid */}
       <section className="container mx-auto px-4 py-20">
         <h2 className="text-3xl font-bold text-center mb-12">
           Tout ce dont vous avez besoin
@@ -141,7 +138,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Account Types */}
       <section className="container mx-auto px-4 py-20">
         <h2 className="text-3xl font-bold text-center mb-12">
           Des comptes adaptés à vos besoins
@@ -221,7 +217,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Benefits List */}
       <section className="container mx-auto px-4 py-20">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12">
@@ -241,7 +236,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="container mx-auto px-4 py-20">
         <Card className="max-w-3xl mx-auto border-2 border-primary">
           <CardContent className="pt-12 pb-12 text-center">
@@ -265,7 +259,6 @@ export default function LandingPage() {
         </Card>
       </section>
 
-      {/* Footer */}
       <footer className="border-t bg-muted/50 mt-20">
         <div className="container mx-auto px-4 py-8 text-center text-muted-foreground">
           <p>© 2026 AVENIR - Votre banque en ligne nouvelle génération</p>

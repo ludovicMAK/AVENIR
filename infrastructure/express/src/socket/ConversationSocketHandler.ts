@@ -18,7 +18,6 @@ export class ConversationSocketHandler {
 
       console.log(`User ${userId} connected via WebSocket`);
 
-      // Send message event
       socket.on(
         "message:send",
         async (data: { conversationId: string; text: string }) => {
@@ -30,7 +29,6 @@ export class ConversationSocketHandler {
               token
             );
 
-            // Message will be broadcast to room by the use case via WebSocketService
             socket.emit("message:sent", {
               success: true,
               messageId: message.id,
@@ -43,10 +41,8 @@ export class ConversationSocketHandler {
         }
       );
 
-      // Join conversation room
       socket.on("conversation:join", async (conversationId: string) => {
         try {
-          // Verify user has access to this conversation
           const conversation = await this.conversationRepository.findById(
             conversationId
           );
@@ -58,7 +54,6 @@ export class ConversationSocketHandler {
             return;
           }
 
-          // Check if user is participant (for private) or customer (for private)
           let hasAccess = false;
 
           if (conversation.type.isPrivate()) {
@@ -73,7 +68,6 @@ export class ConversationSocketHandler {
               hasAccess = participant !== null;
             }
           } else {
-            // Group conversation - check participant
             const participant =
               await this.participantRepository.findByConversationIdAndAdvisorId(
                 conversationId,
@@ -101,14 +95,12 @@ export class ConversationSocketHandler {
         }
       });
 
-      // Leave conversation room
       socket.on("conversation:leave", (conversationId: string) => {
         socket.leave(`conversation:${conversationId}`);
         socket.emit("conversation:left", { conversationId });
         console.log(`User ${userId} left conversation room: ${conversationId}`);
       });
 
-      // User typing indicator
       socket.on("typing:start", (data: { conversationId: string }) => {
         socket.to(`conversation:${data.conversationId}`).emit("user:typing", {
           conversationId: data.conversationId,

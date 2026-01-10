@@ -24,7 +24,6 @@ export function createRoleMiddleware(
         });
       }
 
-      // Vérifier la session
       const isConnected = await sessionRepository.isConnected(userId, token);
       if (!isConnected) {
         return response.status(401).json({
@@ -33,7 +32,6 @@ export function createRoleMiddleware(
         });
       }
 
-      // Récupérer l'utilisateur
       const user = await userRepository.findById(userId);
       if (!user) {
         return response.status(401).json({
@@ -42,7 +40,6 @@ export function createRoleMiddleware(
         });
       }
 
-      // Vérifier le rôle
       if (!user.role.equals(requiredRole)) {
         return response.status(403).json({
           code: "FORBIDDEN",

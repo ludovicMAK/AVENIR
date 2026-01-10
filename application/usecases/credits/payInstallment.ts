@@ -124,12 +124,10 @@ export class PayInstallment {
       await this.accountRepository.updateBalance(bankAccount.id, dueDate.totalAmount, unitOfWork);
       await this.accountRepository.updateBalanceAvailable(bankAccount.id, dueDate.totalAmount, unitOfWork);
 
-      // Vérifier si toutes les échéances sont payées pour clôturer le crédit
       const allDueDates = await this.dueDateRepository.findByCreditId(credit.id);
       const allPaid = allDueDates.every((dd) => dd.id === paidDueDate.id ? true : dd.isPaid());
 
       if (allPaid) {
-        // Toutes les échéances sont payées, clôturer le crédit
         const completedCredit = new Credit(
           credit.id,
           credit.amountBorrowed,

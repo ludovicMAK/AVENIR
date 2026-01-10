@@ -50,7 +50,6 @@ export class CreateGroupConversation {
       throw new NotFoundError("Creator not found");
     }
 
-    // Only advisors and directors can create group conversations
     if (
       !creator.role.equals(Role.ADVISOR) &&
       !creator.role.equals(Role.MANAGER)
@@ -66,12 +65,11 @@ export class CreateGroupConversation {
       ConversationStatus.OPEN,
       ConversationType.GROUP,
       new Date(),
-      null // group conversations don't have a specific customer
+      null
     );
 
     await this.conversationRepository.save(conversation);
 
-    // Add creator as a participant
     const participantId = this.uuidGenerator.generate();
     const participant = new ParticipantConversation(
       participantId,
@@ -79,15 +77,13 @@ export class CreateGroupConversation {
       request.creatorId,
       new Date(),
       null,
-      true // creator is principal
+      true
     );
 
     await this.participantConversationRepository.save(participant);
 
-    // Auto-add all managers to the group conversation
     const managers = await this.userRepository.findByRole("bankManager");
     for (const manager of managers) {
-      // Skip if manager is already the creator
       if (manager.id !== request.creatorId) {
         const managerParticipantId = this.uuidGenerator.generate();
         const managerParticipant = new ParticipantConversation(
@@ -102,7 +98,6 @@ export class CreateGroupConversation {
       }
     }
 
-    // Send initial message
     const messageId = this.uuidGenerator.generate();
     const message = new Message(
       messageId,
@@ -115,7 +110,6 @@ export class CreateGroupConversation {
 
     await this.messageRepository.save(message);
 
-    // Emit WebSocket events if service is available
     if (this.webSocketService) {
       await this.webSocketService.joinConversationRoom(
         request.creatorId,

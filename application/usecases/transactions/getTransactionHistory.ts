@@ -23,10 +23,8 @@ export class GetTransactionHistory {
       throw new ConnectedError("User is not connected");
     }
 
-    // Get all accounts of the user
     const accounts = await this.accountRepository.findByOwnerId(request.userId);
 
-    // Get all transactions for all user's accounts
     const allTransactions = await Promise.all(
       accounts.map((account) =>
         this.transactionRepository.findByIban(account.IBAN)

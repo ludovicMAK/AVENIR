@@ -87,7 +87,6 @@ export default function AccountsClient({ userId }: AccountsClientProps) {
     );
   }
 
-  // Appliquer les filtres et tri
   let filteredAccounts = searchAccounts(accounts, searchQuery);
   filteredAccounts = filterAccountsByType(filteredAccounts, typeFilter);
   filteredAccounts = filterAccountsByStatus(filteredAccounts, statusFilter);
@@ -111,7 +110,6 @@ export default function AccountsClient({ userId }: AccountsClientProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold">Mes comptes</h1>
@@ -126,7 +124,6 @@ export default function AccountsClient({ userId }: AccountsClientProps) {
         </Button>
       </div>
 
-      {/* Filters & Search */}
       <Card>
         <CardContent className="pt-6">
           <div className="grid gap-4 md:grid-cols-3">
@@ -161,7 +158,6 @@ export default function AccountsClient({ userId }: AccountsClientProps) {
         </CardContent>
       </Card>
 
-      {/* Tabs by Account Type */}
       <Tabs defaultValue="all" className="space-y-4">
         <TabsList>
           <TabsTrigger value="all">

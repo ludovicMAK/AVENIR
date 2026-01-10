@@ -11,7 +11,6 @@ export class GetShareTransactionHistory {
       shareId
     );
 
-    // Les transactions sont déjà triées par date décroissante dans le repository
     return transactions;
   }
 }

@@ -29,7 +29,7 @@ export class AccountHttpHandler {
       if (!userId) {
         return response.status(400).send({
           code: "MISSING_USER_ID",
-          message: "L'ID du propriétaire est requis.",
+          message: "Owner ID is required.",
         });
       }
 
@@ -53,7 +53,7 @@ export class AccountHttpHandler {
       if (!accountId) {
         return response.status(400).send({
           code: "MISSING_ACCOUNT_ID",
-          message: "L'ID du compte est requis.",
+          message: "Account ID is required.",
         });
       }
 
@@ -105,13 +105,13 @@ export class AccountHttpHandler {
       if (!accountId) {
         return response.status(400).send({
           code: "MISSING_ACCOUNT_ID",
-          message: "L'ID du compte est requis.",
+          message: "Account ID is required.",
         });
       }
       if (!token) {
         return response.status(400).send({
           code: "MISSING_AUTH_TOKEN",
-          message: "Le token d'authentification est requis.",
+          message: "Authentication token is required.",
         });
       }
 
@@ -140,13 +140,13 @@ export class AccountHttpHandler {
         newName.trim().length === 0
       ) {
         throw new ValidationError(
-          "Le nouveau nom est requis et doit être une chaîne valide."
+          "A new name is required and must be a valid string."
         );
       }
 
       if (newName.length > 50) {
         throw new ValidationError(
-          "Le nom du compte ne peut pas dépasser 50 caractères."
+          "The account name cannot exceed 50 characters."
         );
       }
 
@@ -155,7 +155,7 @@ export class AccountHttpHandler {
       return sendSuccess(response, {
         status: 200,
         code: "ACCOUNT_UPDATED",
-        message: "Le nom du compte a été mis à jour avec succès.",
+        message: "Account name updated successfully.",
       });
     } catch (error) {
       return mapErrorToHttpResponse(response, error);
@@ -171,7 +171,7 @@ export class AccountHttpHandler {
       if (!accountId) {
         return response.status(400).send({
           code: "MISSING_ACCOUNT_ID",
-          message: "L'ID du compte est requis.",
+          message: "Account ID is required.",
         });
       }
 
@@ -205,7 +205,7 @@ export class AccountHttpHandler {
       if (!accountId) {
         return response.status(400).send({
           code: "MISSING_ACCOUNT_ID",
-          message: "L'ID du compte est requis.",
+          message: "Account ID is required.",
         });
       }
 
@@ -213,7 +213,6 @@ export class AccountHttpHandler {
         throw new ValidationError("Authentication required");
       }
 
-      // Récupérer les query params pour les filtres et la pagination
       const { startDate, endDate, direction, status, page, limit } =
         request.query;
 
@@ -229,7 +228,6 @@ export class AccountHttpHandler {
         limit: limit ? parseInt(limit as string, 10) : undefined,
       });
 
-      // Enrich and serialize transactions to plain objects
       const enrichedTransactions = await Promise.all(
         result.transactions.map(async (t: Transaction) => {
           let counterpartyIBAN: string | undefined;
@@ -259,7 +257,6 @@ export class AccountHttpHandler {
         })
       );
 
-      // Transform to match Next.js expected format
       const transactionsData = {
         transactions: enrichedTransactions,
         pagination: {
@@ -290,7 +287,7 @@ export class AccountHttpHandler {
       if (!accountId) {
         return response.status(400).send({
           code: "MISSING_ACCOUNT_ID",
-          message: "L'ID du compte est requis.",
+          message: "Account ID is required.",
         });
       }
 
@@ -298,14 +295,13 @@ export class AccountHttpHandler {
         throw new ValidationError("Authentication required");
       }
 
-      // Récupérer les query params pour les dates
       const { fromDate, toDate } = request.query;
 
       if (!fromDate || !toDate) {
         return response.status(400).send({
           code: "MISSING_DATES",
           message:
-            "Les dates de début (fromDate) et de fin (toDate) sont requises.",
+            "Start date (fromDate) and end date (toDate) are required.",
         });
       }
 

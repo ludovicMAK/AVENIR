@@ -14,14 +14,12 @@ export function createSocketAuthMiddleware(
         return next(new Error("Authentication required"));
       }
 
-      // Verify session
       const isConnected = await sessionRepository.isConnected(userId, token);
 
       if (!isConnected) {
         return next(new Error("Invalid or expired session"));
       }
 
-      // Attach userId to socket
       socket.data.userId = userId;
       socket.data.token = token;
 

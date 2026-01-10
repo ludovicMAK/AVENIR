@@ -6,9 +6,6 @@ import {
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 
-/**
- * Formate un montant en euros avec 2 décimales
- */
 export function formatAmount(amount: number, decimals: number = 2): string {
   return new Intl.NumberFormat("fr-FR", {
     style: "currency",
@@ -18,9 +15,6 @@ export function formatAmount(amount: number, decimals: number = 2): string {
   }).format(amount);
 }
 
-/**
- * Formate un montant compact (K, M)
- */
 export function formatAmountCompact(amount: number): string {
   return new Intl.NumberFormat("fr-FR", {
     style: "currency",
@@ -30,26 +24,18 @@ export function formatAmountCompact(amount: number): string {
   }).format(amount);
 }
 
-/**
- * Formate un IBAN avec espaces tous les 4 caractères
- */
 export function formatIBAN(iban: string): string {
   const cleaned = iban.replace(/\s/g, "");
   return cleaned.match(/.{1,4}/g)?.join(" ") || iban;
 }
 
-/**
- * Valide un IBAN français (FR + 25 chiffres)
- */
 export function validateIBAN(iban: string): boolean {
   const cleaned = iban.replace(/\s/g, "").toUpperCase();
 
-  // Vérifier le format français: FR + 2 chiffres de contrôle + 23 caractères
   if (!/^FR\d{25}$/.test(cleaned)) {
     return false;
   }
 
-  // Algorithme de validation IBAN (modulo 97)
   const rearranged = cleaned.slice(4) + cleaned.slice(0, 4);
   const numeric = rearranged.replace(/[A-Z]/g, (char) =>
     (char.charCodeAt(0) - 55).toString()
@@ -66,9 +52,6 @@ export function validateIBAN(iban: string): boolean {
   return parseInt(remainder) % 97 === 1;
 }
 
-/**
- * Formate une date au format français
- */
 export function formatDate(
   date: string | Date,
   formatStr: string = "dd/MM/yyyy"
@@ -77,9 +60,6 @@ export function formatDate(
   return format(dateObj, formatStr, { locale: fr });
 }
 
-/**
- * Formate une date relative (aujourd'hui, hier, etc.)
- */
 export function formatDateRelative(date: string | Date): string {
   const dateObj = typeof date === "string" ? parseISO(date) : date;
   const now = new Date();
@@ -95,9 +75,6 @@ export function formatDateRelative(date: string | Date): string {
   return `Il y a ${Math.floor(diffInDays / 365)} ans`;
 }
 
-/**
- * Traduit le type de compte
- */
 export function translateAccountType(type: AccountTypeValue): string {
   const translations: Record<AccountTypeValue, string> = {
     current: "Compte courant",
@@ -107,9 +84,6 @@ export function translateAccountType(type: AccountTypeValue): string {
   return translations[type] || type;
 }
 
-/**
- * Traduit le statut de compte
- */
 export function translateAccountStatus(status: AccountStatusValue): string {
   const translations: Record<AccountStatusValue, string> = {
     open: "Actif",
@@ -118,9 +92,6 @@ export function translateAccountStatus(status: AccountStatusValue): string {
   return translations[status] || status;
 }
 
-/**
- * Retourne la couleur du badge selon le type de compte
- */
 export function getAccountTypeBadgeColor(type: AccountTypeValue): string {
   const colors: Record<AccountTypeValue, string> = {
     current: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
@@ -132,9 +103,6 @@ export function getAccountTypeBadgeColor(type: AccountTypeValue): string {
   return colors[type] || "bg-gray-100 text-gray-800";
 }
 
-/**
- * Retourne la couleur du badge selon le statut
- */
 export function getAccountStatusBadgeColor(status: AccountStatusValue): string {
   const colors: Record<AccountStatusValue, string> = {
     open: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
@@ -143,9 +111,6 @@ export function getAccountStatusBadgeColor(status: AccountStatusValue): string {
   return colors[status] || "bg-gray-100 text-gray-800";
 }
 
-/**
- * Calcule le solde disponible avec découvert autorisé
- */
 export function calculateAvailableBalance(account: Account): number {
   if (!account.authorizedOverdraft || !account.overdraftLimit) {
     return account.balance;
@@ -153,16 +118,10 @@ export function calculateAvailableBalance(account: Account): number {
   return account.balance + account.overdraftLimit;
 }
 
-/**
- * Vérifie si le compte est en découvert
- */
 export function isOverdrawn(account: Account): boolean {
   return account.balance < 0;
 }
 
-/**
- * Vérifie si le compte a dépassé la limite de découvert
- */
 export function isOverdraftExceeded(account: Account): boolean {
   if (!account.authorizedOverdraft || !account.overdraftLimit) {
     return account.balance < 0;
@@ -170,9 +129,6 @@ export function isOverdraftExceeded(account: Account): boolean {
   return account.balance < -account.overdraftLimit;
 }
 
-/**
- * Filtre les comptes par type
- */
 export function filterAccountsByType(
   accounts: Account[],
   types: AccountTypeValue[]
@@ -181,9 +137,6 @@ export function filterAccountsByType(
   return accounts.filter((account) => types.includes(account.accountType));
 }
 
-/**
- * Filtre les comptes par statut
- */
 export function filterAccountsByStatus(
   accounts: Account[],
   statuses: AccountStatusValue[]
@@ -194,9 +147,6 @@ export function filterAccountsByStatus(
   );
 }
 
-/**
- * Trie les comptes par solde (décroissant par défaut)
- */
 export function sortAccountsByBalance(
   accounts: Account[],
   order: "asc" | "desc" = "desc"
@@ -206,9 +156,6 @@ export function sortAccountsByBalance(
   });
 }
 
-/**
- * Trie les comptes par nom
- */
 export function sortAccountsByName(
   accounts: Account[],
   order: "asc" | "desc" = "asc"
@@ -219,9 +166,6 @@ export function sortAccountsByName(
   });
 }
 
-/**
- * Recherche de comptes par nom ou IBAN
- */
 export function searchAccounts(accounts: Account[], query: string): Account[] {
   if (!query.trim()) return accounts;
 
@@ -233,16 +177,10 @@ export function searchAccounts(accounts: Account[], query: string): Account[] {
   });
 }
 
-/**
- * Calcule le solde total de plusieurs comptes
- */
 export function calculateTotalBalance(accounts: Account[]): number {
   return accounts.reduce((total, account) => total + account.balance, 0);
 }
 
-/**
- * Groupe les comptes par type
- */
 export function groupAccountsByType(
   accounts: Account[]
 ): Record<AccountTypeValue, Account[]> {
@@ -256,9 +194,6 @@ export function groupAccountsByType(
   }, {} as Record<AccountTypeValue, Account[]>);
 }
 
-/**
- * Masque partiellement l'IBAN (garde 4 premiers et 4 derniers caractères)
- */
 export function maskIBAN(iban: string): string {
   if (iban.length < 8) return iban;
 
@@ -270,25 +205,16 @@ export function maskIBAN(iban: string): string {
   return formatIBAN(result);
 }
 
-/**
- * Génère une description courte du compte
- */
 export function getAccountDescription(account: Account): string {
   const type = translateAccountType(account.accountType);
   const balance = formatAmount(account.balance);
   return `${type} • ${balance}`;
 }
 
-/**
- * Vérifie si un compte peut être clôturé (solde = 0)
- */
 export function canCloseAccount(account: Account): boolean {
   return account.balance === 0 && account.status === "open";
 }
 
-/**
- * Retourne un message d'erreur si le compte ne peut pas être clôturé
- */
 export function getCloseAccountError(account: Account): string | null {
   if (account.status === "close") {
     return "Ce compte est déjà fermé";

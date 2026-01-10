@@ -112,7 +112,6 @@ export default function StatementClient({ accountId }: StatementClientProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Dates par défaut : dernier mois
   const today = new Date();
   const lastMonth = new Date(today);
   lastMonth.setMonth(lastMonth.getMonth() - 1);
@@ -170,7 +169,6 @@ export default function StatementClient({ accountId }: StatementClientProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <Link
           href={`/dashboard/accounts/${accountId}`}
@@ -181,7 +179,6 @@ export default function StatementClient({ accountId }: StatementClientProps) {
         </Link>
       </div>
 
-      {/* Period Selection Card */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -232,7 +229,6 @@ export default function StatementClient({ accountId }: StatementClientProps) {
         </CardContent>
       </Card>
 
-      {/* Error Display */}
       {error && (
         <Card className="border-destructive">
           <CardContent className="pt-6">
@@ -241,7 +237,6 @@ export default function StatementClient({ accountId }: StatementClientProps) {
         </Card>
       )}
 
-      {/* Statement Display */}
       {statement && (
         <Card>
           <CardHeader className="space-y-4">
@@ -266,7 +261,6 @@ export default function StatementClient({ accountId }: StatementClientProps) {
 
             <Separator />
 
-            {/* Summary */}
             <div className="grid gap-4 md:grid-cols-4">
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Solde initial</p>
@@ -348,7 +342,6 @@ export default function StatementClient({ accountId }: StatementClientProps) {
         </Card>
       )}
 
-      {/* Loading Skeleton */}
       {isLoading && !statement && (
         <Card>
           <CardContent className="pt-6">

@@ -137,7 +137,6 @@ export class TransferConversationUseCase {
       ConversationStatus.TRANSFERRED
     );
 
-    // Emit WebSocket events if service is available
     if (this.webSocketService) {
       await this.webSocketService.emitConversationTransferred(
         request.conversationId,

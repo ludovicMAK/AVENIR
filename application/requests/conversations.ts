@@ -3,12 +3,12 @@ export type CreateConversationRequest = {
   customerId: string;
   initialMessage: string;
   assignedAdvisorId: string;
-  type?: "private" | "group"; // default: private
+  type?: "private" | "group";
 };
 
 export type CreateGroupConversationRequest = {
   token: string;
-  creatorId: string; // advisor or director
+  creatorId: string;
   initialMessage: string;
 };
 

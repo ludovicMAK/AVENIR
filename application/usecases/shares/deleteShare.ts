@@ -18,7 +18,6 @@ export class DeleteShare {
       throw new NotFoundError("Share not found");
     }
 
-    // Vérifier qu'il n'y a pas d'ordres actifs sur cette action
     const activeOrders = await this.orderRepository.findActiveByShareId(
       input.shareId
     );
@@ -28,7 +27,6 @@ export class DeleteShare {
       );
     }
 
-    // Vérifier qu'aucun client ne possède d'actions
     const positions = await this.securitiesPositionRepository.findByShareId(
       input.shareId
     );

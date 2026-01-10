@@ -102,10 +102,8 @@ export class CreateConversation {
 
     await this.messageRepository.save(message);
 
-    // Emit WebSocket events if service is available
     if (this.webSocketService) {
       await this.webSocketService.emitConversationCreated(conversation);
-      // Join customer and advisor to conversation room
       await this.webSocketService.joinConversationRoom(
         request.customerId,
         conversationId
@@ -114,7 +112,6 @@ export class CreateConversation {
         request.assignedAdvisorId,
         conversationId
       );
-      // Emit initial message
       await this.webSocketService.emitNewMessage(conversationId, message);
     }
 

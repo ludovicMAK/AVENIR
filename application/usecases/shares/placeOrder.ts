@@ -63,7 +63,6 @@ export class PlaceOrder {
         throw new ValidationError("Insufficient funds for buy order");
       }
 
-      // Bloquer les fonds sur le compte trading
       await this.accountRepository.blockFunds(tradingAccount.id, blockedAmount);
     } else {
       const position =
@@ -81,7 +80,6 @@ export class PlaceOrder {
         input.quantity
       );
 
-      // Bloquer les titres dans la position
       await this.securitiesPositionRepository.updateQuantities(
         position.id,
         position.totalQuantity,

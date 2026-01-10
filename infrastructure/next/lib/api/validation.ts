@@ -1,8 +1,5 @@
 import { NextRequest } from "next/server";
 
-/**
- * Validate request body against required fields
- */
 export function validateRequired(
   body: any,
   requiredFields: string[]
@@ -16,9 +13,6 @@ export function validateRequired(
   return { valid: true };
 }
 
-/**
- * Parse and validate JSON body
- */
 export async function parseBody(request: NextRequest): Promise<any> {
   try {
     return await request.json();
@@ -27,17 +21,11 @@ export async function parseBody(request: NextRequest): Promise<any> {
   }
 }
 
-/**
- * Get query parameters from request
- */
 export function getQueryParams(request: NextRequest): URLSearchParams {
   const { searchParams } = new URL(request.url);
   return searchParams;
 }
 
-/**
- * Sanitize user input to prevent XSS
- */
 export function sanitizeInput(input: string): string {
   return input
     .replace(/</g, "&lt;")
@@ -47,17 +35,11 @@ export function sanitizeInput(input: string): string {
     .replace(/\//g, "&#x2F;");
 }
 
-/**
- * Validate email format
- */
 export function isValidEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 }
 
-/**
- * Validate UUID format
- */
 export function isValidUUID(uuid: string): boolean {
   const uuidRegex =
     /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

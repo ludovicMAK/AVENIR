@@ -1,15 +1,5 @@
-/**
- * Global API Middleware Configuration
- *
- * This file can be used to add global middleware to all API routes
- * such as CORS, rate limiting, logging, etc.
- */
-
 import { NextRequest, NextResponse } from "next/server";
 
-/**
- * Add CORS headers to response
- */
 export function addCorsHeaders(response: NextResponse): NextResponse {
   const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [
     "http://localhost:3000",
@@ -29,40 +19,25 @@ export function addCorsHeaders(response: NextResponse): NextResponse {
   return response;
 }
 
-/**
- * Log API requests (development only)
- */
 export function logRequest(request: NextRequest): void {
-  // Logging disabled in production
 }
 
-/**
- * Global API middleware wrapper
- */
 export async function apiMiddleware(
   request: NextRequest,
   handler: () => Promise<NextResponse>
 ): Promise<NextResponse> {
-  // Log request
   logRequest(request);
 
-  // Handle OPTIONS for CORS preflight
   if (request.method === "OPTIONS") {
     const response = new NextResponse(null, { status: 200 });
     return addCorsHeaders(response);
   }
 
-  // Execute handler
   const response = await handler();
 
-  // Add CORS headers to response
   return addCorsHeaders(response);
 }
 
-/**
- * Rate limiting (simple in-memory implementation)
- * For production, use Redis or a rate limiting service
- */
 const requestCounts = new Map<string, { count: number; resetAt: number }>();
 
 export function rateLimit(
@@ -89,9 +64,6 @@ export function rateLimit(
   return true;
 }
 
-/**
- * Get client IP address
- */
 export function getClientIp(request: NextRequest): string {
   return (
     request.headers.get("x-forwarded-for")?.split(",")[0] ||

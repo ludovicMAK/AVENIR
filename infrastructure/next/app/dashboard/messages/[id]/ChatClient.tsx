@@ -48,7 +48,6 @@ export default function ChatClient({ conversationId }: ChatClientProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
 
-  // Auto-scroll vers le bas
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -57,18 +56,14 @@ export default function ChatClient({ conversationId }: ChatClientProps) {
     scrollToBottom();
   }, [messages]);
 
-  // WebSocket connection (optionnel - utilisé uniquement si un serveur WS est disponible)
   useEffect(() => {
-    // Désactiver WebSocket si pas d'URL configurée
     const wsUrl = process.env.NEXT_PUBLIC_WS_URL;
-    
-    // Si pas d'URL WebSocket configurée, utiliser le polling classique
     if (!wsUrl) {
       return;
     }
 
     let ws: WebSocket | null = null;
-    
+
     try {
       ws = new WebSocket(wsUrl);
       wsRef.current = ws;
@@ -85,13 +80,11 @@ export default function ChatClient({ conversationId }: ChatClientProps) {
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          
+
           if (data.type === "new_message" && data.message) {
             const newMessage: Message = data.message;
-            // Ajouter le nouveau message seulement s'il appartient à cette conversation
             if (newMessage.conversationId === conversationId) {
               setMessages((prev) => {
-                // Éviter les doublons
                 if (prev.some((m) => m.id === newMessage.id)) {
                   return prev;
                 }
@@ -100,19 +93,19 @@ export default function ChatClient({ conversationId }: ChatClientProps) {
             }
           }
         } catch (error) {
-          // Erreur lors du parsing du message WebSocket
+          console.error("Failed to parse WebSocket message", error);
         }
       };
 
       ws.onerror = () => {
-        // WebSocket non disponible, utilisation du polling
+        console.warn("WebSocket error, falling back to polling");
       };
 
       ws.onclose = () => {
-        // WebSocket disconnected
+        console.info("WebSocket disconnected");
       };
     } catch (error) {
-      // Could not establish WebSocket connection
+      console.error("Could not establish WebSocket connection", error);
     }
 
     return () => {
@@ -126,7 +119,7 @@ export default function ChatClient({ conversationId }: ChatClientProps) {
           );
           ws.close();
         } catch (error) {
-          // Error closing WebSocket
+          console.error("Error closing WebSocket", error);
         }
       }
     };
@@ -145,7 +138,6 @@ export default function ChatClient({ conversationId }: ChatClientProps) {
         content: messageContent,
       });
       setMessageContent("");
-      // Le message sera ajouté via WebSocket
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -181,7 +173,6 @@ export default function ChatClient({ conversationId }: ChatClientProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button variant="ghost" onClick={() => router.back()}>
@@ -201,7 +192,6 @@ export default function ChatClient({ conversationId }: ChatClientProps) {
         </Button>
       </div>
 
-      {/* Chat */}
       <Card className="h-[600px] flex flex-col">
         <CardHeader className="border-b">
           <div className="flex items-center justify-between">
@@ -218,7 +208,6 @@ export default function ChatClient({ conversationId }: ChatClientProps) {
           </div>
         </CardHeader>
 
-        {/* Messages */}
         <ScrollArea className="flex-1 p-6">
           <div className="space-y-4">
             {messages.length === 0 ? (
@@ -268,7 +257,6 @@ export default function ChatClient({ conversationId }: ChatClientProps) {
           </div>
         </ScrollArea>
 
-        {/* Input */}
         <CardContent className="border-t p-4">
           <form onSubmit={handleSendMessage} className="flex gap-2">
             <Input
@@ -285,7 +273,6 @@ export default function ChatClient({ conversationId }: ChatClientProps) {
         </CardContent>
       </Card>
 
-      {/* Dialog de fermeture */}
       <AlertDialog open={closeDialog} onOpenChange={setCloseDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>

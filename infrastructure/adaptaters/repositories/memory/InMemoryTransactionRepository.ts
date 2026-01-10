@@ -59,7 +59,6 @@ export class InMemoryTransactionRepository implements TransactionRepository {
       (transaction) => transaction.accountIBAN === iban
     );
 
-    // Appliquer les filtres
     if (filters?.startDate) {
       transactions = transactions.filter(
         (t) => t.accountDate >= filters.startDate!
@@ -85,14 +84,12 @@ export class InMemoryTransactionRepository implements TransactionRepository {
       );
     }
 
-    // Trier par date décroissante
     transactions.sort(
       (a, b) => b.accountDate.getTime() - a.accountDate.getTime()
     );
 
     const total = transactions.length;
 
-    // Appliquer la pagination
     if (pagination) {
       const { page, limit } = pagination;
       const offset = (page - 1) * limit;

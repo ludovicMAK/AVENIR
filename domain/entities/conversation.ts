@@ -7,7 +7,7 @@ export class Conversation {
     readonly status: ConversationStatus,
     readonly type: ConversationType,
     readonly dateOuverture: Date,
-    readonly customerId: string | null // null for group conversations
+    readonly customerId: string | null
   ) {}
 
   isOpen(): boolean {

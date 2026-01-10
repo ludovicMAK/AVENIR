@@ -32,9 +32,9 @@ export type GetAccountTransactionsRequest = {
   accountId: string;
   userId: string;
   token: string;
-  startDate?: string; // ISO date
+  startDate?: string;
   endDate?: string;
-  direction?: string; // DEBIT or CREDIT
+  direction?: string;
   status?: string;
   page?: number;
   limit?: number;
@@ -44,6 +44,6 @@ export type GetAccountStatementRequest = {
   accountId: string;
   userId: string;
   token: string;
-  fromDate: string; // ISO date (required)
-  toDate: string; // ISO date (required)
+  fromDate: string;
+  toDate: string;
 };

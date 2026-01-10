@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
 
-/**
- * Format Express-like response: {status, code, message, data}
- */
 export function createSuccessResponse<T = any>(
   data: T,
   options: {
@@ -24,9 +21,6 @@ export function createSuccessResponse<T = any>(
   );
 }
 
-/**
- * Format Express-like error response: {status, code, message, data}
- */
 export function createErrorResponse(
   options: {
     code?: string;

@@ -26,12 +26,34 @@ export interface UpdateShareRequest {
 }
 
 function parseShare(data: any): Share {
+  if (!isJsonObject(data)) {
+    throw new ApiError("INFRASTRUCTURE_ERROR", "Invalid share payload");
+  }
+
+  const hasValue = (value: any): boolean =>
+    value !== undefined && value !== null;
+
+  const id = data.id;
+  const name = data.name;
+  const totalNumberOfParts = Number(data.totalNumberOfParts);
+  const initialPrice = Number(data.initialPrice);
+  const lastExecutedRaw = data.lastExecutedPrice;
+
+  if (
+    typeof id !== "string" ||
+    typeof name !== "string" ||
+    Number.isNaN(totalNumberOfParts) ||
+    Number.isNaN(initialPrice)
+  ) {
+    throw new ApiError("INFRASTRUCTURE_ERROR", "Malformed share payload");
+  }
+
   return {
-    id: data.id,
-    name: data.name,
-    totalNumberOfParts: Number(data.totalNumberOfParts),
-    initialPrice: Number(data.initialPrice),
-    lastExecutedPrice: data.lastExecutedPrice ? Number(data.lastExecutedPrice) : null,
+    id,
+    name,
+    totalNumberOfParts,
+    initialPrice,
+    lastExecutedPrice: hasValue(lastExecutedRaw) ? Number(lastExecutedRaw) : null,
   };
 }
 
@@ -67,7 +89,6 @@ export const sharesApi = {
         "Invalid create share response"
       );
     }
-    // La réponse contient {id, share}
     return { id: (response as any).id || (response as any).share?.id };
   },
 
@@ -99,12 +120,24 @@ export const sharesApi = {
     if (!isJsonObject(response)) {
       throw new ApiError("INFRASTRUCTURE_ERROR", "Invalid order book response");
     }
+
+    const bidsRaw = Array.isArray(response.bids)
+      ? response.bids
+      : Array.isArray(response.buyOrders)
+      ? response.buyOrders
+      : [];
+    const asksRaw = Array.isArray(response.asks)
+      ? response.asks
+      : Array.isArray(response.sellOrders)
+      ? response.sellOrders
+      : [];
+
     return {
-      bids: (response.bids || response.buyOrders || []).map((bid: any) => ({
+      bids: bidsRaw.map((bid: any) => ({
         price: Number(bid.price),
         quantity: Number(bid.quantity),
       })),
-      asks: (response.asks || response.sellOrders || []).map((ask: any) => ({
+      asks: asksRaw.map((ask: any) => ({
         price: Number(ask.price),
         quantity: Number(ask.quantity),
       })),

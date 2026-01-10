@@ -120,7 +120,6 @@ function parseCredit(data: any): Credit {
 }
 
 function parseCreditWithDueDates(data: any): CreditWithDueDates {
-  // Le backend retourne {credit, dueDates} ou un objet plat
   const creditData = data.credit || data;
   const dueDatesData = data.dueDates || [];
   
@@ -145,8 +144,13 @@ function parseAmortizationEntry(data: any): AmortizationScheduleEntry {
 export const creditsApi = {
   async getMyCredits(): Promise<CreditWithDueDates[]> {
     const response = await request("/my-credits");
-    const creditsData = response.credits || response.creditWithDueDates;
-    if (!isJsonObject(response) || !Array.isArray(creditsData)) {
+    if (!isJsonObject(response)) {
+      throw new ApiError("INFRASTRUCTURE_ERROR", "Invalid credits response");
+    }
+    const creditsData =
+      (response as { credits?: unknown; creditWithDueDates?: unknown })
+        .credits ?? response.creditWithDueDates;
+    if (!Array.isArray(creditsData)) {
       throw new ApiError("INFRASTRUCTURE_ERROR", "Invalid credits response");
     }
     return creditsData.map(parseCreditWithDueDates);
@@ -160,7 +164,6 @@ export const creditsApi = {
         "Invalid credit status response"
       );
     }
-    // Le backend retourne { creditStatusData: { credit, progress, nextDueDate, overdueDueDates } }
     const creditStatusData = response.creditStatusData;
     if (!isJsonObject(creditStatusData) || !isJsonObject(creditStatusData.credit) || !isJsonObject(creditStatusData.progress)) {
       throw new ApiError(
@@ -169,26 +172,17 @@ export const creditsApi = {
       );
     }
     
-    // Combiner les données du credit et du progress
     const credit = creditStatusData.credit;
     const progress = creditStatusData.progress;
     
     const totalAmount = Number(progress.totalAmountToPay || 0);
     const duration = Number(credit.durationInMonths || 1);
     const monthlyPayment = duration > 0 ? totalAmount / duration : 0;
-    
+    const parsedCredit = parseCredit(credit);
+
     return {
-      id: credit.id || '',
-      customerId: credit.customerId || '',
-      advisorId: '', // Non disponible dans getCreditStatus
-      accountId: '', // Non disponible dans getCreditStatus
-      amountBorrowed: Number(credit.amountBorrowed || 0),
-      annualRate: Number(credit.annualRate || 0),
-      insuranceRate: Number(credit.insuranceRate || 0),
-      durationInMonths: Number(credit.durationInMonths || 0),
+      ...parsedCredit,
       monthlyPayment,
-      status: credit.status || 'unknown',
-      dateGranted: credit.startDate || new Date().toISOString(),
       totalAmountDue: Number(progress.totalAmountToPay || 0),
       totalPaid: Number(progress.totalAmountPaid || 0),
       remainingAmount: Number(progress.totalAmountRemaining || 0),

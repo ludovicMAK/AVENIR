@@ -55,9 +55,7 @@ export class SendMessage {
       throw new NotFoundError("Sender not found");
     }
 
-    // For group conversations
     if (conversation.type.isGroup()) {
-      // Only advisors and directors can send messages in group conversations
       if (
         !sender.role.equals(Role.ADVISOR) &&
         !sender.role.equals(Role.MANAGER)
@@ -67,7 +65,6 @@ export class SendMessage {
         );
       }
 
-      // Check if sender is a participant
       const participant =
         await this.participantConversationRepository.findByConversationIdAndAdvisorId(
           request.conversationId,
@@ -86,7 +83,7 @@ export class SendMessage {
         );
       }
     }
-    // For private conversations
+
     else {
       if (sender.role.equals(Role.CUSTOMER)) {
         if (conversation.customerId !== request.senderId) {
@@ -131,7 +128,6 @@ export class SendMessage {
 
     await this.messageRepository.save(message);
 
-    // Emit message to WebSocket if service is available
     if (this.webSocketService) {
       await this.webSocketService.emitNewMessage(
         request.conversationId,

@@ -33,12 +33,10 @@ export class CreditHttpHandler {
   private serializeCreditWithDueDates(creditWithDueDates: any): SerializedCreditWithDueDates {
     const credit = creditWithDueDates.credit;
     const dueDates = creditWithDueDates.dueDates;
-    
-    // Calculer les montants depuis les méthodes et les due dates
+
     const monthlyPayment = credit.getMonthlyPayment();
     const totalAmountDue = credit.getTotalAmountToPay();
-    
-    // Calculer le montant total payé depuis les due dates
+
     const totalPaid = dueDates
       .filter((dd: any) => dd.isPaid())
       .reduce((sum: number, dd: any) => sum + Number(dd.totalAmount), 0);
@@ -48,8 +46,8 @@ export class CreditHttpHandler {
     return {
       id: credit.id,
       customerId: credit.customerId,
-      advisorId: '', // Non disponible dans l'entité Credit
-      accountId: '', // Non disponible dans l'entité Credit
+      advisorId: '',
+      accountId: '',
       amountBorrowed: credit.amountBorrowed,
       annualRate: credit.annualRate,
       insuranceRate: credit.insuranceRate,
@@ -233,7 +231,6 @@ export class CreditHttpHandler {
         token: token || "",
       });
 
-      // Sérialiser les dueDates
       const serializedDueDates = dueDates.map((dd) => ({
         id: dd.id,
         creditId: dd.creditId,

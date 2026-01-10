@@ -15,7 +15,6 @@ import { TransferConversationRepository } from "@application/repositories/transf
 import { CreditRepository } from "@application/repositories/credit";
 import { DueDateRepository } from "@application/repositories/dueDate";
 import { UnitOfWork } from "@application/services/UnitOfWork";
-
 import { InMemoryUserRepository } from "@adapters/repositories/memory/InMemoryUserRepository";
 import { InMemoryEmailConfirmationTokenRepository } from "@adapters/repositories/memory/InMemoryEmailConfirmationTokenRepository";
 import { InMemoryAccountRepository } from "@adapters/repositories/memory/InMemoryAccountRepository";
@@ -33,7 +32,6 @@ import { InMemoryTransferConversationRepository } from "@adapters/repositories/m
 import { InMemoryCreditRepository } from "@adapters/repositories/memory/InMemoryCreditRepository";
 import { InMemoryDueDateRepository } from "@adapters/repositories/memory/InMemoryDueDateRepository";
 import { InMemoryUnitOfWork } from "@adapters/services/InMemoryUnitOfWork";
-
 import { PostgresUserRepository } from "@adapters/repositories/sql/PostgresUserRepository";
 import { PostgresAccountRepository } from "@adapters/repositories/sql/PostgresAccountRepository";
 import { PostgresEmailConfirmationTokenRepository } from "@adapters/repositories/sql/PostgresEmailConfirmationTokenRepository";
@@ -200,7 +198,6 @@ function buildDueDateRepository(driver: RepositoryDriver): DueDateRepository {
   return new InMemoryDueDateRepository();
 }
 
-// Export configured repository instances
 export const repositoryDriver: RepositoryDriver = resolveRepositoryDriver();
 
 export const userRepository: UserRepository =

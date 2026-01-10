@@ -26,7 +26,6 @@ export class GetAccountTransactions {
   async execute(
     request: GetAccountTransactionsRequest
   ): Promise<AccountTransactionsResponse> {
-    // 1. Vérifier l'authentification
     const isConnected = await this.sessionRepository.isConnected(
       request.userId,
       request.token
@@ -36,21 +35,18 @@ export class GetAccountTransactions {
       throw new ConnectedError("Authentication failed: User not connected.");
     }
 
-    // 2. Récupérer le compte
     const account = await this.accountRepository.findById(request.accountId);
 
     if (!account) {
       throw new AccountNotFoundError();
     }
 
-    // 3. Vérifier que l'utilisateur est propriétaire du compte
     if (account.idOwner !== request.userId) {
       throw new UnauthorizedError(
         "You are not authorized to view this account transactions."
       );
     }
 
-    // 4. Préparer les filtres
     const filters: {
       startDate?: Date;
       endDate?: Date;
@@ -74,7 +70,6 @@ export class GetAccountTransactions {
       filters.status = request.status;
     }
 
-    // 5. Préparer la pagination (par défaut page 1, limit 20)
     const page = request.page || 1;
     const limit = request.limit || 20;
 
@@ -83,17 +78,14 @@ export class GetAccountTransactions {
       limit,
     };
 
-    // 6. Récupérer les transactions
     const result = await this.transactionRepository.findByAccountIBAN(
       account.IBAN,
       filters,
       pagination
     );
 
-    // 7. Calculer le nombre total de pages
     const totalPages = Math.ceil(result.total / limit);
 
-    // 8. Retourner les résultats paginés
     return {
       transactions: result.transactions,
       total: result.total,

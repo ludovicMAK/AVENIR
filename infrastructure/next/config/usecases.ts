@@ -1,4 +1,3 @@
-// Users use cases
 import { RegisterUser } from "@application/usecases/users/registerUser";
 import { LoginUser } from "@application/usecases/users/loginUser";
 import { GetAllUsers } from "@application/usecases/users/getAllUsers";
@@ -7,8 +6,6 @@ import { BanUser } from "@application/usecases/users/banUser";
 import { UnbanUser } from "@application/usecases/users/unbanUser";
 import { DeleteUser } from "@application/usecases/users/deleteUser";
 import { GetAllUsersWithStats } from "@application/usecases/users/getAllUsersWithStats";
-
-// Accounts use cases
 import { GetAccountsFromOwnerId } from "@application/usecases/accounts/getAccountsFromOwnerId";
 import { CreateAccount } from "@application/usecases/accounts/createAccount";
 import { GetAccountById } from "@application/usecases/accounts/getAccountById";
@@ -17,8 +14,6 @@ import { UpdateNameAccount } from "@application/usecases/accounts/updateNameAcco
 import { GetAccountBalance } from "@application/usecases/accounts/getAccountBalance";
 import { GetAccountTransactions } from "@application/usecases/accounts/getAccountTransactions";
 import { GetAccountStatement } from "@application/usecases/accounts/getAccountStatement";
-
-// Shares use cases
 import { CreateShare } from "@application/usecases/shares/createShare";
 import { GetAllShares } from "@application/usecases/shares/getAllShares";
 import { GetShareById } from "@application/usecases/shares/getShareById";
@@ -34,16 +29,10 @@ import { UpdateShare } from "@application/usecases/shares/updateShare";
 import { DeleteShare } from "@application/usecases/shares/deleteShare";
 import { ActivateShare } from "@application/usecases/shares/activateShare";
 import { DeactivateShare } from "@application/usecases/shares/deactivateShare";
-
-// Transactions use cases
 import { CreateTransaction } from "@application/usecases/transactions/createTransaction";
 import { GetTransactionHistory } from "@application/usecases/transactions/getTransactionHistory";
-
-// Transfer use cases
 import { ValidTransferByAdmin } from "@application/usecases/transfer/validTransferByAdmin";
 import { CancelTransfer } from "@application/usecases/transfer/cancelTransfer";
-
-// Credits use cases
 import { GrantCredit } from "@application/usecases/credits/grantCredit";
 import { GetCustomerCreditsWithDueDates } from "@application/usecases/credits/getCustomerCreditsWithDueDates";
 import { GetMyCredits } from "@application/usecases/credits/getMyCredits";
@@ -55,8 +44,6 @@ import { MarkOverdueDueDates } from "@application/usecases/credits/markOverdueDu
 import { GetOverdueDueDates } from "@application/usecases/credits/getOverdueDueDates";
 import { SimulateAmortizationSchedule } from "@application/usecases/credits/simulateAmortizationSchedule";
 import { PayInstallment } from "@application/usecases/credits/payInstallment";
-
-// Conversations use cases
 import { CreateConversation } from "@application/usecases/conversations/createConversation";
 import { CreateGroupConversation } from "@application/usecases/conversations/createGroupConversation";
 import { SendMessage } from "@application/usecases/conversations/sendMessage";
@@ -67,7 +54,6 @@ import { GetCustomerConversations } from "@application/usecases/conversations/ge
 import { GetAdvisorConversations } from "@application/usecases/conversations/getAdvisorConversations";
 import { AddParticipant } from "@application/usecases/conversations/addParticipant";
 
-// Repositories and services
 import {
   userRepository,
   emailConfirmationTokenRepository,
@@ -99,7 +85,6 @@ import { EnvironmentBankConfiguration } from "@adapters/services/EnvironmentBank
 
 const bankConfiguration = new EnvironmentBankConfiguration();
 
-// ===== Users Use Cases =====
 export const registerUser = new RegisterUser(
   userRepository,
   emailConfirmationTokenRepository,
@@ -140,7 +125,6 @@ export const confirmRegistration = new ConfirmRegistration(
   uuidGenerator
 );
 
-// ===== Accounts Use Cases =====
 export const getAccountsFromOwnerId = new GetAccountsFromOwnerId(
   accountRepository
 );
@@ -181,7 +165,6 @@ export const getAccountStatement = new GetAccountStatement(
   sessionRepository
 );
 
-// ===== Shares Use Cases =====
 export const createShare = new CreateShare(shareRepository, uuidGenerator);
 
 export const getAllShares = new GetAllShares(shareRepository);
@@ -235,7 +218,6 @@ export const deactivateShare = new DeactivateShare(
   orderRepository
 );
 
-// ===== Transactions Use Cases =====
 export const createTransaction = new CreateTransaction(
   transactionRepository,
   uuidGenerator,
@@ -251,7 +233,6 @@ export const getTransactionHistory = new GetTransactionHistory(
   accountRepository
 );
 
-// ===== Transfer Use Cases =====
 export const validateTransferByAdmin = new ValidTransferByAdmin(
   transactionRepository,
   transferRepository,
@@ -268,7 +249,6 @@ export const cancelTransfer = new CancelTransfer(
   unitOfWorkFactory
 );
 
-// ===== Credits Use Cases =====
 export const grantCredit = new GrantCredit(
   sessionRepository,
   userRepository,
@@ -352,7 +332,6 @@ export const payInstallment = new PayInstallment(
   bankConfiguration
 );
 
-// ===== Conversations Use Cases =====
 export const createConversation = new CreateConversation(
   conversationRepository,
   messageRepository,
@@ -360,7 +339,7 @@ export const createConversation = new CreateConversation(
   sessionRepository,
   userRepository,
   uuidGenerator,
-  undefined // WebSocket service can be added later if needed for Next.js
+  undefined
 );
 
 export const createGroupConversation = new CreateGroupConversation(

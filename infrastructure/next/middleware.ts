@@ -26,14 +26,10 @@ export function middleware(request: NextRequest) {
   const isHome = pathname === PATHS.HOME;
   const isAuthPage = AUTH_PAGES.has(pathname);
 
-  // La page d'accueil (/) est publique, donc on ne redirige plus
-  // Seules les pages protégées comme /dashboard nécessitent l'authentification
   if (!isAuthPage) {
     return NextResponse.next();
   }
 
-  // Si on est sur une page d'auth (login/register) et qu'on est déjà connecté
-  // Rediriger vers /dashboard au lieu de /
   if (isAuthPage && authenticated) {
     const redirectHint = request.cookies.get(REDIRECT_COOKIE_NAME)?.value;
     const fallback = PATHS.DASHBOARD;

@@ -1,4 +1,3 @@
-// Users use cases
 import { RegisterUser } from "@application/usecases/users/registerUser";
 import { LoginUser } from "@application/usecases/users/loginUser";
 import { GetAllUsers } from "@application/usecases/users/getAllUsers";
@@ -10,7 +9,6 @@ import { BanUser } from "@application/usecases/users/banUser";
 import { UnbanUser } from "@application/usecases/users/unbanUser";
 import { DeleteUser } from "@application/usecases/users/deleteUser";
 
-// Accounts use cases
 import { GetAccountsFromOwnerId } from "@application/usecases/accounts/getAccountsFromOwnerId";
 import { CreateAccount } from "@application/usecases/accounts/createAccount";
 import { GetAccountById } from "@application/usecases/accounts/getAccountById";
@@ -19,7 +17,6 @@ import { GetAccountBalance } from "@application/usecases/accounts/getAccountBala
 import { GetAccountTransactions } from "@application/usecases/accounts/getAccountTransactions";
 import { GetAccountStatement } from "@application/usecases/accounts/getAccountStatement";
 
-// Shares use cases
 import { CreateShare } from "@application/usecases/shares/createShare";
 import { GetAllShares } from "@application/usecases/shares/getAllShares";
 import { GetShareById } from "@application/usecases/shares/getShareById";
@@ -36,7 +33,6 @@ import { DeleteShare } from "@application/usecases/shares/deleteShare";
 import { ActivateShare } from "@application/usecases/shares/activateShare";
 import { DeactivateShare } from "@application/usecases/shares/deactivateShare";
 
-// Conversations use cases
 import { CreateConversation } from "@application/usecases/conversations/createConversation";
 import { CreateGroupConversation } from "@application/usecases/conversations/createGroupConversation";
 import { SendMessage } from "@application/usecases/conversations/sendMessage";

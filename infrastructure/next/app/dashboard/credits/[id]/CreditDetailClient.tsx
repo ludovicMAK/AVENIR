@@ -159,7 +159,6 @@ export default function CreditDetailClient({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" onClick={() => router.back()}>
           <ArrowLeft className="mr-2 h-4 w-4" />
@@ -176,7 +175,6 @@ export default function CreditDetailClient({
         </div>
       </div>
 
-      {/* Stats */}
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="pb-3">
@@ -235,7 +233,6 @@ export default function CreditDetailClient({
         </Card>
       </div>
 
-      {/* Progression */}
       <Card>
         <CardHeader>
           <CardTitle>Progression du remboursement</CardTitle>
@@ -257,7 +254,6 @@ export default function CreditDetailClient({
         </CardContent>
       </Card>
 
-      {/* Informations du crédit */}
       <Card>
         <CardHeader>
           <CardTitle>Informations du crédit</CardTitle>
@@ -284,7 +280,6 @@ export default function CreditDetailClient({
         </CardContent>
       </Card>
 
-      {/* Échéancier */}
       <Card>
         <CardHeader>
           <CardTitle>Échéancier de remboursement</CardTitle>
@@ -355,7 +350,6 @@ export default function CreditDetailClient({
         </CardContent>
       </Card>
 
-      {/* Dialog de paiement */}
       <Dialog open={paymentDialog} onOpenChange={setPaymentDialog}>
         <DialogContent>
           <DialogHeader>
@@ -406,7 +400,7 @@ export default function CreditDetailClient({
                   <SelectContent>
                     {accounts.map((account) => (
                       <SelectItem key={account.id} value={account.id}>
-                        {account.customName || account.accountType} - {account.iban}
+                        {account.accountName || account.accountType} - {account.IBAN}
                       </SelectItem>
                     ))}
                   </SelectContent>

@@ -16,8 +16,8 @@ import { WebSocketService } from "@application/services/WebSocketService";
 
 export interface AddParticipantRequest {
   conversationId: string;
-  userId: string; // User adding the participant (must be manager)
-  participantUserId: string; // User to be added
+  userId: string;
+  participantUserId: string;
   token: string;
 }
 
@@ -32,7 +32,6 @@ export class AddParticipant {
   ) {}
 
   async execute(request: AddParticipantRequest): Promise<void> {
-    // Verify user is connected
     const isConnected = await this.sessionRepository.isConnected(
       request.userId,
       request.token
@@ -41,13 +40,11 @@ export class AddParticipant {
       throw new ConnectedError("User is not connected");
     }
 
-    // Get the user making the request
     const user = await this.userRepository.findById(request.userId);
     if (!user) {
       throw new NotFoundError("User not found");
     }
 
-    // Get the conversation
     const conversation = await this.conversationRepository.findById(
       request.conversationId
     );
@@ -55,10 +52,8 @@ export class AddParticipant {
       throw new NotFoundError("Conversation not found");
     }
 
-    // Check if user is authorized (manager or principal advisor)
     const isManager = user.role.equals(Role.MANAGER);
 
-    // Check if user is the principal advisor of this conversation
     const participants =
       await this.participantConversationRepository.findByConversationId(
         request.conversationId
@@ -73,21 +68,18 @@ export class AddParticipant {
       );
     }
 
-    // Only allow adding participants to group conversations
     if (!conversation.type.equals(ConversationType.GROUP)) {
       throw new ValidationError(
         "Can only add participants to group conversations"
       );
     }
 
-    // Check if conversation is closed
     if (conversation.isClosed()) {
       throw new ValidationError(
         "Cannot add participants to closed conversation"
       );
     }
 
-    // Get the user to be added
     const participantUser = await this.userRepository.findById(
       request.participantUserId
     );
@@ -95,7 +87,6 @@ export class AddParticipant {
       throw new NotFoundError("Participant user not found");
     }
 
-    // Only advisors and managers can be added to group conversations
     if (
       !participantUser.role.equals(Role.ADVISOR) &&
       !participantUser.role.equals(Role.MANAGER)
@@ -105,7 +96,6 @@ export class AddParticipant {
       );
     }
 
-    // Check if user is already a participant (reuse participants from authorization check)
     const isAlreadyParticipant = participants.some(
       (p) => p.advisorId === request.participantUserId
     );
@@ -114,7 +104,6 @@ export class AddParticipant {
       throw new ValidationError("User is already a participant");
     }
 
-    // Add participant
     const participantId = this.uuidGenerator.generate();
     const participant = new ParticipantConversation(
       participantId,
@@ -122,12 +111,11 @@ export class AddParticipant {
       request.participantUserId,
       new Date(),
       null,
-      false // Not principal
+      false
     );
 
     await this.participantConversationRepository.save(participant);
 
-    // Emit WebSocket event if service is available
     if (this.webSocketService) {
       await this.webSocketService.joinConversationRoom(
         request.participantUserId,

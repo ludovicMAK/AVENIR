@@ -12,7 +12,6 @@ export class CalculateSharePrice {
   constructor(private readonly orderRepository: OrderRepository) {}
 
   async execute(shareId: string): Promise<PriceCalculation> {
-    // Récupérer tous les ordres actifs
     const buyOrders =
       await this.orderRepository.findActiveByShareIdAndDirection(
         shareId,
@@ -33,7 +32,6 @@ export class CalculateSharePrice {
       };
     }
 
-    // Trier les ordres
     const sortedBuyOrders = buyOrders.sort(
       (a, b) => b.priceLimit - a.priceLimit
     );
@@ -41,12 +39,10 @@ export class CalculateSharePrice {
       (a, b) => a.priceLimit - b.priceLimit
     );
 
-    // Trouver le prix d'équilibre (où offre et demande se rencontrent)
     const highestBuyPrice = sortedBuyOrders[0].priceLimit;
     const lowestSellPrice = sortedSellOrders[0].priceLimit;
 
     if (highestBuyPrice < lowestSellPrice) {
-      // Pas de prix d'équilibre possible
       return {
         equilibriumPrice: null,
         buyOrders: buyOrders.length,
@@ -55,10 +51,8 @@ export class CalculateSharePrice {
       };
     }
 
-    // Le prix d'équilibre est le prix du vendeur (ordre passé en premier)
     const equilibriumPrice = lowestSellPrice;
 
-    // Calculer le volume potentiel à ce prix
     let potentialVolume = 0;
     for (const buyOrder of sortedBuyOrders) {
       if (buyOrder.priceLimit >= equilibriumPrice) {

@@ -3,7 +3,7 @@ export class Message {
     readonly id: string,
     readonly conversationId: string,
     readonly senderId: string,
-    readonly senderRole: string, // "customer", "bankAdvisor", "bankManager"
+    readonly senderRole: string,
     readonly text: string,
     readonly sendDate: Date
   ) {}

@@ -36,9 +36,7 @@ export default async function DashboardLayout({
   return (
     <UserProvider>
       <div className="min-h-screen bg-background flex">
-        {/* Sidebar */}
         <aside className="w-64 border-r border-primary/20 bg-gradient-to-b from-primary/10 via-secondary/5 to-background flex flex-col shadow-lg">
-          {/* Logo */}
           <div className="p-6 border-b border-primary/20">
             <div className="flex items-center gap-2">
               <div className="h-8 w-8 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
@@ -50,7 +48,6 @@ export default async function DashboardLayout({
             </div>
           </div>
 
-          {/* User Info */}
           <div className="p-4 border-b border-primary/20">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center ring-2 ring-primary/20">
@@ -67,7 +64,6 @@ export default async function DashboardLayout({
             </div>
           </div>
 
-          {/* Navigation */}
           <nav className="flex-1 p-4 space-y-2">
             <Button
               variant="ghost"
@@ -168,7 +164,6 @@ export default async function DashboardLayout({
 
             <Separator className="my-4 bg-primary/20" />
 
-            {/* Section Administration - Visible uniquement pour le directeur */}
             {user.role === "bankManager" && (
               <>
                 <div className="px-3 py-2">
@@ -202,7 +197,6 @@ export default async function DashboardLayout({
             </Button>
           </nav>
 
-          {/* Logout Button */}
           <div className="p-4 border-t border-primary/20">
             <form action="/logout" method="POST">
               <Button
@@ -217,7 +211,6 @@ export default async function DashboardLayout({
           </div>
         </aside>
 
-        {/* Main Content */}
         <main className="flex-1 overflow-auto">
           <div className="container mx-auto py-8 px-6">{children}</div>
         </main>

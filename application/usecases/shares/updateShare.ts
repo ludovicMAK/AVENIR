@@ -16,13 +16,11 @@ export class UpdateShare {
       throw new NotFoundError("Share not found");
     }
 
-    // Validation des inputs
     if (input.name !== undefined) {
       if (input.name.trim().length === 0) {
         throw new ValidationError("Share name cannot be empty");
       }
 
-      // Vérifier que le nom n'est pas déjà utilisé par une autre action
       const shareWithSameName = await this.shareRepository.findByName(
         input.name.trim()
       );
@@ -38,12 +36,11 @@ export class UpdateShare {
       throw new ValidationError("Total number of parts cannot be negative");
     }
 
-    // Créer la nouvelle version de l'action avec les modifications
     const updatedShare = new Share(
       existingShare.id,
       input.name?.trim() ?? existingShare.name,
       input.totalNumberOfParts ?? existingShare.totalNumberOfParts,
-      existingShare.initialPrice, // Le prix initial ne peut pas être modifié
+      existingShare.initialPrice,
       existingShare.lastExecutedPrice
     );
 

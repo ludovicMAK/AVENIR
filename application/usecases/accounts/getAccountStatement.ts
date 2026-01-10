@@ -33,7 +33,6 @@ export class GetAccountStatement {
   async execute(
     request: GetAccountStatementRequest
   ): Promise<AccountStatementResponse> {
-    // 1. Vérifier l'authentification
     const isConnected = await this.sessionRepository.isConnected(
       request.userId,
       request.token
@@ -43,32 +42,27 @@ export class GetAccountStatement {
       throw new ConnectedError("Authentication failed: User not connected.");
     }
 
-    // 2. Récupérer le compte
     const account = await this.accountRepository.findById(request.accountId);
 
     if (!account) {
       throw new AccountNotFoundError();
     }
 
-    // 3. Vérifier que l'utilisateur est propriétaire du compte
     if (account.idOwner !== request.userId) {
       throw new UnauthorizedError(
         "You are not authorized to view this account statement."
       );
     }
 
-    // 4. Convertir les dates
     const fromDate = new Date(request.fromDate);
     const toDate = new Date(request.toDate);
 
-    // 5. Récupérer toutes les transactions avant la date de début pour calculer le solde initial
     const transactionsBeforeStart =
       await this.transactionRepository.findByAccountIBAN(account.IBAN, {
         endDate: fromDate,
-        status: "VALIDATED", // Uniquement les transactions validées
+        status: "VALIDATED",
       });
 
-    // 6. Calculer le solde initial
     let initialBalance = 0;
     for (const transaction of transactionsBeforeStart.transactions) {
       if (transaction.transactionDirection.getValue() === "CREDIT") {
@@ -78,7 +72,6 @@ export class GetAccountStatement {
       }
     }
 
-    // 7. Récupérer les transactions dans la période demandée
     const transactionsInPeriod =
       await this.transactionRepository.findByAccountIBAN(account.IBAN, {
         startDate: fromDate,
@@ -86,7 +79,6 @@ export class GetAccountStatement {
         status: "VALIDATED",
       });
 
-    // 8. Calculer le solde final
     let finalBalance = initialBalance;
     for (const transaction of transactionsInPeriod.transactions) {
       if (transaction.transactionDirection.getValue() === "CREDIT") {
@@ -96,7 +88,6 @@ export class GetAccountStatement {
       }
     }
 
-    // 9. Retourner le relevé de compte
     return {
       account: {
         iban: account.IBAN,
