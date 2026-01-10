@@ -6,16 +6,35 @@ import { ValidateTransferByAdmin } from "@express/schemas/ValidateTransferByAdmi
 import { sendSuccess } from "../responses/success";
 import { mapErrorToHttpResponse } from "../responses/error";
 import { Request, Response } from "express";
-import { ValidationError } from "@application/errors/index";
+import { UnauthorizedError, ValidationError } from "@application/errors/index";
+import { AuthGuard } from "@express/src/http/AuthGuard";
 
 export class TransferHttpHandler {
-  constructor(private readonly controller: TransferController) {}
+  constructor(
+    private readonly controller: TransferController,
+    private readonly authGuard: AuthGuard
+  ) {}
+
+  private extractToken(request: Request): string | null {
+    const authHeader = request.headers["authorization"];
+    if (!authHeader) return null;
+    const [scheme, value] = authHeader.split(" ");
+    if (scheme?.toLowerCase() === "bearer" && value) return value;
+    return authHeader;
+  }
+
+  private async getAuthContext(request: Request) {
+    const user = await this.authGuard.requireAuthenticated(request);
+    const token = this.extractToken(request);
+    if (!token) {
+      throw new UnauthorizedError("Authentication required");
+    }
+    return { user, token };
+  }
 
     public async validateTransferByAdmin(request: Request, response: Response) {
   try {
-    const userId = request.headers["x-user-id"] as string;
-    const authHeader = request.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1]; 
+    const { user, token } = await this.getAuthContext(request);
     const { idTransfer } = request.body;
 
     const parsed = ValidateTransferByAdmin.safeParse({ idTransfer });
@@ -27,8 +46,8 @@ export class TransferHttpHandler {
     }
 
     const input: confirmTransfer = {
-      userId: userId,
-      token: token || "", 
+      userId: user.id,
+      token: token || "",
       idTransfer: idTransfer,
     };
 
@@ -47,21 +66,15 @@ export class TransferHttpHandler {
 
   public async cancelTransfer(request: Request, response: Response) {
     try {
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers["authorization"];
-      const token = authHeader && authHeader.split(" ")[1];
+      const { user, token } = await this.getAuthContext(request);
       const { transferId } = request.body;
-
-      if (!userId || !token) {
-        throw new ValidationError("Authentication required");
-      }
 
       if (!transferId) {
         throw new ValidationError("Transfer ID is required");
       }
 
       const input: CancelTransferRequest = {
-        userId,
+        userId: user.id,
         token,
         transferId,
       };

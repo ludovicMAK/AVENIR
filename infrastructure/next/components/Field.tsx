@@ -34,7 +34,7 @@ export const FieldLabel = ({
 export const FieldDescription = ({ className, ...props }: React.ComponentProps<"p">) => (
     <p
         data-slot="field-description"
-        className={`text-muted-foreground text-sm leading-normal font-normal [&>a:hover]:opacity-50 [&>a]:underline [&>a]:underline-offset-4${className ? ` ${className}` : ""}`}
+        className={`text-sm leading-normal font-normal [&>a:hover]:opacity-50 [&>a]:underline [&>a]:underline-offset-4${className ? ` ${className}` : ""}`}
         {...props}
     />
 )

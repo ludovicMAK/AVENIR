@@ -18,7 +18,7 @@ Ce document décrit l'ensemble des données de test créées dans le fichier `in
 
 | Nom            | Email                     | ID                                   | Compte Principal |
 |----------------|---------------------------|--------------------------------------|------------------|
-| Laurent Dubois | laurent.dubois@avenir.com | 00000000-0000-0000-0000-000000000001 | 500 000€         |
+| Laurent Dubois | laurent.dubois@avenir.com | 00000000-0000-4000-8000-000000000001 | 500 000€         |
 
 **Rôle** : Peut créer/modifier/supprimer des actions, fixer les taux d'épargne, gérer les utilisateurs.
 
@@ -30,11 +30,11 @@ Ce document décrit l'ensemble des données de test créées dans le fichier `in
 
 | Nom           | Email                      | ID                                   |
 |---------------|----------------------------|--------------------------------------|
-| Marie Dupont  | marie.dupont@avenir.com    | 00000000-0000-0000-0000-000000000011 |
-| Pierre Moreau | pierre.moreau@avenir.com   | 00000000-0000-0000-0000-000000000012 |
-| Julie Laurent | julie.laurent@avenir.com   | 00000000-0000-0000-0000-000000000013 |
-| Marc Simon    | marc.simon@avenir.com      | 00000000-0000-0000-0000-000000000014 |
-| Émilie Michel | emilie.michel@avenir.com   | 00000000-0000-0000-0000-000000000015 |
+| Marie Dupont  | marie.dupont@avenir.com    | 00000000-0000-4000-8000-000000000011 |
+| Pierre Moreau | pierre.moreau@avenir.com   | 00000000-0000-4000-8000-000000000012 |
+| Julie Laurent | julie.laurent@avenir.com   | 00000000-0000-4000-8000-000000000013 |
+| Marc Simon    | marc.simon@avenir.com      | 00000000-0000-4000-8000-000000000014 |
+| Émilie Michel | emilie.michel@avenir.com   | 00000000-0000-4000-8000-000000000015 |
 
 **Rôle** : Peuvent octroyer des crédits, répondre aux messages clients, transférer des conversations.
 
@@ -44,16 +44,16 @@ Ce document décrit l'ensemble des données de test créées dans le fichier `in
 
 | Nom               | Email                     | ID                                   | Profil                        |
 |-------------------|---------------------------|--------------------------------------|-------------------------------|
-| Jean Martin       | jean.martin@gmail.com     | 00000000-0000-0000-0000-000000000101 | Investisseur débutant         |
-| Sophie Bernard    | sophie.bernard@gmail.com  | 00000000-0000-0000-0000-000000000102 | Investisseuse active          |
-| Luc Petit         | luc.petit@gmail.com       | 00000000-0000-0000-0000-000000000103 | Jeune client avec crédit      |
-| Alice Durand      | alice.durand@gmail.com    | 00000000-0000-0000-0000-000000000104 | Grande investisseuse          |
-| Paul Leroy        | paul.leroy@gmail.com      | 00000000-0000-0000-0000-000000000105 | Investisseur moyen            |
-| Emma Bonnet       | emma.bonnet@gmail.com     | 00000000-0000-0000-0000-000000000106 | Investisseuse prudente        |
-| Hugo Lambert      | hugo.lambert@gmail.com    | 00000000-0000-0000-0000-000000000107 | Client avec crédit terminé    |
-| Léa Garcia        | lea.garcia@gmail.com      | 00000000-0000-0000-0000-000000000108 | Petite investisseuse          |
-| Noah Fontaine     | noah.fontaine@gmail.com   | 00000000-0000-0000-0000-000000000109 | Client simple (1 compte)      |
-| Chloé Chevalier   | chloe.chevalier@gmail.com | 00000000-0000-0000-0000-000000000110 | Très active en bourse         |
+| Jean Martin       | jean.martin@gmail.com     | 00000000-0000-4000-8000-000000000101 | Investisseur débutant         |
+| Sophie Bernard    | sophie.bernard@gmail.com  | 00000000-0000-4000-8000-000000000102 | Investisseuse active          |
+| Luc Petit         | luc.petit@gmail.com       | 00000000-0000-4000-8000-000000000103 | Jeune client avec crédit      |
+| Alice Durand      | alice.durand@gmail.com    | 00000000-0000-4000-8000-000000000104 | Grande investisseuse          |
+| Paul Leroy        | paul.leroy@gmail.com      | 00000000-0000-4000-8000-000000000105 | Investisseur moyen            |
+| Emma Bonnet       | emma.bonnet@gmail.com     | 00000000-0000-4000-8000-000000000106 | Investisseuse prudente        |
+| Hugo Lambert      | hugo.lambert@gmail.com    | 00000000-0000-4000-8000-000000000107 | Client avec crédit terminé    |
+| Léa Garcia        | lea.garcia@gmail.com      | 00000000-0000-4000-8000-000000000108 | Petite investisseuse          |
+| Noah Fontaine     | noah.fontaine@gmail.com   | 00000000-0000-4000-8000-000000000109 | Client simple (1 compte)      |
+| Chloé Chevalier   | chloe.chevalier@gmail.com | 00000000-0000-4000-8000-000000000110 | Très active en bourse         |
 
 ---
 

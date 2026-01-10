@@ -3,16 +3,24 @@ import { AccountController } from "@express/controllers/AccountController";
 import { sendSuccess } from "../responses/success";
 import { mapErrorToHttpResponse } from "../responses/error";
 import { ValidationError, UnauthorizedError } from "@application/errors";
-import { SessionRepository } from "@application/repositories/session";
 import { Transaction } from "@domain/entities/transaction";
 import { TransactionRepository } from "@application/repositories/transaction";
+import { AuthGuard } from "@express/src/http/AuthGuard";
 
 export class AccountHttpHandler {
   constructor(
     private readonly controller: AccountController,
-    private readonly sessionRepository: SessionRepository,
-    private readonly transactionRepository: TransactionRepository
+    private readonly transactionRepository: TransactionRepository,
+    private readonly authGuard: AuthGuard
   ) {}
+
+  private extractToken(request: Request): string | null {
+    const authHeader = request.headers.authorization as string;
+    const token = authHeader?.startsWith("Bearer ")
+      ? authHeader.split(" ")[1]
+      : authHeader;
+    return token ?? null;
+  }
 
   public async listByOwnerId(request: Request, response: Response) {
     try {
@@ -64,27 +72,18 @@ export class AccountHttpHandler {
 
   public async create(request: Request, response: Response) {
     try {
-      const authHeader = request.headers.authorization as string;
-      const token = authHeader?.startsWith("Bearer ")
-        ? authHeader.split(" ")[1]
-        : authHeader;
-
+      const user = await this.authGuard.requireAuthenticated(request);
+      const token = this.extractToken(request);
       if (!token) {
         throw new UnauthorizedError("Authentication required");
-      }
-
-      // Récupérer l'userId à partir du token
-      const userId = await this.sessionRepository.getUserIdByToken(token);
-      if (!userId) {
-        throw new UnauthorizedError("Invalid or expired session");
       }
 
       const accountData = request.body;
 
       const account = await this.controller.create({
         ...accountData,
-        idOwner: userId,
-        token: token,
+        idOwner: user.id,
+        token,
       });
 
       return sendSuccess(response, {
@@ -101,21 +100,12 @@ export class AccountHttpHandler {
   public async close(request: Request, response: Response) {
     try {
       const accountId = request.params.accountId;
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers.authorization as string;
-      const token = authHeader?.startsWith("Bearer ")
-        ? authHeader.split(" ")[1]
-        : authHeader;
+      const user = await this.authGuard.requireAuthenticated(request);
+      const token = this.extractToken(request);
       if (!accountId) {
         return response.status(400).send({
           code: "MISSING_ACCOUNT_ID",
           message: "L'ID du compte est requis.",
-        });
-      }
-      if (!userId) {
-        return response.status(400).send({
-          code: "MISSING_USER_ID",
-          message: "L'ID de l'utilisateur est requis.",
         });
       }
       if (!token) {
@@ -125,7 +115,7 @@ export class AccountHttpHandler {
         });
       }
 
-      await this.controller.close(accountId, userId, token);
+      await this.controller.close(accountId, user.id, token);
 
       return sendSuccess(response, {
         status: 200,
@@ -141,12 +131,8 @@ export class AccountHttpHandler {
     try {
       const { accountId } = request.params;
       const { newName } = request.body;
-      const userId = request.headers["x-user-id"] as string;
-
-      const authHeader = request.headers.authorization as string;
-      const token = authHeader?.startsWith("Bearer ")
-        ? authHeader.split(" ")[1]
-        : authHeader;
+      const user = await this.authGuard.requireAuthenticated(request);
+      const token = this.extractToken(request);
 
       if (
         !newName ||
@@ -164,7 +150,7 @@ export class AccountHttpHandler {
         );
       }
 
-      await this.controller.updateName(accountId, newName, userId, token);
+      await this.controller.updateName(accountId, newName, user.id, token ?? "");
 
       return sendSuccess(response, {
         status: 200,
@@ -179,11 +165,8 @@ export class AccountHttpHandler {
   public async getBalance(request: Request, response: Response) {
     try {
       const { accountId } = request.params;
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers.authorization as string;
-      const token = authHeader?.startsWith("Bearer ")
-        ? authHeader.split(" ")[1]
-        : authHeader;
+      const user = await this.authGuard.requireAuthenticated(request);
+      const token = this.extractToken(request);
 
       if (!accountId) {
         return response.status(400).send({
@@ -192,13 +175,13 @@ export class AccountHttpHandler {
         });
       }
 
-      if (!userId || !token) {
+      if (!user.id || !token) {
         throw new ValidationError("Authentication required");
       }
 
       const balanceData = await this.controller.getBalance({
         accountId,
-        userId,
+        userId: user.id,
         token,
       });
 
@@ -216,11 +199,8 @@ export class AccountHttpHandler {
   public async getTransactions(request: Request, response: Response) {
     try {
       const { accountId } = request.params;
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers.authorization as string;
-      const token = authHeader?.startsWith("Bearer ")
-        ? authHeader.split(" ")[1]
-        : authHeader;
+      const user = await this.authGuard.requireAuthenticated(request);
+      const token = this.extractToken(request);
 
       if (!accountId) {
         return response.status(400).send({
@@ -229,7 +209,7 @@ export class AccountHttpHandler {
         });
       }
 
-      if (!userId || !token) {
+      if (!user.id || !token) {
         throw new ValidationError("Authentication required");
       }
 
@@ -239,7 +219,7 @@ export class AccountHttpHandler {
 
       const result = await this.controller.getTransactions({
         accountId,
-        userId,
+        userId: user.id,
         token,
         startDate: startDate as string | undefined,
         endDate: endDate as string | undefined,
@@ -304,11 +284,8 @@ export class AccountHttpHandler {
   public async getStatement(request: Request, response: Response) {
     try {
       const { accountId } = request.params;
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers.authorization as string;
-      const token = authHeader?.startsWith("Bearer ")
-        ? authHeader.split(" ")[1]
-        : authHeader;
+      const user = await this.authGuard.requireAuthenticated(request);
+      const token = this.extractToken(request);
 
       if (!accountId) {
         return response.status(400).send({
@@ -317,7 +294,7 @@ export class AccountHttpHandler {
         });
       }
 
-      if (!userId || !token) {
+      if (!user.id || !token) {
         throw new ValidationError("Authentication required");
       }
 
@@ -334,7 +311,7 @@ export class AccountHttpHandler {
 
       const statementData = await this.controller.getStatement({
         accountId,
-        userId,
+        userId: user.id,
         token,
         fromDate: fromDate as string,
         toDate: toDate as string,

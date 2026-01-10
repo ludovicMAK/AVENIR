@@ -47,7 +47,7 @@ export const CardTitle = ({ className, ...props }: React.ComponentProps<"h2">) =
 export const CardDescription = ({ className, ...props }: React.ComponentProps<"p">) => (
     <p
         data-slot="card-description"
-        className={`text-muted-foreground text-sm${className ? ` ${className}` : ""}`}
+        className={`text-sm${className ? ` ${className}` : ""}`}
         {...props}
     />
 )

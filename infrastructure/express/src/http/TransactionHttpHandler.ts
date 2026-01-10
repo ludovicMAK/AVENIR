@@ -11,12 +11,31 @@ import { UnauthorizedError, ValidationError } from "@application/errors";
 import { GetAccountTransactionsByAdminRequest } from "@application/usecases/transactions/getAccountTransactionsByAdmin";
 import { Transaction } from "@domain/entities/transaction";
 import { TransactionRepository } from "@application/repositories/transaction";
+import { AuthGuard } from "@express/src/http/AuthGuard";
 
 export class TransactionHttpHandler {
   constructor(
     private readonly controller: TransactionController,
-    private readonly transactionRepository: TransactionRepository
+    private readonly transactionRepository: TransactionRepository,
+    private readonly authGuard: AuthGuard
   ) {}
+
+  private extractToken(request: Request): string | null {
+    const authHeader = request.headers.authorization as string;
+    if (!authHeader) return null;
+    const [scheme, value] = authHeader.split(" ");
+    if (scheme?.toLowerCase() === "bearer" && value) return value;
+    return authHeader;
+  }
+
+  private async getAuthContext(request: Request) {
+    const user = await this.authGuard.requireAuthenticated(request);
+    const token = this.extractToken(request);
+    if (!token) {
+      throw new UnauthorizedError("Identification manquante (ID ou Token).");
+    }
+    return { user, token };
+  }
   public async createTransaction(request: Request, response: Response) {
     try {
       const result = CreateTransactionSchema.safeParse(request.body);
@@ -36,18 +55,10 @@ export class TransactionHttpHandler {
       const { amount, description, accountIBANFrom, accountIBANTo, direction } =
         result.data;
 
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers.authorization as string;
-      const token = authHeader?.startsWith("Bearer ")
-        ? authHeader.split(" ")[1]
-        : authHeader;
-
-      if (!userId || !token) {
-        throw new UnauthorizedError("Identification manquante (ID ou Token).");
-      }
+      const { user, token } = await this.getAuthContext(request);
 
       const input: TransactionInput = {
-        idUser: userId,
+        idUser: user.id,
         token: token,
         description,
         amount,
@@ -71,16 +82,10 @@ export class TransactionHttpHandler {
 
   public async getTransactionHistory(request: Request, response: Response) {
     try {
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers["authorization"];
-      const token = authHeader && authHeader.split(" ")[1];
-
-      if (!userId || !token) {
-        throw new ValidationError("Authentication required");
-      }
+      const { user, token } = await this.getAuthContext(request);
 
       const input: GetTransactionHistoryRequest = {
-        userId,
+        userId: user.id,
         token,
       };
 
@@ -134,21 +139,15 @@ export class TransactionHttpHandler {
     response: Response
   ) {
     try {
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers["authorization"];
-      const token = authHeader && authHeader.split(" ")[1];
+      const { user, token } = await this.getAuthContext(request);
       const { iban } = request.params;
-
-      if (!userId || !token) {
-        throw new ValidationError("Authentication required");
-      }
 
       if (!iban) {
         throw new ValidationError("IBAN is required");
       }
 
       const input: GetAccountTransactionsByAdminRequest = {
-        userId,
+        userId: user.id,
         token,
         iban,
       };

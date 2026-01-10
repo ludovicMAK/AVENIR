@@ -12,7 +12,7 @@ import {
 } from "@application/requests/shares";
 import { mapErrorToHttpResponse } from "@express/src/responses/error";
 import { sendSuccess } from "@express/src/responses/success";
-import { ValidationError } from "@application/errors";
+import { ValidationError, UnauthorizedError } from "@application/errors";
 import { ShareView } from "@express/types/responses";
 import { Share } from "@domain/entities/share";
 import { AuthGuard } from "@express/src/http/AuthGuard";
@@ -26,6 +26,23 @@ export class ShareHttpHandler {
     private readonly controller: ShareController,
     private readonly authGuard: AuthGuard
   ) {}
+
+  private extractToken(request: Request): string | null {
+    const authHeader = request.headers.authorization as string;
+    const token = authHeader?.startsWith("Bearer ")
+      ? authHeader.split(" ")[1]
+      : authHeader;
+    return token ?? null;
+  }
+
+  private async getAuthContext(request: Request) {
+    const user = await this.authGuard.requireAuthenticated(request);
+    const token = this.extractToken(request);
+    if (!token) {
+      throw new UnauthorizedError("Authentication required.");
+    }
+    return { user, token };
+  }
 
   private parseNumber(value: unknown, fieldName: string): number {
     if (typeof value !== "number" || Number.isNaN(value)) {
@@ -100,9 +117,9 @@ export class ShareHttpHandler {
   async getAll(request: Request, response: Response) {
     try {
       const shares = await this.controller.getAll();
-      response
-        .status(200)
-        .json(shares.map((share) => this.toShareView(share)));
+      response.status(200).json({
+        shares: shares.map((share) => this.toShareView(share)),
+      });
     } catch (error) {
       return mapErrorToHttpResponse(response, error);
     }
@@ -112,7 +129,7 @@ export class ShareHttpHandler {
     try {
       const payload: GetShareInput = { shareId: request.params.shareId };
       const share = await this.controller.getById(payload);
-      response.status(200).json(this.toShareView(share));
+      response.status(200).json({ share: this.toShareView(share) });
     } catch (error) {
       return mapErrorToHttpResponse(response, error);
     }
@@ -120,28 +137,11 @@ export class ShareHttpHandler {
 
   async placeOrder(request: Request, response: Response) {
     try {
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers.authorization as string;
-      const token = authHeader?.startsWith("Bearer ")
-        ? authHeader.split(" ")[1]
-        : authHeader;
-
-      if (!userId) {
-        return response.status(400).send({
-          code: "MISSING_USER_ID",
-          message: "L'ID de l'utilisateur est requis.",
-        });
-      }
-      if (!token) {
-        return response.status(400).send({
-          code: "MISSING_AUTH_TOKEN",
-          message: "Le token d'authentification est requis.",
-        });
-      }
+      const { user, token } = await this.getAuthContext(request);
 
       const payload: PlaceOrderInput = {
         ...request.body,
-        customerId: userId,
+        customerId: user.id,
         token,
       };
       const order = await this.controller.order(payload);
@@ -159,24 +159,7 @@ export class ShareHttpHandler {
 
   async cancelOrder(request: Request, response: Response) {
     try {
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers.authorization as string;
-      const token = authHeader?.startsWith("Bearer ")
-        ? authHeader.split(" ")[1]
-        : authHeader;
-
-      if (!userId) {
-        return response.status(400).send({
-          code: "MISSING_USER_ID",
-          message: "L'ID de l'utilisateur est requis.",
-        });
-      }
-      if (!token) {
-        return response.status(400).send({
-          code: "MISSING_AUTH_TOKEN",
-          message: "Le token d'authentification est requis.",
-        });
-      }
+      await this.getAuthContext(request);
 
       const payload: CancelOrderInput = {
         orderId: request.params.orderId,
@@ -191,27 +174,10 @@ export class ShareHttpHandler {
 
   async getPositions(request: Request, response: Response) {
     try {
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers.authorization as string;
-      const token = authHeader?.startsWith("Bearer ")
-        ? authHeader.split(" ")[1]
-        : authHeader;
-
-      if (!userId) {
-        return response.status(400).send({
-          code: "MISSING_USER_ID",
-          message: "L'ID de l'utilisateur est requis.",
-        });
-      }
-      if (!token) {
-        return response.status(400).send({
-          code: "MISSING_AUTH_TOKEN",
-          message: "Le token d'authentification est requis.",
-        });
-      }
+      const { user } = await this.getAuthContext(request);
 
       const payload: GetPositionsInput = {
-        customerId: userId,
+        customerId: user.id,
       };
       
       // Récupérer les positions du client
@@ -267,26 +233,8 @@ export class ShareHttpHandler {
 
   async getOrders(request: Request, response: Response) {
     try {
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers.authorization as string;
-      const token = authHeader?.startsWith("Bearer ")
-        ? authHeader.split(" ")[1]
-        : authHeader;
-
-      if (!userId) {
-        return response.status(400).send({
-          code: "MISSING_USER_ID",
-          message: "L'ID de l'utilisateur est requis.",
-        });
-      }
-      if (!token) {
-        return response.status(400).send({
-          code: "MISSING_AUTH_TOKEN",
-          message: "Le token d'authentification est requis.",
-        });
-      }
-
-      const customerId = request.params.customerId;
+      const { user } = await this.getAuthContext(request);
+      const customerId = request.params.customerId ?? user.id;
       const orders = await this.controller.getOrders(customerId);
       const serializedOrders = orders.map((order) => ({
         id: order.id,

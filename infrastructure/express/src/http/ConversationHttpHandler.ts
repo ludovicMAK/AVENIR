@@ -18,30 +18,35 @@ import {
   MessageResponseData,
   MessagesListResponseData,
 } from "@express/types/responses";
+import { AuthGuard } from "@express/src/http/AuthGuard";
+import { UnauthorizedError } from "@application/errors";
 
 export class ConversationHttpHandler {
-  constructor(private readonly controller: ConversationController) {}
+  constructor(
+    private readonly controller: ConversationController,
+    private readonly authGuard: AuthGuard
+  ) {}
+
+  private extractToken(request: Request): string | null {
+    const authHeader = request.headers.authorization as string;
+    if (!authHeader) return null;
+    const [scheme, token] = authHeader.split(" ");
+    if (scheme?.toLowerCase() === "bearer" && token) return token;
+    return authHeader;
+  }
+
+  private async getAuthContext(request: Request) {
+    const user = await this.authGuard.requireAuthenticated(request);
+    const token = this.extractToken(request);
+    if (!token) {
+      throw new UnauthorizedError("Authentication required");
+    }
+    return { user, token };
+  }
 
   public async create(request: Request, response: Response) {
     try {
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers.authorization as string;
-      const token = authHeader?.startsWith("Bearer ")
-        ? authHeader.substring(7)
-        : "";
-
-      if (!userId) {
-        return response.status(400).send({
-          code: "MISSING_USER_ID",
-          message: "L'ID de l'utilisateur est requis.",
-        });
-      }
-      if (!token) {
-        return response.status(400).send({
-          code: "MISSING_AUTH_TOKEN",
-          message: "Le token d'authentification est requis.",
-        });
-      }
+      const { token } = await this.getAuthContext(request);
 
       const validatedData = CreateConversationSchema.parse(request.body);
 
@@ -74,24 +79,7 @@ export class ConversationHttpHandler {
 
   public async sendMessage(request: Request, response: Response) {
     try {
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers.authorization as string;
-      const token = authHeader?.startsWith("Bearer ")
-        ? authHeader.substring(7)
-        : "";
-
-      if (!userId) {
-        return response.status(400).send({
-          code: "MISSING_USER_ID",
-          message: "L'ID de l'utilisateur est requis.",
-        });
-      }
-      if (!token) {
-        return response.status(400).send({
-          code: "MISSING_AUTH_TOKEN",
-          message: "Le token d'authentification est requis.",
-        });
-      }
+      const { token } = await this.getAuthContext(request);
 
       const validatedData = SendMessageSchema.parse(request.body);
 
@@ -124,24 +112,7 @@ export class ConversationHttpHandler {
 
   public async transfer(request: Request, response: Response) {
     try {
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers.authorization as string;
-      const token = authHeader?.startsWith("Bearer ")
-        ? authHeader.substring(7)
-        : "";
-
-      if (!userId) {
-        return response.status(400).send({
-          code: "MISSING_USER_ID",
-          message: "L'ID de l'utilisateur est requis.",
-        });
-      }
-      if (!token) {
-        return response.status(400).send({
-          code: "MISSING_AUTH_TOKEN",
-          message: "Le token d'authentification est requis.",
-        });
-      }
+      const { token } = await this.getAuthContext(request);
 
       const validatedData = TransferConversationSchema.parse(request.body);
 
@@ -165,24 +136,7 @@ export class ConversationHttpHandler {
 
   public async close(request: Request, response: Response) {
     try {
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers.authorization as string;
-      const token = authHeader?.startsWith("Bearer ")
-        ? authHeader.substring(7)
-        : "";
-
-      if (!userId) {
-        return response.status(400).send({
-          code: "MISSING_USER_ID",
-          message: "L'ID de l'utilisateur est requis.",
-        });
-      }
-      if (!token) {
-        return response.status(400).send({
-          code: "MISSING_AUTH_TOKEN",
-          message: "Le token d'authentification est requis.",
-        });
-      }
+      const { token } = await this.getAuthContext(request);
 
       const validatedData = CloseConversationSchema.parse({
         conversationId: request.params.conversationId,
@@ -207,16 +161,11 @@ export class ConversationHttpHandler {
 
   public async getMessages(request: Request, response: Response) {
     try {
-      const authHeader = request.headers.authorization as string;
-      const token = authHeader?.startsWith("Bearer ")
-        ? authHeader.substring(7)
-        : "";
-
-      const userId = request.headers["x-user-id"] as string;
+      const { user, token } = await this.getAuthContext(request);
 
       const validatedData = GetConversationMessagesSchema.parse({
         conversationId: request.params.conversationId,
-        userId,
+        userId: user.id,
       });
 
       const messages = await this.controller.getMessages(
@@ -247,27 +196,10 @@ export class ConversationHttpHandler {
 
   public async getMyConversations(request: Request, response: Response) {
     try {
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers.authorization as string;
-      const token = authHeader?.startsWith("Bearer ")
-        ? authHeader.substring(7)
-        : "";
-
-      if (!userId) {
-        return response.status(400).send({
-          code: "MISSING_USER_ID",
-          message: "L'ID de l'utilisateur est requis.",
-        });
-      }
-      if (!token) {
-        return response.status(400).send({
-          code: "MISSING_AUTH_TOKEN",
-          message: "Le token d'authentification est requis.",
-        });
-      }
+      const { user, token } = await this.getAuthContext(request);
 
       const conversations = await this.controller.getCustomerConversationsList(
-        userId,
+        user.id,
         token
       );
 
@@ -293,24 +225,7 @@ export class ConversationHttpHandler {
 
   public async getCustomerConversations(request: Request, response: Response) {
     try {
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers.authorization as string;
-      const token = authHeader?.startsWith("Bearer ")
-        ? authHeader.substring(7)
-        : "";
-
-      if (!userId) {
-        return response.status(400).send({
-          code: "MISSING_USER_ID",
-          message: "L'ID de l'utilisateur est requis.",
-        });
-      }
-      if (!token) {
-        return response.status(400).send({
-          code: "MISSING_AUTH_TOKEN",
-          message: "Le token d'authentification est requis.",
-        });
-      }
+      const { token } = await this.getAuthContext(request);
 
       const validatedData = GetCustomerConversationsSchema.parse({
         customerId: request.params.customerId,
@@ -342,24 +257,7 @@ export class ConversationHttpHandler {
 
   public async getAdvisorConversations(request: Request, response: Response) {
     try {
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers.authorization as string;
-      const token = authHeader?.startsWith("Bearer ")
-        ? authHeader.substring(7)
-        : "";
-
-      if (!userId) {
-        return response.status(400).send({
-          code: "MISSING_USER_ID",
-          message: "L'ID de l'utilisateur est requis.",
-        });
-      }
-      if (!token) {
-        return response.status(400).send({
-          code: "MISSING_AUTH_TOKEN",
-          message: "Le token d'authentification est requis.",
-        });
-      }
+      const { token } = await this.getAuthContext(request);
 
       const validatedData = GetAdvisorConversationsSchema.parse({
         advisorId: request.params.advisorId,
@@ -391,29 +289,12 @@ export class ConversationHttpHandler {
 
   public async createGroup(request: Request, response: Response) {
     try {
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers.authorization as string;
-      const token = authHeader?.startsWith("Bearer ")
-        ? authHeader.substring(7)
-        : "";
-
-      if (!userId) {
-        return response.status(400).send({
-          code: "MISSING_USER_ID",
-          message: "L'ID de l'utilisateur est requis.",
-        });
-      }
-      if (!token) {
-        return response.status(400).send({
-          code: "MISSING_AUTH_TOKEN",
-          message: "Le token d'authentification est requis.",
-        });
-      }
+      const { user, token } = await this.getAuthContext(request);
 
       const validatedData = CreateGroupConversationSchema.parse(request.body);
 
       const conversation = await this.controller.createGroup(
-        validatedData.creatorId,
+        validatedData.creatorId ?? user.id,
         validatedData.initialMessage,
         token
       );
@@ -439,24 +320,7 @@ export class ConversationHttpHandler {
 
   public async addParticipant(request: Request, response: Response) {
     try {
-      const currentUserId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers.authorization as string;
-      const token = authHeader?.startsWith("Bearer ")
-        ? authHeader.substring(7)
-        : "";
-
-      if (!currentUserId) {
-        return response.status(400).send({
-          code: "MISSING_USER_ID",
-          message: "L'ID de l'utilisateur est requis.",
-        });
-      }
-      if (!token) {
-        return response.status(400).send({
-          code: "MISSING_AUTH_TOKEN",
-          message: "Le token d'authentification est requis.",
-        });
-      }
+      const { user, token } = await this.getAuthContext(request);
 
       const { conversationId } = request.params;
       const { userId, participantUserId } = request.body;
@@ -471,7 +335,7 @@ export class ConversationHttpHandler {
 
       await this.controller.addParticipantToConversation(
         conversationId,
-        userId,
+        userId ?? user.id,
         participantUserId,
         token
       );

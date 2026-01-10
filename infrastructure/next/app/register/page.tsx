@@ -112,7 +112,7 @@ export default function Page() {
               </CardDescription>
             </CardHeader>
             <CardContent className="text-center space-y-4">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm">
                 Le lien de confirmation expirera dans 24 heures.
               </p>
               <Link href="/login">

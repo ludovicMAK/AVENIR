@@ -79,7 +79,7 @@ export default function ConfirmRegistrationPage() {
                                 )}
                                 {status === "success" && (
                                     <div className="space-y-4">
-                                        <p className="text-sm text-muted-foreground">{message}</p>
+                                        <p className="text-sm">{message}</p>
                                         <Button onClick={handleGoToLogin} className="w-full">
                                             Go to Login
                                         </Button>

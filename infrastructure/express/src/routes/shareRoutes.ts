@@ -38,7 +38,13 @@ export function createShareRoutes(
   router.get("/customers/:customerId/positions", (request, response) =>
     shareHttpHandler.getPositions(request, response)
   );
+  router.get("/positions", (request, response) =>
+    shareHttpHandler.getPositions(request, response)
+  );
   router.get("/customers/:customerId/orders", (request, response) =>
+    shareHttpHandler.getOrders(request, response)
+  );
+  router.get("/my-orders", (request, response) =>
     shareHttpHandler.getOrders(request, response)
   );
   router.post("/shares/:shareId/execute-matching", (request, response) =>

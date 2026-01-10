@@ -472,6 +472,12 @@ const getOverdueDueDatesUsecase = new GetOverdueDueDates(
   creditRepository
 );
 
+const authenticateUserUsecase = new AuthenticateUser(
+  sessionRepository,
+  userRepository
+);
+const authGuard = new AuthGuard(authenticateUserUsecase);
+
 const creditController = new CreditController(
   grantCredit,
   getCustomerCreditsWithDueDatesUsecase,
@@ -485,7 +491,7 @@ const creditController = new CreditController(
   simulateAmortizationScheduleUsecase,
   payInstallmentUsecase
 );
-const creditHttpHandler = new CreditHttpHandler(creditController);
+const creditHttpHandler = new CreditHttpHandler(creditController, authGuard);
 
 const updateSavingsRateUsecase = new UpdateSavingsRate(
   savingsRateRepository,
@@ -509,11 +515,6 @@ const getAccountInterestHistoryUsecase = new GetAccountInterestHistory(
   dailyInterestRepository,
   accountRepository
 );
-const authenticateUserUsecase = new AuthenticateUser(
-  sessionRepository,
-  userRepository
-);
-const authGuard = new AuthGuard(authenticateUserUsecase);
 
 const savingsController = new SavingsController(
   updateSavingsRateUsecase,
@@ -533,8 +534,8 @@ const userHttpHandler = new UserHttpHandler(
 );
 const accountHttpHandler = new AccountHttpHandler(
   accountController,
-  sessionRepository,
-  transactionRepository
+  transactionRepository,
+  authGuard
 );
 const shareHttpHandler = new ShareHttpHandler(
   shareController,
@@ -542,11 +543,16 @@ const shareHttpHandler = new ShareHttpHandler(
 );
 const transactionHttpHandler = new TransactionHttpHandler(
   transactionController,
-  transactionRepository
+  transactionRepository,
+  authGuard
 );
-const transferHttpHandler = new TransferHttpHandler(transferController);
+const transferHttpHandler = new TransferHttpHandler(
+  transferController,
+  authGuard
+);
 const conversationHttpHandler = new ConversationHttpHandler(
-  conversationController
+  conversationController,
+  authGuard
 );
 
 export const httpRouter = createHttpRouter(

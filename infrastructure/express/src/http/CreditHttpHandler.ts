@@ -2,12 +2,33 @@ import { Request, Response } from "express";
 import { CreditController } from "@express/controllers/CreditController";
 import { sendSuccess } from "../responses/success";
 import { mapErrorToHttpResponse } from "../responses/error";
-import { ValidationError } from "@application/errors";
+import { ValidationError, UnauthorizedError } from "@application/errors";
 import { GrantCreditRequest, PayInstallmentRequest, GetCustomerCreditsWithDueDatesRequest, GetMyCreditsRequest, GetCreditStatusRequest, GetPaymentHistoryRequest, EarlyRepaymentRequest } from "@application/requests/credit";
 import { CreditsWithDueDatesResponseData, SerializedCreditsWithDueDatesData, SerializedCreditWithDueDates, DueDatesResponseData } from "@express/types/responses";
+import { AuthGuard } from "@express/src/http/AuthGuard";
 
 export class CreditHttpHandler {
-  constructor(private readonly controller: CreditController) {}
+  constructor(
+    private readonly controller: CreditController,
+    private readonly authGuard: AuthGuard
+  ) {}
+
+  private extractToken(request: Request): string | null {
+    const authHeader = request.headers["authorization"];
+    if (!authHeader) return null;
+    const [scheme, value] = authHeader.split(" ");
+    if (scheme?.toLowerCase() === "bearer" && value) return value;
+    return authHeader;
+  }
+
+  private async getAuthContext(request: Request) {
+    const user = await this.authGuard.requireAuthenticated(request);
+    const token = this.extractToken(request);
+    if (!token) {
+      throw new UnauthorizedError("Authentication required");
+    }
+    return { user, token };
+  }
 
   private serializeCreditWithDueDates(creditWithDueDates: any): SerializedCreditWithDueDates {
     const credit = creditWithDueDates.credit;
@@ -56,13 +77,7 @@ export class CreditHttpHandler {
 
   public async grantCredit(request: Request, response: Response) {
     try {
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers["authorization"];
-      const token = authHeader && authHeader.split(" ")[1];
-
-      if (!userId || !token) {
-        throw new ValidationError("Authentication required");
-      }
+      const { user, token } = await this.getAuthContext(request);
 
       const { customerId, accountId, amountBorrowed, annualRate, insuranceRate, durationInMonths } = request.body;
 
@@ -78,7 +93,7 @@ export class CreditHttpHandler {
         annualRate,
         insuranceRate,
         durationInMonths,
-        advisorId: userId,
+        advisorId: user.id,
       };
 
       const credit = await this.controller.grantCredit(grantCreditRequest);
@@ -96,23 +111,17 @@ export class CreditHttpHandler {
 
   public async getCustomerCreditsWithDueDates(request: Request, response: Response) {
     try {
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers["authorization"];
-      const token = authHeader && authHeader.split(" ")[1];
+      const { user, token } = await this.getAuthContext(request);
       const { customerId } = request.params;
 
       if (!customerId) {
         throw new ValidationError("Customer ID is required");
       }
 
-      if (!userId || !token) {
-        throw new ValidationError("Authentication required");
-      }
-
       const getCustomerCreditsWithDueDatesRequest: GetCustomerCreditsWithDueDatesRequest = {
         customerId,
         token: token || "",
-        advisorId: userId,
+        advisorId: user.id,
       };
 
       const creditsWithDueDates = await this.controller.getCustomerCreditsWithDueDates(getCustomerCreditsWithDueDatesRequest);
@@ -131,16 +140,10 @@ export class CreditHttpHandler {
 
   public async getMyCredits(request: Request, response: Response) {
     try {
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers["authorization"];
-      const token = authHeader && authHeader.split(" ")[1];
-
-      if (!userId || !token) {
-        throw new ValidationError("Authentication required");
-      }
+      const { user, token } = await this.getAuthContext(request);
 
       const getMyCreditsRequest: GetMyCreditsRequest = {
-        customerId: userId,
+        customerId: user.id,
         token: token || "",
       };
 
@@ -160,14 +163,8 @@ export class CreditHttpHandler {
 
   public async getCreditStatus(request: Request, response: Response) {
     try {
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers["authorization"];
-      const token = authHeader && authHeader.split(" ")[1];
+      const { user, token } = await this.getAuthContext(request);
       const { creditId } = request.params;
-
-      if (!userId || !token) {
-        throw new ValidationError("Authentication required");
-      }
 
       if (!creditId) {
         throw new ValidationError("Credit ID is required");
@@ -176,7 +173,7 @@ export class CreditHttpHandler {
 
       const getCreditStatusRequest: GetCreditStatusRequest = {
         creditId,
-        userId,
+        userId: user.id,
         token: token || "",
       };
 
@@ -195,14 +192,8 @@ export class CreditHttpHandler {
 
   public async getPaymentHistory(request: Request, response: Response) {
     try {
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers["authorization"];
-      const token = authHeader && authHeader.split(" ")[1];
+      const { user, token } = await this.getAuthContext(request);
       const { creditId } = request.params;
-
-      if (!userId || !token) {
-        throw new ValidationError("Authentication required");
-      }
 
       if (!creditId) {
         throw new ValidationError("Credit ID is required");
@@ -210,7 +201,7 @@ export class CreditHttpHandler {
 
       const getPaymentHistoryRequest: GetPaymentHistoryRequest = {
         creditId,
-        userId,
+        userId: user.id,
         token: token || "",
       };
 
@@ -229,14 +220,8 @@ export class CreditHttpHandler {
 
   public async getCreditDueDates(request: Request, response: Response) {
     try {
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers["authorization"];
-      const token = authHeader && authHeader.split(" ")[1];
+      const { user, token } = await this.getAuthContext(request);
       const { creditId } = request.params;
-
-      if (!userId || !token) {
-        throw new ValidationError("Authentication required");
-      }
 
       if (!creditId) {
         throw new ValidationError("Credit ID is required");
@@ -244,7 +229,7 @@ export class CreditHttpHandler {
 
       const dueDates = await this.controller.getCreditDueDates({
         creditId,
-        userId,
+        userId: user.id,
         token: token || "",
       });
 
@@ -301,14 +286,8 @@ export class CreditHttpHandler {
 
   public async payInstallment(request: Request, response: Response) {
     try {
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers["authorization"];
-      const token = authHeader && authHeader.split(" ")[1];
+      const { user, token } = await this.getAuthContext(request);
       const { dueDateId } = request.params;
-
-      if (!userId || !token) {
-        throw new ValidationError("Authentication required");
-      }
 
       if (!dueDateId) {
         throw new ValidationError("Due date ID is required");
@@ -316,7 +295,7 @@ export class CreditHttpHandler {
 
       const payInstallmentRequest: PayInstallmentRequest = {
         token: token || "",
-        customerId: userId,
+        customerId: user.id,
         dueDateId,
       };
 
@@ -335,14 +314,8 @@ export class CreditHttpHandler {
 
   public async earlyRepayment(request: Request, response: Response) {
     try {
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers["authorization"];
-      const token = authHeader && authHeader.split(" ")[1];
+      const { user, token } = await this.getAuthContext(request);
       const { creditId } = request.params;
-
-      if (!userId || !token) {
-        throw new ValidationError("Authentication required");
-      }
 
       if (!creditId) {
         throw new ValidationError("Credit ID is required");
@@ -350,7 +323,7 @@ export class CreditHttpHandler {
 
       const earlyRepaymentRequest: EarlyRepaymentRequest = {
         token: token || "",
-        customerId: userId,
+        customerId: user.id,
         creditId,
       };
 
@@ -369,15 +342,9 @@ export class CreditHttpHandler {
 
   public async markOverdueDueDates(request: Request, response: Response) {
     try {
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers["authorization"];
-      const token = authHeader && authHeader.split(" ")[1];
+      const { user, token } = await this.getAuthContext(request);
 
-      if (!userId || !token) {
-        throw new ValidationError("Authentication required");
-      }
-
-      const result = await this.controller.markOverdueDueDates({ userId, token });
+      const result = await this.controller.markOverdueDueDates({ userId: user.id, token });
 
       return sendSuccess(response, {
         status: 200,
@@ -392,15 +359,9 @@ export class CreditHttpHandler {
 
   public async getOverdueDueDates(request: Request, response: Response) {
     try {
-      const userId = request.headers["x-user-id"] as string;
-      const authHeader = request.headers["authorization"];
-      const token = authHeader && authHeader.split(" ")[1];
+      const { user, token } = await this.getAuthContext(request);
 
-      if (!userId || !token) {
-        throw new ValidationError("Authentication required");
-      }
-
-      const overdueDueDates = await this.controller.getOverdueDueDates({ userId, token });
+      const overdueDueDates = await this.controller.getOverdueDueDates({ userId: user.id, token });
 
       return sendSuccess(response, {
         status: 200,
@@ -413,4 +374,3 @@ export class CreditHttpHandler {
     }
   }
 } 
-

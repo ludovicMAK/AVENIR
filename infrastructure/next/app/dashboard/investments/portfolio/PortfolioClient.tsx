@@ -20,13 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  ArrowLeft,
-  TrendingUp,
-  TrendingDown,
-  Briefcase,
-  PieChart,
-} from "lucide-react";
+import { TrendingUp, TrendingDown, Briefcase, PieChart } from "lucide-react";
 
 export default function PortfolioClient() {
   const router = useRouter();
@@ -65,10 +59,6 @@ export default function PortfolioClient() {
   if (error) {
     return (
       <div className="space-y-6">
-        <Button variant="ghost" onClick={() => router.back()}>
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Retour
-        </Button>
         <Card className="border-destructive/50">
           <CardContent className="p-12 text-center">
             <p className="text-destructive">
@@ -87,17 +77,11 @@ export default function PortfolioClient() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" onClick={() => router.back()}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Retour
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold">Mon portefeuille</h1>
-            <p className="text-muted-foreground">
-              Vue d&apos;ensemble de vos investissements
-            </p>
-          </div>
+        <div>
+          <h1 className="text-3xl font-bold">Mon portefeuille</h1>
+          <p className="text-muted-foreground">
+            Vue d&apos;ensemble de vos investissements
+          </p>
         </div>
         <Button onClick={() => router.push("/dashboard/investments/market")}>
           Investir
