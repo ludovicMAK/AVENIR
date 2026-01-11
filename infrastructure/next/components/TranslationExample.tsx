@@ -3,25 +3,11 @@
 import { useTranslations } from '@/lib/i18n/simple-i18n';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-/**
- * Composant exemple montrant comment utiliser les traductions
- * 
- * Pour l'utiliser dans n'importe quel composant client :
- * 
- * import { useTranslations } from '@/lib/i18n/simple-i18n';
- * 
- * const t = useTranslations('common');
- * console.log(t('appName')); // "AVENIR"
- * console.log(t('welcome')); // "Bienvenue" (fr) ou "Welcome" (en)
- */
 export function TranslationExample() {
-  // Charger les traductions du namespace 'common'
   const t = useTranslations('common');
   
-  // Charger les traductions du namespace 'auth'
   const tAuth = useTranslations('auth');
   
-  // Charger les traductions du namespace 'navigation'
   const tNav = useTranslations('navigation');
 
   return (

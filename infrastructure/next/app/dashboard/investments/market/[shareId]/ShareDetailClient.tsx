@@ -47,19 +47,19 @@ import { toast } from "sonner";
 
 const orderSchema = z.object({
   direction: z.enum(["buy", "sell"], {
-    required_error: "Veuillez sélectionner une direction",
+    error: "Veuillez sélectionner une direction",
   }),
   quantity: z
-    .number({ invalid_type_error: "La quantité doit être un nombre" })
+    .number()
     .int({ message: "La quantité doit être un nombre entier" })
     .positive({ message: "La quantité doit être positive" })
     .min(1, { message: "La quantité minimum est 1" }),
   priceLimit: z
-    .number({ invalid_type_error: "Le prix doit être un nombre" })
+    .number()
     .positive({ message: "Le prix doit être positif" })
     .min(0.01, { message: "Le prix minimum est 0.01€" }),
   validity: z.enum(["day", "until_cancelled"], {
-    required_error: "Veuillez sélectionner une validité",
+    error: "Veuillez sélectionner une validité",
   }),
 });
 
@@ -145,7 +145,6 @@ export default function ShareDetailClient({
       : 0;
   const isPositive = priceChange >= 0;
 
-  // Watch form values for estimated total
   const watchedQuantity = form.watch("quantity");
   const watchedPriceLimit = form.watch("priceLimit");
   const estimatedTotal = watchedQuantity && watchedPriceLimit

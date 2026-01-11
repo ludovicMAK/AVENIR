@@ -4,7 +4,6 @@ import { InfrastructureError } from "@application/errors";
 export async function ensureSharesTable(): Promise<void> {
   const client = getPool();
   try {
-    // Utiliser CREATE TABLE IF NOT EXISTS pour ne pas supprimer les données existantes
     await client.query(`
             CREATE TABLE IF NOT EXISTS shares (
                 id UUID PRIMARY KEY,

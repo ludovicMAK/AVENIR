@@ -4,6 +4,7 @@ import { Transfer } from "@domain/entities/transfer";
 import { UnitOfWork } from "@application/services/UnitOfWork";
 import { PostgresUnitOfWork } from "@adapters/services/PostgresUnitOfWork";
 import { StatusTransfer } from "@domain/values/statusTransfer";
+import { TransferHistoryItem } from "@application/usecases/transfer/getTransferHistory";
 
 export class PostgresTransferRepository implements TransferRepository {
   constructor(private readonly pool: Pool) {}
@@ -102,7 +103,7 @@ export class PostgresTransferRepository implements TransferRepository {
     }
   }
 
-  async getHistory(): Promise<any[]> {
+  async getHistory(): Promise<TransferHistoryItem[]> {
     try {
       const result = await this.pool.query(
         `

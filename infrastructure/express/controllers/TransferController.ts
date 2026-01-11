@@ -4,7 +4,7 @@ import {
   CancelTransfer,
   CancelTransferRequest,
 } from "@application/usecases/transfer/cancelTransfer";
-import { GetTransferHistory } from "@application/usecases/transfer/getTransferHistory";
+import { GetTransferHistory, TransferHistoryItem } from "@application/usecases/transfer/getTransferHistory";
 
 export class TransferController {
   public constructor(
@@ -21,7 +21,7 @@ export class TransferController {
     return await this.cancelTransferUsecase.execute(input);
   }
 
-  public async getHistory(): Promise<any[]> {
+  public async getHistory(): Promise<TransferHistoryItem[]> {
     return await this.getTransferHistoryUsecase.execute();
   }
 }

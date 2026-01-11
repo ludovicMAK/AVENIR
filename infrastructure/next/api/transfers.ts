@@ -55,7 +55,6 @@ export const transfersApi = {
       method: "GET",
     });
 
-    // Le client API extrait déjà 'data' de la réponse
     if (!Array.isArray(response)) {
       throw new ApiError(
         "INFRASTRUCTURE_ERROR",

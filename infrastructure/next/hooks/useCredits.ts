@@ -21,10 +21,8 @@ export function useCredits() {
   const [error, setError] = useState<ApiError | Error | null>(null);
 
   const fetchCredits = useCallback(async () => {
-    // Ne pas faire de requête si l'utilisateur n'est pas encore chargé
     if (isUserLoading) return;
     
-    // Ne pas faire de requête si l'utilisateur n'existe pas ou n'a pas d'ID valide
     if (!user?.id) {
       setError(new Error("Utilisateur non connecté"));
       return;

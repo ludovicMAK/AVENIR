@@ -45,7 +45,6 @@ export function LandingContent() {
 
   return (
     <>
-      {/* Hero Section */}
       <section className="container mx-auto px-4 py-20 text-center">
         <div className="max-w-3xl mx-auto space-y-6">
           <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
@@ -71,7 +70,6 @@ export function LandingContent() {
         </div>
       </section>
 
-      {/* Features Section */}
       <section className="container mx-auto px-4 py-20">
         <h2 className="text-3xl font-bold text-center mb-12">
           {translations.features.title}
@@ -99,7 +97,6 @@ export function LandingContent() {
         </div>
       </section>
 
-      {/* Account Types Section */}
       <section className="container mx-auto px-4 py-20">
         <h2 className="text-3xl font-bold text-center mb-12">
           {translations.accountTypes.title}
@@ -185,7 +182,6 @@ export function LandingContent() {
         </div>
       </section>
 
-      {/* Benefits Section */}
       <section className="container mx-auto px-4 py-20">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12">
@@ -205,7 +201,6 @@ export function LandingContent() {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="container mx-auto px-4 py-20">
         <Card className="max-w-3xl mx-auto border-2 border-primary">
           <CardContent className="pt-12 pb-12 text-center">
@@ -230,7 +225,6 @@ export function LandingContent() {
         </Card>
       </section>
 
-      {/* Footer */}
       <footer className="border-t bg-muted/50 mt-20">
         <div className="container mx-auto px-4 py-8 text-center text-muted-foreground">
           <p>© 2026 AVENIR - Votre banque en ligne nouvelle génération</p>

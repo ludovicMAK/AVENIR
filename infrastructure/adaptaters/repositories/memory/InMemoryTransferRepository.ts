@@ -2,6 +2,7 @@ import { TransferRepository } from "@application/repositories/transfer";
 import { Transfer } from "@domain/entities/transfer";
 import { UnitOfWork } from "@application/services/UnitOfWork";
 import { InMemoryUnitOfWork } from "@adapters/services/InMemoryUnitOfWork";
+import { TransferHistoryItem } from "@application/usecases/transfer/getTransferHistory";
 
 export class InMemoryTransferRepository implements TransferRepository {
   private readonly items: Map<string, Transfer> = new Map();
@@ -39,7 +40,7 @@ export class InMemoryTransferRepository implements TransferRepository {
     return Array.from(this.items.values());
   }
 
-  async getHistory(): Promise<any[]> {
+  async getHistory(): Promise<TransferHistoryItem[]> {
     const transfers = Array.from(this.items.values());
     return transfers.map((transfer) => ({
       id: transfer.id,

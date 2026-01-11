@@ -2,12 +2,13 @@
 
 import { createContext, useContext, ReactNode, useState, useEffect, useMemo } from 'react';
 
-// Import des traductions
 import fr from '@/i18n/messages/fr.json';
 import en from '@/i18n/messages/en.json';
 
 type Locale = 'fr' | 'en';
-type Messages = typeof fr;
+type Messages = {
+  [key: string]: string | Messages;
+};
 
 interface I18nContextValue {
   locale: Locale;
@@ -23,10 +24,8 @@ const messages: Record<Locale, Messages> = {
 };
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  // Toujours commencer avec 'fr' pour SSR et premier rendu client (évite hydration mismatch)
   const [locale, setLocaleState] = useState<Locale>('fr');
 
-  // Lire le cookie et mettre à jour après le montage côté client
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const match = document.cookie.match(/locale=([^;]+)/);
@@ -40,26 +39,26 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const setLocale = (newLocale: Locale) => {
-    // Écrire le cookie
     document.cookie = `locale=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
     setLocaleState(newLocale);
   };
 
-  // Fonction pour récupérer une traduction par clé imbriquée
+  function getMessage(obj: Messages | string, keys: string[]): string | undefined {
+    if (keys.length === 0) {
+      return typeof obj === 'string' ? obj : undefined;
+    }
+    const [first, ...rest] = keys;
+    if (typeof obj === 'object' && obj !== null && Object.prototype.hasOwnProperty.call(obj, first)) {
+      return getMessage(obj[first], rest);
+    }
+    return undefined;
+  }
+
   const t = useMemo(() => {
     return (key: string): string => {
       const keys = key.split('.');
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let value: any = messages[locale];
-      
-      for (const k of keys) {
-        value = value?.[k];
-        if (value === undefined) {
-          return key; // Retourner la clé si la traduction est manquante
-        }
-      }
-      
-      return typeof value === 'string' ? value : key;
+      const result = getMessage(messages[locale], keys);
+      return result !== undefined ? result : key;
     };
   }, [locale]);
 
@@ -78,11 +77,9 @@ export function useI18n() {
   return context;
 }
 
-// Hook pour utiliser les traductions d'un namespace spécifique
 export function useTranslations(namespace: string) {
   const { t, locale } = useI18n();
   
-  // Recrée la fonction quand la locale change
   return useMemo(() => {
     return (key: string) => {
       const fullKey = `${namespace}.${key}`;

@@ -15,8 +15,6 @@ export function LanguageSwitcher() {
 
   const handleSetLocale = (newLocale: 'fr' | 'en') => {
     setLocale(newLocale);
-    // Optionnel: recharger la page pour appliquer partout
-    // window.location.reload();
   };
 
   return (

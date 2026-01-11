@@ -7,17 +7,15 @@ import { useUser } from "@/lib/auth/UserContext";
 
 export function useTransferHistory() {
   const [transfers, setTransfers] = useState<Transfer[]>([]);
-  const [isLoading, setIsLoading] = useState(true); // Start as loading to avoid premature requests
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<ApiError | Error | null>(null);
   const { user, isLoading: isUserLoading } = useUser();
 
   const fetchHistory = useCallback(async () => {
-    // Attendre que l'utilisateur soit chargé
     if (isUserLoading) {
       return;
     }
     
-    // Vérifier que l'utilisateur existe
     if (!user?.id) {
       setError(new Error("Utilisateur non connecté"));
       setIsLoading(false);

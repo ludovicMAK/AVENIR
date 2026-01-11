@@ -14,8 +14,6 @@ const UserContext = createContext<UserContextValue | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const { user, isLoading, error } = useCurrentUser();
-
-  // Note: setCurrentUserId est déjà géré dans useCurrentUser()
   
   return (
     <UserContext.Provider value={{ user, isLoading, error }}>
