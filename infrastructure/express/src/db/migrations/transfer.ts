@@ -13,16 +13,16 @@ export async function ensureTransferTable(): Promise<void> {
         END IF;
       END $$;
             CREATE TABLE IF NOT EXISTS transfers (
-                id UUID PRIMARY KEY,
-                amount int NOT NULL,
-                date_requested TIMESTAMP NOT NULL,
-                date_executed TIMESTAMP NOT NULL,
-                description text NOT NULL,
-                status status_transfer NOT NULL
+                id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+                amount NUMERIC(10,2) NOT NULL,
+                date_requested TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                date_executed TIMESTAMP,
+                description TEXT,
+                status VARCHAR(50) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'validated', 'cancelled')),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
-
-    
   } catch (error) {
     console.error("Failed to ensure transfer table", error);
     throw new InfrastructureError(

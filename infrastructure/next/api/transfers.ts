@@ -7,14 +7,11 @@ export type TransferStatus = "PENDING" | "VALIDATED" | "REJECTED";
 
 export interface Transfer {
   id: string;
-  accountIBAN: string;
-  transactionDirection: string;
   amount: number;
-  reason: string;
-  accountDate: string;
+  dateRequested: string;
+  dateExecuted?: string;
+  description: string;
   status: string;
-  transferId?: string;
-  counterpartyIBAN?: string;
 }
 
 export interface CreateTransferRequest {
@@ -34,14 +31,14 @@ const invalidTransferResponseError = () =>
 
 const parseTransfer = (data: JsonObject): Transfer => ({
   id: String(data.id),
-  accountIBAN: String(data.accountIBAN),
-  transactionDirection: String(data.transactionDirection),
   amount: Number(data.amount),
-  reason: String(data.reason),
-  accountDate: String(data.accountDate),
+  dateRequested: String(data.dateRequested),
+  dateExecuted:
+    data.dateExecuted !== undefined && data.dateExecuted !== null
+      ? String(data.dateExecuted)
+      : undefined,
+  description: String(data.description),
   status: String(data.status),
-  transferId: data.transferId !== undefined && data.transferId !== null ? String(data.transferId) : undefined,
-  counterpartyIBAN: data.counterpartyIBAN !== undefined && data.counterpartyIBAN !== null ? String(data.counterpartyIBAN) : undefined,
 });
 
 export const transfersApi = {
@@ -54,17 +51,20 @@ export const transfersApi = {
   },
 
   async getHistory() {
-    const response = await request(`/transactions/history`, {
+    const response = await request<JsonValue>(`/transfers/history`, {
       method: "GET",
     });
-    if (!isJsonObject(response) || !Array.isArray(response.transactions)) {
+
+    // Le client API extrait déjà 'data' de la réponse
+    if (!Array.isArray(response)) {
       throw new ApiError(
         "INFRASTRUCTURE_ERROR",
-        "Invalid transaction history response"
+        "Invalid transfer history response"
       );
     }
-    const transactions = response.transactions.filter(isJsonObject);
-    return { transactions: transactions.map(parseTransfer) };
+
+    const transfers = response.filter(isJsonObject);
+    return { transactions: transfers.map(parseTransfer) };
   },
 
   async validate(transferId: string) {

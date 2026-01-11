@@ -22,11 +22,14 @@ import {
   Clock,
 } from "lucide-react";
 import { format } from "date-fns";
-import { fr } from "date-fns/locale";
+import { fr, enUS } from "date-fns/locale";
+import { useTranslations, useI18n } from "@/lib/i18n/simple-i18n";
 
 export default function CreditsClient() {
   const router = useRouter();
   const { credits, isLoading, error } = useCredits();
+  const t = useTranslations('credits');
+  const { locale } = useI18n();
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -34,21 +37,21 @@ export default function CreditsClient() {
         return (
           <Badge variant="default" className="gap-1">
             <Clock className="h-3 w-3" />
-            En cours
+            {t('active')}
           </Badge>
         );
       case "paid":
         return (
           <Badge variant="default" className="gap-1 bg-green-600">
             <CheckCircle className="h-3 w-3" />
-            Remboursé
+            {t('paid')}
           </Badge>
         );
       case "overdue":
         return (
           <Badge variant="destructive" className="gap-1">
             <AlertCircle className="h-3 w-3" />
-            En retard
+            {t('defaulted')}
           </Badge>
         );
       default:
@@ -73,9 +76,9 @@ export default function CreditsClient() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Mes crédits</h1>
+          <h1 className="text-3xl font-bold">{t('title')}</h1>
           <p className="text-muted-foreground">
-            Gérez vos crédits et échéances
+            {t('subtitle')}
           </p>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
@@ -92,15 +95,15 @@ export default function CreditsClient() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Mes crédits</h1>
+          <h1 className="text-3xl font-bold">{t('title')}</h1>
           <p className="text-muted-foreground">
-            Gérez vos crédits et échéances
+            {t('subtitle')}
           </p>
         </div>
         <Card className="border-destructive/50">
           <CardContent className="p-12 text-center">
             <p className="text-destructive">
-              Erreur lors du chargement des crédits
+              {t('loadError')}
             </p>
             <p className="text-sm text-muted-foreground mt-2">
               {error.message}
@@ -120,14 +123,14 @@ export default function CreditsClient() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Mes crédits</h1>
+          <h1 className="text-3xl font-bold">{t('title')}</h1>
           <p className="text-muted-foreground">
-            Gérez vos crédits et échéances
+            {t('subtitle')}
           </p>
         </div>
         <Button onClick={() => router.push("/dashboard/credits/simulator")}>
           <TrendingUp className="mr-2 h-4 w-4" />
-          Simuler un crédit
+          {t('requestCredit')}
         </Button>
       </div>
 
@@ -135,7 +138,7 @@ export default function CreditsClient() {
         <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardDescription>Crédits actifs</CardDescription>
+              <CardDescription>{t('active')}</CardDescription>
               <CreditCard className="h-4 w-4 text-muted-foreground" />
             </div>
           </CardHeader>
@@ -147,7 +150,7 @@ export default function CreditsClient() {
         <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardDescription>Total emprunté</CardDescription>
+              <CardDescription>{t('borrowed')}</CardDescription>
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </div>
           </CardHeader>
@@ -161,7 +164,7 @@ export default function CreditsClient() {
         <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardDescription>Restant à payer</CardDescription>
+              <CardDescription>{t('remaining')}</CardDescription>
               <AlertCircle className="h-4 w-4 text-muted-foreground" />
             </div>
           </CardHeader>
@@ -175,7 +178,7 @@ export default function CreditsClient() {
         <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardDescription>Total payé</CardDescription>
+              <CardDescription>{t('totalPaid')}</CardDescription>
               <CheckCircle className="h-4 w-4 text-muted-foreground" />
             </div>
           </CardHeader>
@@ -189,12 +192,12 @@ export default function CreditsClient() {
         <Card>
           <CardContent className="p-12 text-center">
             <CreditCard className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-lg font-medium mb-2">Aucun crédit en cours</p>
+            <p className="text-lg font-medium mb-2">{t('noCredits')}</p>
             <p className="text-muted-foreground mb-6">
-              Simulez un crédit pour voir les conditions
+              {t('noCreditsMessage')}
             </p>
             <Button onClick={() => router.push("/dashboard/credits/simulator")}>
-              Simuler un crédit
+              {t('requestCredit')}
             </Button>
           </CardContent>
         </Card>
@@ -219,9 +222,9 @@ export default function CreditsClient() {
                         {getStatusBadge(credit.status)}
                       </CardTitle>
                       <CardDescription>
-                        Accordé le{" "}
+                        {t('grantedDate')}{" "}
                         {format(new Date(credit.dateGranted), "dd MMMM yyyy", {
-                          locale: fr,
+                          locale: locale === 'fr' ? fr : enUS,
                         })}
                       </CardDescription>
                     </div>
@@ -230,7 +233,7 @@ export default function CreditsClient() {
                         {credit.monthlyPayment.toFixed(2)} €
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        par mois
+                        {t('monthly')}
                       </p>
                     </div>
                   </div>
@@ -238,9 +241,9 @@ export default function CreditsClient() {
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Progression</span>
+                      <span className="text-muted-foreground">{t('progress')}</span>
                       <span className="font-medium">
-                        {progressPercentage.toFixed(1)}%
+                        {progressPercentage.toFixed(1)}% {t('repaid')}
                       </span>
                     </div>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -253,25 +256,25 @@ export default function CreditsClient() {
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t">
                     <div>
-                      <p className="text-sm text-muted-foreground">Emprunté</p>
+                      <p className="text-sm text-muted-foreground">{t('borrowed')}</p>
                       <p className="font-medium">
                         {credit.amountBorrowed.toFixed(2)} €
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Restant</p>
+                      <p className="text-sm text-muted-foreground">{t('remaining')}</p>
                       <p className="font-medium">
                         {credit.remainingAmount.toFixed(2)} €
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Durée</p>
+                      <p className="text-sm text-muted-foreground">{t('duration')}</p>
                       <p className="font-medium">
-                        {credit.durationInMonths} mois
+                        {credit.durationInMonths} {locale === 'fr' ? 'mois' : 'months'}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Taux</p>
+                      <p className="text-sm text-muted-foreground">{t('rate')}</p>
                       <p className="font-medium">
                         {credit.annualRate.toFixed(2)}%
                       </p>
@@ -284,11 +287,11 @@ export default function CreditsClient() {
                         <Calendar className="h-5 w-5 text-muted-foreground" />
                         <div>
                           <p className="text-sm font-medium">
-                            Prochaine échéance
+                            {t('nextPayment')}
                           </p>
                           <p className="text-sm text-muted-foreground">
                             {format(new Date(nextDueDate.dueDate), "dd MMMM yyyy", {
-                              locale: fr,
+                              locale: locale === 'fr' ? fr : enUS,
                             })}
                           </p>
                         </div>
@@ -299,7 +302,7 @@ export default function CreditsClient() {
                         </p>
                         {nextDueDate.status === "overdue" && (
                           <Badge variant="destructive" className="mt-1">
-                            En retard
+                            {t('defaulted')}
                           </Badge>
                         )}
                       </div>

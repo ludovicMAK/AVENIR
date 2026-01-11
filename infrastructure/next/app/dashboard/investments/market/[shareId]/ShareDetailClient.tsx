@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { useShare, useOrderBook } from "@/hooks/useShares";
 import { usePlaceOrder } from "@/hooks/useOrders";
 import { useTradingAccount } from "@/hooks/useTradingAccount";
@@ -14,7 +17,6 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -26,6 +28,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
   ArrowLeft,
   TrendingUp,
   TrendingDown,
@@ -34,9 +45,29 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+const orderSchema = z.object({
+  direction: z.enum(["buy", "sell"], {
+    required_error: "Veuillez sélectionner une direction",
+  }),
+  quantity: z
+    .number({ invalid_type_error: "La quantité doit être un nombre" })
+    .int({ message: "La quantité doit être un nombre entier" })
+    .positive({ message: "La quantité doit être positive" })
+    .min(1, { message: "La quantité minimum est 1" }),
+  priceLimit: z
+    .number({ invalid_type_error: "Le prix doit être un nombre" })
+    .positive({ message: "Le prix doit être positif" })
+    .min(0.01, { message: "Le prix minimum est 0.01€" }),
+  validity: z.enum(["day", "until_cancelled"], {
+    required_error: "Veuillez sélectionner une validité",
+  }),
+});
+
 interface ShareDetailClientProps {
   shareId: string;
 }
+
+type OrderFormValues = z.infer<typeof orderSchema>;
 
 export default function ShareDetailClient({
   shareId,
@@ -47,39 +78,28 @@ export default function ShareDetailClient({
   const { placeOrder, isLoading: placing } = usePlaceOrder();
   const { hasTradingAccount } = useTradingAccount();
 
-  const [orderType, setOrderType] = useState<"buy" | "sell">("buy");
-  const [quantity, setQuantity] = useState("");
-  const [priceLimit, setPriceLimit] = useState("");
-  const [validity, setValidity] = useState<"day" | "until_cancelled">("day");
+  const form = useForm<OrderFormValues>({
+    resolver: zodResolver(orderSchema),
+    defaultValues: {
+      direction: "buy",
+      quantity: 1,
+      priceLimit: share?.currentPrice || 0,
+      validity: "day",
+    },
+  });
 
-  const handlePlaceOrder = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!quantity || !priceLimit) {
-      toast.error("Veuillez remplir tous les champs");
-      return;
-    }
-
-    const quantityNum = parseInt(quantity);
-    const priceNum = parseFloat(priceLimit);
-
-    if (quantityNum <= 0 || priceNum <= 0) {
-      toast.error("La quantité et le prix doivent être positifs");
-      return;
-    }
-
+  const onSubmit = async (data: OrderFormValues) => {
     try {
       await placeOrder({
         shareId,
-        direction: orderType,
-        quantity: quantityNum,
-        priceLimit: priceNum,
-        validity,
+        direction: data.direction,
+        quantity: data.quantity,
+        priceLimit: data.priceLimit,
+        validity: data.validity,
       });
 
       toast.success("Ordre placé avec succès !");
-      setQuantity("");
-      setPriceLimit("");
+      form.reset();
       refreshShare();
       refreshOrderBook();
       router.push("/dashboard/investments/orders");
@@ -125,8 +145,11 @@ export default function ShareDetailClient({
       : 0;
   const isPositive = priceChange >= 0;
 
-  const estimatedTotal = quantity && priceLimit
-    ? parseFloat(priceLimit) * parseInt(quantity) + 1
+  // Watch form values for estimated total
+  const watchedQuantity = form.watch("quantity");
+  const watchedPriceLimit = form.watch("priceLimit");
+  const estimatedTotal = watchedQuantity && watchedPriceLimit
+    ? watchedPriceLimit * watchedQuantity + 1
     : 0;
 
   const bids = orderBook?.bids || [];
@@ -272,104 +295,138 @@ export default function ShareDetailClient({
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handlePlaceOrder} className="space-y-4">
-              <div className="space-y-2">
-                <Label>Type d&apos;ordre</Label>
-                <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    type="button"
-                    variant={orderType === "buy" ? "default" : "outline"}
-                    onClick={() => setOrderType("buy")}
-                    className="w-full"
-                  >
-                    <ShoppingCart className="mr-2 h-4 w-4" />
-                    Achat
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={orderType === "sell" ? "default" : "outline"}
-                    onClick={() => setOrderType("sell")}
-                    className="w-full"
-                  >
-                    <DollarSign className="mr-2 h-4 w-4" />
-                    Vente
-                  </Button>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="quantity">Quantité</Label>
-                <Input
-                  id="quantity"
-                  type="number"
-                  min="1"
-                  placeholder="Nombre d'actions"
-                  value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)}
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="direction"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Type d&apos;ordre</FormLabel>
+                      <FormControl>
+                        <div className="grid grid-cols-2 gap-2">
+                          <Button
+                            type="button"
+                            variant={field.value === "buy" ? "default" : "outline"}
+                            onClick={() => field.onChange("buy")}
+                            className="w-full"
+                          >
+                            <ShoppingCart className="mr-2 h-4 w-4" />
+                            Achat
+                          </Button>
+                          <Button
+                            type="button"
+                            variant={field.value === "sell" ? "default" : "outline"}
+                            onClick={() => field.onChange("sell")}
+                            className="w-full"
+                          >
+                            <DollarSign className="mr-2 h-4 w-4" />
+                            Vente
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="priceLimit">Prix limite (€)</Label>
-                <Input
-                  id="priceLimit"
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  placeholder="Prix par action"
-                  value={priceLimit}
-                  onChange={(e) => setPriceLimit(e.target.value)}
+                <FormField
+                  control={form.control}
+                  name="quantity"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Quantité</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min="1"
+                          placeholder="Nombre d'actions"
+                          {...field}
+                          onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="validity">Validité</Label>
-                <Select
-                  value={validity}
-                  onValueChange={(value: "day" | "until_cancelled") =>
-                    setValidity(value)
-                  }
+                <FormField
+                  control={form.control}
+                  name="priceLimit"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Prix limite (€)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          min="0.01"
+                          placeholder="Prix par action"
+                          {...field}
+                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Prix actuel: {currentPrice.toFixed(2)} €
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="validity"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Validité</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="day">Jour</SelectItem>
+                          <SelectItem value="until_cancelled">
+                            Jusqu&apos;à annulation
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {estimatedTotal > 0 && (
+                  <div className="rounded-lg border bg-muted/50 p-4 space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Montant</span>
+                      <span>
+                        {(watchedPriceLimit * watchedQuantity).toFixed(2)} €
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Frais</span>
+                      <span>1.00 €</span>
+                    </div>
+                    <div className="flex justify-between font-medium pt-2 border-t">
+                      <span>Total estimé</span>
+                      <span>{estimatedTotal.toFixed(2)} €</span>
+                    </div>
+                  </div>
+                )}
+
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={form.formState.isSubmitting || !hasTradingAccount}
+                  title={!hasTradingAccount ? "Vous devez créer un compte titre pour passer des ordres" : ""}
                 >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="day">Jour</SelectItem>
-                    <SelectItem value="until_cancelled">
-                      Jusqu&apos;à annulation
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {estimatedTotal > 0 && (
-                <div className="rounded-lg border bg-muted/50 p-4 space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Montant</span>
-                    <span>
-                      {(parseFloat(priceLimit) * parseInt(quantity)).toFixed(2)} €
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Frais</span>
-                    <span>1.00 €</span>
-                  </div>
-                  <div className="flex justify-between font-medium pt-2 border-t">
-                    <span>Total estimé</span>
-                    <span>{estimatedTotal.toFixed(2)} €</span>
-                  </div>
-                </div>
-              )}
-
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={placing || !quantity || !priceLimit || !hasTradingAccount}
-                title={!hasTradingAccount ? "Vous devez créer un compte titre pour passer des ordres" : ""}
-              >
-                {placing ? "Placement en cours..." : !hasTradingAccount ? "Compte titre requis" : "Placer l'ordre"}
-              </Button>
-            </form>
+                  {form.formState.isSubmitting ? "Placement en cours..." : !hasTradingAccount ? "Compte titre requis" : "Placer l'ordre"}
+                </Button>
+              </form>
+            </Form>
           </CardContent>
         </Card>
       </div>

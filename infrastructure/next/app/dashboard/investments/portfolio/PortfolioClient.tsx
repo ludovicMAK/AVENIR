@@ -21,10 +21,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { TrendingUp, TrendingDown, Briefcase, PieChart } from "lucide-react";
+import { useTranslations } from "@/lib/i18n/simple-i18n";
 
 export default function PortfolioClient() {
   const router = useRouter();
   const { positions, isLoading, error } = usePositions();
+  const t = useTranslations('portfolio');
 
   const totalValue = positions.reduce((sum, p) => sum + p.totalValue, 0);
   const totalInvested = positions.reduce(
@@ -40,9 +42,9 @@ export default function PortfolioClient() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Mon portefeuille</h1>
+          <h1 className="text-3xl font-bold">{t('title')}</h1>
           <p className="text-muted-foreground">
-            Vue d&apos;ensemble de vos investissements
+            {t('subtitle')}
           </p>
         </div>
         <div className="grid gap-4 md:grid-cols-4">
@@ -61,7 +63,7 @@ export default function PortfolioClient() {
         <Card className="border-destructive/50">
           <CardContent className="p-12 text-center">
             <p className="text-destructive">
-              Erreur lors du chargement du portefeuille
+              {t('loadError')}
             </p>
             <p className="text-sm text-muted-foreground mt-2">
               {error.message}
@@ -76,13 +78,13 @@ export default function PortfolioClient() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Mon portefeuille</h1>
+          <h1 className="text-3xl font-bold">{t('title')}</h1>
           <p className="text-muted-foreground">
-            Vue d&apos;ensemble de vos investissements
+            {t('subtitle')}
           </p>
         </div>
         <Button onClick={() => router.push("/dashboard/investments/market")}>
-          Investir
+          {t('goToMarket')}
         </Button>
       </div>
 
@@ -90,7 +92,7 @@ export default function PortfolioClient() {
         <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardDescription>Valeur totale</CardDescription>
+              <CardDescription>{t('totalValue')}</CardDescription>
               <Briefcase className="h-4 w-4 text-muted-foreground" />
             </div>
           </CardHeader>
@@ -102,7 +104,7 @@ export default function PortfolioClient() {
         <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardDescription>Investi</CardDescription>
+              <CardDescription>{t('invested')}</CardDescription>
               <PieChart className="h-4 w-4 text-muted-foreground" />
             </div>
           </CardHeader>
@@ -116,7 +118,7 @@ export default function PortfolioClient() {
         <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardDescription>Plus/Moins-value</CardDescription>
+              <CardDescription>{t('gainLoss')}</CardDescription>
               {isPositiveTotal ? (
                 <TrendingUp className="h-4 w-4 text-green-600" />
               ) : (
@@ -138,7 +140,7 @@ export default function PortfolioClient() {
 
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription>Rendement</CardDescription>
+            <CardDescription>{t('return')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div
@@ -155,10 +157,10 @@ export default function PortfolioClient() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Mes positions</CardTitle>
+          <CardTitle>{t('myPositions')}</CardTitle>
           <CardDescription>
-            Détail de vos actions détenues ({positions.length}{" "}
-            {positions.length > 1 ? "positions" : "position"})
+            {t('positionsDetail')} ({positions.length}{" "}
+            {t('positions').toLowerCase()})
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -166,29 +168,29 @@ export default function PortfolioClient() {
             <div className="text-center py-12">
               <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-lg font-medium mb-2">
-                Aucune position dans votre portefeuille
+                {t('noPositions')}
               </p>
               <p className="text-muted-foreground mb-6">
-                Commencez à investir dès maintenant sur le marché
+                {t('noPositionsMessage')}
               </p>
               <Button
                 onClick={() => router.push("/dashboard/investments/market")}
               >
-                Découvrir le marché
+                {t('goToMarket')}
               </Button>
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Action</TableHead>
-                  <TableHead className="text-right">Quantité</TableHead>
-                  <TableHead className="text-right">Prix moyen d&apos;achat</TableHead>
-                  <TableHead className="text-right">Prix actuel</TableHead>
-                  <TableHead className="text-right">Valeur totale</TableHead>
-                  <TableHead className="text-right">Plus/Moins-value</TableHead>
-                  <TableHead className="text-right">Rendement</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>{t('action')}</TableHead>
+                  <TableHead className="text-right">{t('quantity')}</TableHead>
+                  <TableHead className="text-right">{t('averagePrice')}</TableHead>
+                  <TableHead className="text-right">{t('currentPrice')}</TableHead>
+                  <TableHead className="text-right">{t('totalValue')}</TableHead>
+                  <TableHead className="text-right">{t('gainLoss')}</TableHead>
+                  <TableHead className="text-right">{t('return')}</TableHead>
+                  <TableHead className="text-right">{t('view')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -245,7 +247,7 @@ export default function PortfolioClient() {
                             )
                           }
                         >
-                          Voir
+                          {t('view')}
                         </Button>
                       </TableCell>
                     </TableRow>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useOrders, useCancelOrder } from "@/hooks/useOrders";
+import { useTranslations } from "@/lib/i18n/simple-i18n";
 import { Order } from "@/api/orders";
 import {
   Card,
@@ -43,6 +44,7 @@ export default function OrdersClient() {
   const { orders, isLoading, refresh } = useOrders();
   const { cancelOrder, isLoading: cancelling } = useCancelOrder();
   const [orderToCancel, setOrderToCancel] = useState<Order | null>(null);
+  const t = useTranslations('orders');
 
   const handleCancelOrder = async () => {
     if (!orderToCancel) return;
@@ -110,21 +112,21 @@ export default function OrdersClient() {
       <TableHeader>
         <TableRow>
           <TableHead>Date</TableHead>
-          <TableHead>Action</TableHead>
-          <TableHead>Type</TableHead>
-          <TableHead>Quantité</TableHead>
-          <TableHead>Prix limite</TableHead>
-          <TableHead>Montant bloqué</TableHead>
-          <TableHead>Statut</TableHead>
-          <TableHead>Validité</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
+          <TableHead>{t('share')}</TableHead>
+          <TableHead>{t('type')}</TableHead>
+          <TableHead>{t('quantity')}</TableHead>
+          <TableHead>{t('limitPrice')}</TableHead>
+          <TableHead>{t('total')}</TableHead>
+          <TableHead>{t('status')}</TableHead>
+          <TableHead>{t('validity')}</TableHead>
+          <TableHead className="text-right">{t('view')}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {orders.length === 0 ? (
           <TableRow>
             <TableCell colSpan={9} className="text-center py-12">
-              <p className="text-muted-foreground">Aucun ordre</p>
+              <p className="text-muted-foreground">{t('noOrders')}</p>
             </TableCell>
           </TableRow>
         ) : (
@@ -166,9 +168,9 @@ export default function OrdersClient() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Mes ordres</h1>
+          <h1 className="text-3xl font-bold">{t('title')}</h1>
           <p className="text-muted-foreground">
-            Gérez vos ordres d&apos;achat et de vente
+            {t('subtitle')}
           </p>
         </div>
         <Skeleton className="h-96 w-full" />
@@ -180,9 +182,9 @@ export default function OrdersClient() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Mes ordres</h1>
+          <h1 className="text-3xl font-bold">{t('title')}</h1>
           <p className="text-muted-foreground">
-            Gérez vos ordres d&apos;achat et de vente
+            {t('subtitle')}
           </p>
         </div>
         <Button onClick={() => router.push("/dashboard/investments/market")}>

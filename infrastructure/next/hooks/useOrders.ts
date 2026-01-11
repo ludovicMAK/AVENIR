@@ -3,13 +3,24 @@
 import { useState, useCallback, useEffect } from "react";
 import { ordersApi, Order, PlaceOrderRequest, Position } from "@/api/orders";
 import { ApiError } from "@/lib/errors";
+import { useCurrentUser } from "./useCurrentUser";
 
 export function useOrders() {
+  const { user, isLoading: isUserLoading } = useCurrentUser();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<ApiError | Error | null>(null);
 
   const fetchOrders = useCallback(async () => {
+    // Ne pas faire de requête si l'utilisateur n'est pas encore chargé
+    if (isUserLoading) return;
+    
+    // Ne pas faire de requête si l'utilisateur n'existe pas ou n'a pas d'ID valide
+    if (!user?.id) {
+      setError(new Error("Utilisateur non connecté"));
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
@@ -25,7 +36,7 @@ export function useOrders() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [user, isUserLoading]);
 
   useEffect(() => {
     fetchOrders();
@@ -33,7 +44,7 @@ export function useOrders() {
 
   return {
     orders,
-    isLoading,
+    isLoading: isLoading || isUserLoading,
     error,
     refresh: fetchOrders,
   };
@@ -99,11 +110,21 @@ export function useCancelOrder() {
 }
 
 export function usePositions() {
+  const { user, isLoading: isUserLoading } = useCurrentUser();
   const [positions, setPositions] = useState<Position[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<ApiError | Error | null>(null);
 
   const fetchPositions = useCallback(async () => {
+    // Ne pas faire de requête si l'utilisateur n'est pas encore chargé
+    if (isUserLoading) return;
+    
+    // Ne pas faire de requête si l'utilisateur n'existe pas ou n'a pas d'ID valide
+    if (!user?.id) {
+      setError(new Error("Utilisateur non connecté"));
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
@@ -119,7 +140,7 @@ export function usePositions() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [user, isUserLoading]);
 
   useEffect(() => {
     fetchPositions();
@@ -127,7 +148,7 @@ export function usePositions() {
 
   return {
     positions,
-    isLoading,
+    isLoading: isLoading || isUserLoading,
     error,
     refresh: fetchPositions,
   };

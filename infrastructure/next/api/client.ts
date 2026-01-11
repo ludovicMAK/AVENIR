@@ -4,15 +4,25 @@ import { JsonObject, JsonValue } from "@/types/json";
 import { ApiErrorCode } from "@/types/errors";
 import { getAuthenticationToken } from "@/lib/auth/client";
 
-// Adapters: Choose backend via NEXT_PUBLIC_API_BASE_URL
-// - If set (e.g., http://localhost:8000/api) → Use Express backend
-// - If empty → Use Next.js API routes (/api/*)
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
 let cachedUserId: string | null = null;
 
+const UUID_REGEX = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/;
+
+function isValidUUID(value: string): boolean {
+  return UUID_REGEX.test(value);
+}
+
 export function setCurrentUserId(userId: string | null) {
-  cachedUserId = userId;
+  if (userId && isValidUUID(userId)) {
+    cachedUserId = userId;
+    console.log('[API Client] Valid userId set:', userId);
+  } else {
+    console.warn('[API Client] Invalid userId rejected:', userId);
+    cachedUserId = null;
+  }
 }
 
 export function getCurrentUserId(): string | null {
@@ -34,8 +44,19 @@ export async function request<ResponseBody extends JsonValue = JsonValue>(
       headers.set("Authorization", `Bearer ${token}`);
     }
 
-    if (userId) {
-      headers.set("x-user-id", userId);
+    const isUserMeEndpoint = path === "/users/me";
+    
+    if (!isUserMeEndpoint) {
+      if (userId && isValidUUID(userId)) {
+        headers.set("x-user-id", userId);
+        console.log('[API Request]', path, '- userId:', userId);
+      } else if (userId) {
+        console.warn('[API Request]', path, '- Invalid userId NOT sent:', userId);
+      } else {
+        console.warn('[API Request]', path, '- No userId available');
+      }
+    } else {
+      console.log('[API Request]', path, '- /users/me endpoint, skipping x-user-id header');
     }
   }
 

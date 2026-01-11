@@ -1,81 +1,74 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { authApi } from "@/api/auth";
 import { ApiError } from "@/lib/errors";
-import { Button } from "@/components/Button";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/Card";
+} from "@/components/ui/card";
 import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/Field";
-import { Input } from "@/components/Input";
-import { RegisterPayload } from "@/types/auth";
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useTranslations } from "@/lib/i18n/simple-i18n";
 
-type FieldErrors = {
-  firstname?: string[];
-  lastname?: string[];
-  email?: string[];
-  password?: string[];
-};
+const registerSchema = z.object({
+  firstname: z
+    .string()
+    .min(2, { message: "Le prénom doit contenir au moins 2 caractères" })
+    .max(50, { message: "Le prénom ne peut pas dépasser 50 caractères" }),
+  lastname: z
+    .string()
+    .min(2, { message: "Le nom doit contenir au moins 2 caractères" })
+    .max(50, { message: "Le nom ne peut pas dépasser 50 caractères" }),
+  email: z
+    .string()
+    .min(1, { message: "L'email est requis" })
+    .email({ message: "Email invalide" }),
+  password: z
+    .string()
+    .min(8, { message: "Le mot de passe doit contenir au moins 8 caractères" })
+    .regex(/[A-Z]/, { message: "Le mot de passe doit contenir au moins une majuscule" })
+    .regex(/[a-z]/, { message: "Le mot de passe doit contenir au moins une minuscule" })
+    .regex(/[0-9]/, { message: "Le mot de passe doit contenir au moins un chiffre" }),
+});
+
+type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default function Page() {
-  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
-  const [isLoading, setIsLoading] = useState(false);
+  const [apiError, setApiError] = useState<string>("");
   const [success, setSuccess] = useState(false);
+  const tAuth = useTranslations('auth');
+  const tCommon = useTranslations('common');
 
-  const extractFieldErrors = (message: string): FieldErrors => {
-    const result: FieldErrors = {};
-    const parts = message.split(",");
+  const form = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      firstname: "",
+      lastname: "",
+      email: "",
+      password: "",
+    },
+  });
 
-    parts.forEach((part) => {
-      const text = part.trim();
-      if (!text) return;
-      const lower = text.toLowerCase();
-
-      if (lower.includes("first")) {
-        result.firstname = [...(result.firstname ?? []), text];
-      } else if (lower.includes("last")) {
-        result.lastname = [...(result.lastname ?? []), text];
-      } else if (lower.includes("email")) {
-        result.email = [...(result.email ?? []), text];
-      } else if (lower.includes("pass")) {
-        result.password = [...(result.password ?? []), text];
-      } else {
-        result.password = [...(result.password ?? []), text];
-      }
-    });
-
-    if (!Object.keys(result).length) {
-      result.password = [message];
-    }
-
-    return result;
-  };
-
-  async function handleRegister(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setFieldErrors({});
-    setIsLoading(true);
-
-    const formData = new FormData(event.currentTarget);
-    const data: RegisterPayload = {
-      firstname: formData.get("firstname") as string,
-      lastname: formData.get("lastname") as string,
-      email: formData.get("email") as string,
-      password: formData.get("password") as string,
-    };
+  async function onSubmit(data: RegisterFormValues) {
+    setApiError("");
 
     try {
       await authApi.register(data);
@@ -88,9 +81,7 @@ export default function Page() {
           ? error.message
           : "An unexpected error occurred";
 
-      setFieldErrors(extractFieldErrors(message));
-    } finally {
-      setIsLoading(false);
+      setApiError(message);
     }
   }
 
@@ -130,107 +121,122 @@ export default function Page() {
 
   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10 bg-gradient-to-br from-background to-primary/10">
+      <div className="absolute top-4 right-4">
+        <LanguageSwitcher />
+      </div>
       <div className="w-full max-w-md">
         <div className="flex flex-col gap-6">
           <Link
             href="/"
             className="text-sm text-muted-foreground hover:text-primary transition-colors text-center"
           >
-            ← Retour à l'accueil
+            ← {tCommon('back')} {tCommon('home')}
           </Link>
           <Card className="border-primary/20">
             <CardHeader className="text-center">
-              <CardTitle>Créer un compte</CardTitle>
+              <CardTitle>{tAuth('register')}</CardTitle>
               <CardDescription>
-                Rejoignez AVENIR et gérez vos finances
+                {tAuth('joinUs')}
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleRegister}>
-                <FieldGroup>
-                  <Field>
-                    <FieldLabel htmlFor="firstname">Prénom</FieldLabel>
-                    <Input
-                      id="firstname"
-                      name="firstname"
-                      type="text"
-                      required
-                      className="border-primary/20"
-                    />
-                    {fieldErrors.firstname && (
-                      <FieldError
-                        errors={fieldErrors.firstname.map((message) => ({
-                          message,
-                        }))}
-                      />
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  {apiError && (
+                    <div className="p-3 text-sm text-red-500 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-md">
+                      {apiError}
+                    </div>
+                  )}
+                  
+                  <FormField
+                    control={form.control}
+                    name="firstname"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{tAuth('firstname')}</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Jean"
+                            className="border-primary/20"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
-                  </Field>
-                  <Field>
-                    <FieldLabel htmlFor="lastname">Nom</FieldLabel>
-                    <Input
-                      id="lastname"
-                      name="lastname"
-                      type="text"
-                      required
-                      className="border-primary/20"
-                    />
-                    {fieldErrors.lastname && (
-                      <FieldError
-                        errors={fieldErrors.lastname.map((message) => ({
-                          message,
-                        }))}
-                      />
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="lastname"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{tAuth('lastname')}</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Dupont"
+                            className="border-primary/20"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
-                  </Field>
-                  <Field>
-                    <FieldLabel htmlFor="email">Email</FieldLabel>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      required
-                      className="border-primary/20"
-                    />
-                    {fieldErrors.email && (
-                      <FieldError
-                        errors={fieldErrors.email.map((message) => ({
-                          message,
-                        }))}
-                      />
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{tAuth('email')}</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="email"
+                            placeholder="jean.dupont@exemple.com"
+                            className="border-primary/20"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
-                  </Field>
-                  <Field>
-                    <FieldLabel htmlFor="password">Mot de passe</FieldLabel>
-                    <Input
-                      id="password"
-                      name="password"
-                      type="password"
-                      required
-                      className="border-primary/20"
-                    />
-                    {fieldErrors.password && (
-                      <FieldError
-                        errors={fieldErrors.password.map((message) => ({
-                          message,
-                        }))}
-                      />
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{tAuth('password')}</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="password"
+                            placeholder="••••••••"
+                            className="border-primary/20"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
-                  </Field>
-                  <Button
-                    type="submit"
-                    disabled={isLoading}
+                  />
+                  
+                  <Button 
+                    type="submit" 
+                    disabled={form.formState.isSubmitting}
                     className="w-full bg-primary hover:bg-primary/90"
                   >
-                    {isLoading ? "Création..." : "Créer mon compte"}
+                    {form.formState.isSubmitting ? tCommon('loading') : tAuth('createAccount')}
                   </Button>
-                </FieldGroup>
-              </form>
+                </form>
+              </Form>
             </CardContent>
           </Card>
           <div className="text-center text-sm text-muted-foreground">
-            Déjà un compte?{" "}
+            {tAuth('alreadyAccount')}{" "}
             <Link href="/login" className="text-primary hover:underline">
-              Se connecter
+              {tAuth('login')}
             </Link>
           </div>
         </div>

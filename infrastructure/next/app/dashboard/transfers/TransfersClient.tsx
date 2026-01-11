@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Plus, Filter, ArrowUpDown, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useTransferHistory } from "@/hooks/useTransfers";
+import { useTranslations, useI18n } from "@/lib/i18n/simple-i18n";
 
 interface TransfersClientProps {
   userId: string;
@@ -24,6 +25,9 @@ interface TransfersClientProps {
 export default function TransfersClient({ userId }: TransfersClientProps) {
   const router = useRouter();
   const { transfers, isLoading, error, refresh } = useTransferHistory();
+  const t = useTranslations("transfers");
+  const { locale } = useI18n();
+
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterMinAmount, setFilterMinAmount] = useState("");
   const [filterMaxAmount, setFilterMaxAmount] = useState("");
@@ -49,10 +53,10 @@ export default function TransfersClient({ userId }: TransfersClientProps) {
       string,
       { variant: "default" | "secondary" | "destructive"; label: string }
     > = {
-      PENDING: { variant: "secondary", label: "En attente" },
-      VALIDATED: { variant: "default", label: "Validé" },
-      REJECTED: { variant: "destructive", label: "Rejeté" },
-      POSTED: { variant: "default", label: "Exécuté" },
+      PENDING: { variant: "secondary", label: t("pending") },
+      VALIDATED: { variant: "default", label: t("validated") },
+      REJECTED: { variant: "destructive", label: t("rejected") },
+      POSTED: { variant: "default", label: t("posted") },
     };
 
     const config = variants[status] || variants.PENDING;
@@ -73,7 +77,7 @@ export default function TransfersClient({ userId }: TransfersClientProps) {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("fr-FR", {
+    return date.toLocaleDateString(locale === "fr" ? "fr-FR" : "en-US", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
@@ -82,7 +86,7 @@ export default function TransfersClient({ userId }: TransfersClientProps) {
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleTimeString("fr-FR", {
+    return date.toLocaleTimeString(locale === "fr" ? "fr-FR" : "en-US", {
       hour: "2-digit",
       minute: "2-digit",
     });
@@ -102,13 +106,13 @@ export default function TransfersClient({ userId }: TransfersClientProps) {
     }
 
     if (filterStartDate) {
-      const transferDate = new Date(transfer.accountDate);
+      const transferDate = new Date(transfer.dateRequested);
       const startDate = new Date(filterStartDate);
       if (transferDate < startDate) return false;
     }
 
     if (filterEndDate) {
-      const transferDate = new Date(transfer.accountDate);
+      const transferDate = new Date(transfer.dateRequested);
       const endDate = new Date(filterEndDate);
       if (transferDate > endDate) return false;
     }
@@ -129,22 +133,20 @@ export default function TransfersClient({ userId }: TransfersClientProps) {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Virements</h1>
-            <p className="text-muted-foreground">
-              Gérez vos virements bancaires
-            </p>
+            <h1 className="text-3xl font-bold">{t("title")}</h1>
+            <p className="text-muted-foreground">{t("subtitle")}</p>
           </div>
         </div>
         <Card className="border-primary/20">
           <CardContent className="p-6">
             <div className="text-center text-red-600">
-              <p>Erreur lors du chargement de l'historique</p>
+              <p>{t("error")}</p>
               <p className="text-sm text-muted-foreground mt-2">
                 {error.message}
               </p>
               <Button onClick={refresh} className="mt-4">
                 <RefreshCw className="h-4 w-4 mr-2" />
-                Réessayer
+                {t("retry")}
               </Button>
             </div>
           </CardContent>
@@ -157,20 +159,20 @@ export default function TransfersClient({ userId }: TransfersClientProps) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Virements</h1>
-          <p className="text-muted-foreground">Gérez vos virements bancaires</p>
+          <h1 className="text-3xl font-bold">{t("title")}</h1>
+          <p className="text-muted-foreground">{t("subtitle")}</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={refresh} disabled={isLoading}>
             <RefreshCw
               className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
             />
-            Actualiser
+            {t("refresh")}
           </Button>
           <Button asChild>
             <Link href="/dashboard/transfers/new">
               <Plus className="mr-2 h-4 w-4" />
-              Nouveau virement
+              {t("newTransfer")}
             </Link>
           </Button>
         </div>
@@ -179,14 +181,14 @@ export default function TransfersClient({ userId }: TransfersClientProps) {
       <Card className="border-primary/20">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">Filtres</CardTitle>
+            <CardTitle className="text-lg">{t("filters")}</CardTitle>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setShowFilters(!showFilters)}
             >
               <Filter className="mr-2 h-4 w-4" />
-              {showFilters ? "Masquer" : "Afficher"}
+              {showFilters ? t("hide") : t("show")}
             </Button>
           </div>
         </CardHeader>
@@ -194,22 +196,22 @@ export default function TransfersClient({ userId }: TransfersClientProps) {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label>Statut</Label>
+                <Label>{t("status")}</Label>
                 <select
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
                   className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 >
-                  <option value="all">Tous</option>
-                  <option value="PENDING">En attente</option>
-                  <option value="VALIDATED">Validé</option>
-                  <option value="POSTED">Exécuté</option>
-                  <option value="REJECTED">Rejeté</option>
+                  <option value="all">{t("all")}</option>
+                  <option value="PENDING">{t("pending")}</option>
+                  <option value="VALIDATED">{t("validated")}</option>
+                  <option value="POSTED">{t("posted")}</option>
+                  <option value="REJECTED">{t("rejected")}</option>
                 </select>
               </div>
 
               <div className="space-y-2">
-                <Label>Montant minimum (€)</Label>
+                <Label>{t("minAmount")}</Label>
                 <Input
                   type="number"
                   value={filterMinAmount}
@@ -219,7 +221,7 @@ export default function TransfersClient({ userId }: TransfersClientProps) {
               </div>
 
               <div className="space-y-2">
-                <Label>Montant maximum (€)</Label>
+                <Label>{t("maxAmount")}</Label>
                 <Input
                   type="number"
                   value={filterMaxAmount}
@@ -229,7 +231,7 @@ export default function TransfersClient({ userId }: TransfersClientProps) {
               </div>
 
               <div className="space-y-2">
-                <Label>Date de début</Label>
+                <Label>{t("startDate")}</Label>
                 <Input
                   type="date"
                   value={filterStartDate}
@@ -238,7 +240,7 @@ export default function TransfersClient({ userId }: TransfersClientProps) {
               </div>
 
               <div className="space-y-2">
-                <Label>Date de fin</Label>
+                <Label>{t("endDate")}</Label>
                 <Input
                   type="date"
                   value={filterEndDate}
@@ -249,7 +251,7 @@ export default function TransfersClient({ userId }: TransfersClientProps) {
 
             <div className="flex justify-end">
               <Button variant="outline" onClick={resetFilters}>
-                Réinitialiser
+                {t("reset")}
               </Button>
             </div>
           </CardContent>
@@ -259,28 +261,26 @@ export default function TransfersClient({ userId }: TransfersClientProps) {
       <Card className="border-primary/20">
         <CardHeader>
           <CardTitle>
-            Historique des virements ({filteredTransfers.length})
+            {t("history")} ({filteredTransfers.length})
           </CardTitle>
-          <CardDescription>
-            Liste de tous vos virements effectués
-          </CardDescription>
+          <CardDescription>{t("transferList")}</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">
-                Chargement de l'historique...
-              </p>
+              <p className="text-muted-foreground">{t("loading")}</p>
             </div>
           ) : filteredTransfers.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground mb-4">
                 {transfers.length === 0
-                  ? "Aucun virement trouvé"
-                  : "Aucun virement ne correspond aux filtres sélectionnés"}
+                  ? t("noTransfers")
+                  : t("noTransfersFilter")}
               </p>
               <Button asChild variant="outline">
-                <Link href="/dashboard/transfers/new">Créer un virement</Link>
+                <Link href="/dashboard/transfers/new">
+                  {t("createTransfer")}
+                </Link>
               </Button>
             </div>
           ) : (
@@ -293,63 +293,45 @@ export default function TransfersClient({ userId }: TransfersClientProps) {
                   <div className="flex items-start justify-between">
                     <div className="flex-1 space-y-2">
                       <div className="flex items-center gap-3">
-                        <h3 className="font-semibold">{transfer.reason}</h3>
+                        <h3 className="font-semibold">
+                          {transfer.description}
+                        </h3>
                         {getStatusBadge(transfer.status)}
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
                         <div>
-                          <span className="text-muted-foreground">IBAN: </span>
-                          <span className="font-mono text-xs">
-                            {transfer.accountIBAN}
-                          </span>
-                        </div>
-                        <div>
                           <span className="text-muted-foreground">
-                            Direction:{" "}
+                            {t("amount")}:{" "}
                           </span>
-                          <span
-                            className={
-                              transfer.transactionDirection === "CREDIT"
-                                ? "text-green-600"
-                                : "text-red-600"
-                            }
-                          >
-                            {transfer.transactionDirection === "CREDIT"
-                              ? "Crédit"
-                              : "Débit"}
+                          <span className="font-semibold text-lg">
+                            {transfer.amount.toFixed(2)} €
                           </span>
                         </div>
+                        {transfer.dateExecuted && (
+                          <div>
+                            <span className="text-muted-foreground">
+                              {t("dateExecuted")}:{" "}
+                            </span>
+                            <span>{formatDate(transfer.dateExecuted)}</span>
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex gap-4 text-sm text-muted-foreground">
                         <div>
-                          <span>Date: </span>
+                          <span>{t("dateRequested")}: </span>
                           <span>
-                            {formatDate(transfer.accountDate)} à{" "}
-                            {formatTime(transfer.accountDate)}
+                            {formatDate(transfer.dateRequested)}{" "}
+                            {locale === "fr" ? "à" : "at"}{" "}
+                            {formatTime(transfer.dateRequested)}
                           </span>
                         </div>
-                        {transfer.transferId && (
-                          <div>
-                            <span>ID Virement: </span>
-                            <span className="font-mono text-xs">
-                              {transfer.transferId}
-                            </span>
-                          </div>
-                        )}
                       </div>
                     </div>
 
                     <div className="text-right">
-                      <p
-                        className={`text-2xl font-bold ${
-                          transfer.transactionDirection === "CREDIT"
-                            ? "text-green-600"
-                            : "text-red-600"
-                        }`}
-                      >
-                        {transfer.transactionDirection === "CREDIT" ? "+" : "-"}
+                      <p className="text-2xl font-bold text-primary">
                         {transfer.amount.toFixed(2)} €
                       </p>
                     </div>

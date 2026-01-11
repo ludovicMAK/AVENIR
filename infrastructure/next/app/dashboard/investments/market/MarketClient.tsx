@@ -16,12 +16,14 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Search, TrendingUp, TrendingDown, ArrowRight, AlertCircle } from "lucide-react";
+import { useTranslations } from "@/lib/i18n/simple-i18n";
 
 export default function MarketClient() {
   const router = useRouter();
   const { shares, isLoading, error } = useShares();
   const { hasTradingAccount, isLoading: accountsLoading } = useTradingAccount();
   const [searchQuery, setSearchQuery] = useState("");
+  const t = useTranslations('market');
 
   const filteredShares = shares.filter((share) =>
     share.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -31,9 +33,9 @@ export default function MarketClient() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Marché</h1>
+          <h1 className="text-3xl font-bold">{t('title')}</h1>
           <p className="text-muted-foreground">
-            Découvrez et investissez dans nos actions
+            {t('subtitle')}
           </p>
         </div>
         <Skeleton className="h-12 w-full" />
@@ -50,15 +52,15 @@ export default function MarketClient() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Marché</h1>
+          <h1 className="text-3xl font-bold">{t('title')}</h1>
           <p className="text-muted-foreground">
-            Découvrez et investissez dans nos actions
+            {t('subtitle')}
           </p>
         </div>
         <Card className="border-destructive/50">
           <CardContent className="p-6">
             <p className="text-center text-destructive">
-              Erreur lors du chargement des actions
+              {t('loadError')}
             </p>
             <p className="text-sm text-muted-foreground text-center mt-2">
               {error.message}
@@ -109,7 +111,7 @@ export default function MarketClient() {
           <div className="relative">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Rechercher une action..."
+              placeholder={t('availableShares') + "..."}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -123,7 +125,7 @@ export default function MarketClient() {
           <CardContent className="p-12 text-center text-muted-foreground">
             {searchQuery
               ? "Aucune action ne correspond à votre recherche"
-              : "Aucune action disponible pour le moment"}
+              : t('noSharesMessage')}
           </CardContent>
         </Card>
       ) : (
@@ -193,7 +195,7 @@ export default function MarketClient() {
                     )}
 
                     <Button className="w-full" variant="outline">
-                      Voir les détails
+                      {t('viewDetails')}
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>

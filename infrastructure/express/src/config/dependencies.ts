@@ -87,6 +87,7 @@ import { TransferHttpHandler } from "../http/TransferHttpHandler";
 import { TransferController } from "@express/controllers/TransferController";
 import { ValidTransferByAdmin } from "@application/usecases/transfer/validTransferByAdmin";
 import { CancelTransfer } from "@application/usecases/transfer/cancelTransfer";
+import { GetTransferHistory } from "@application/usecases/transfer/getTransferHistory";
 
 import { UpdateNameAccount } from "@application/usecases/accounts/updateNameAccount";
 import { CreditHttpHandler } from "../http/CreditHttpHandler";
@@ -241,10 +242,7 @@ const deleteShareUsecase = new DeleteShare(
   securitiesPositionRepository
 );
 const activateShare = new ActivateShare(shareRepository);
-const deactivateShare = new DeactivateShare(
-  shareRepository,
-  orderRepository
-);
+const deactivateShare = new DeactivateShare(shareRepository, orderRepository);
 
 const shareController = new ShareController(
   createShare,
@@ -288,6 +286,8 @@ const cancelTransferUsecase = new CancelTransfer(
   unitOfWorkFactory
 );
 
+const getTransferHistoryUsecase = new GetTransferHistory(transferRepository);
+
 const getTransactionHistoryUsecase = new GetTransactionHistory(
   sessionRepository,
   transactionRepository,
@@ -307,7 +307,8 @@ const transactionController = new TransactionController(
 );
 const transferController = new TransferController(
   validateTransferByAdmin,
-  cancelTransferUsecase
+  cancelTransferUsecase,
+  getTransferHistoryUsecase
 );
 
 const createConversation = new CreateConversation(
@@ -519,24 +520,15 @@ const savingsController = new SavingsController(
   processDailySavingsInterestUsecase,
   getAccountInterestHistoryUsecase
 );
-const savingsHttpHandler = new SavingsHttpHandler(
-  savingsController,
-  authGuard
-);
+const savingsHttpHandler = new SavingsHttpHandler(savingsController, authGuard);
 
-const userHttpHandler = new UserHttpHandler(
-  userController,
-  authGuard
-);
+const userHttpHandler = new UserHttpHandler(userController, authGuard);
 const accountHttpHandler = new AccountHttpHandler(
   accountController,
   transactionRepository,
   authGuard
 );
-const shareHttpHandler = new ShareHttpHandler(
-  shareController,
-  authGuard
-);
+const shareHttpHandler = new ShareHttpHandler(shareController, authGuard);
 const transactionHttpHandler = new TransactionHttpHandler(
   transactionController,
   transactionRepository,
@@ -559,7 +551,7 @@ export const httpRouter = createHttpRouter(
   transferHttpHandler,
   conversationHttpHandler,
   creditHttpHandler,
-  savingsHttpHandler,
+  savingsHttpHandler
 );
 
 export {

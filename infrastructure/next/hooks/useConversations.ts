@@ -9,13 +9,24 @@ import {
   SendMessageRequest,
 } from "@/api/conversations";
 import { ApiError } from "@/lib/errors";
+import { useCurrentUser } from "./useCurrentUser";
 
 export function useConversations() {
+  const { user, isLoading: isUserLoading } = useCurrentUser();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<ApiError | Error | null>(null);
 
   const fetchConversations = useCallback(async () => {
+    // Ne pas faire de requête si l'utilisateur n'est pas encore chargé
+    if (isUserLoading) return;
+    
+    // Ne pas faire de requête si l'utilisateur n'existe pas ou n'a pas d'ID valide
+    if (!user?.id) {
+      setError(new Error("Utilisateur non connecté"));
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
@@ -31,7 +42,7 @@ export function useConversations() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [user, isUserLoading]);
 
   useEffect(() => {
     fetchConversations();
@@ -39,7 +50,7 @@ export function useConversations() {
 
   return {
     conversations,
-    isLoading,
+    isLoading: isLoading || isUserLoading,
     error,
     refresh: fetchConversations,
   };

@@ -32,6 +32,7 @@ import {
 } from "@/lib/accounts/utils";
 import { AccountTypeValue, AccountStatusValue } from "@/types/accounts";
 import { Plus, Search, ArrowUpDown, Wallet } from "lucide-react";
+import { useTranslations } from "@/lib/i18n/simple-i18n";
 
 type AccountsClientProps = {
   userId: string;
@@ -41,6 +42,8 @@ export default function AccountsClient({ userId }: AccountsClientProps) {
   const router = useRouter();
   const { accounts, isLoading, error, fetchAccounts } =
     useAccountsByOwner(userId);
+  const t = useTranslations('accounts');
+  const tCommon = useTranslations('common');
 
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<AccountTypeValue[]>([]);
@@ -75,13 +78,13 @@ export default function AccountsClient({ userId }: AccountsClientProps) {
     return (
       <Card className="border-destructive">
         <CardHeader>
-          <CardTitle className="text-destructive">Erreur</CardTitle>
+          <CardTitle className="text-destructive">{t('error')}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground mb-4">
-            Impossible de charger vos comptes: {error.message}
+            {t('loadError')}: {error.message}
           </p>
-          <Button onClick={() => fetchAccounts()}>Réessayer</Button>
+          <Button onClick={() => fetchAccounts()}>{t('retry')}</Button>
         </CardContent>
       </Card>
     );
@@ -112,15 +115,15 @@ export default function AccountsClient({ userId }: AccountsClientProps) {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Mes comptes</h1>
+          <h1 className="text-3xl font-bold">{t('title')}</h1>
           <p className="text-muted-foreground">
-            {filteredAccounts.length} compte(s) • Solde total:{" "}
+            {filteredAccounts.length} {tCommon('accounts_count')} • {t('totalBalance')}:{" "}
             {formatAmount(totalBalance)}
           </p>
         </div>
         <Button onClick={() => router.push("/dashboard/accounts/new")}>
           <Plus className="mr-2 h-4 w-4" />
-          Nouveau compte
+          {t('newAccount')}
         </Button>
       </div>
 
@@ -130,7 +133,7 @@ export default function AccountsClient({ userId }: AccountsClientProps) {
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Rechercher par nom ou IBAN..."
+                placeholder={t('searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-9"
@@ -142,17 +145,17 @@ export default function AccountsClient({ userId }: AccountsClientProps) {
               onValueChange={(value: "name" | "balance") => setSortBy(value)}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Trier par..." />
+                <SelectValue placeholder={t('sortBy')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="name">Nom</SelectItem>
-                <SelectItem value="balance">Solde</SelectItem>
+                <SelectItem value="name">{t('name')}</SelectItem>
+                <SelectItem value="balance">{t('balance')}</SelectItem>
               </SelectContent>
             </Select>
 
             <Button variant="outline" onClick={toggleSort}>
               <ArrowUpDown className="mr-2 h-4 w-4" />
-              {sortOrder === "asc" ? "Croissant" : "Décroissant"}
+              {sortOrder === "asc" ? t('ascending') : t('descending')}
             </Button>
           </div>
         </CardContent>
@@ -161,16 +164,16 @@ export default function AccountsClient({ userId }: AccountsClientProps) {
       <Tabs defaultValue="all" className="space-y-4">
         <TabsList>
           <TabsTrigger value="all">
-            Tous ({filteredAccounts.length})
+            {t('all')} ({filteredAccounts.length})
           </TabsTrigger>
           <TabsTrigger value="current">
-            Comptes courants ({accountsByType.current.length})
+            {t('currentAccounts')} ({accountsByType.current.length})
           </TabsTrigger>
           <TabsTrigger value="savings">
-            Épargne ({accountsByType.savings.length})
+            {t('savingsAccounts')} ({accountsByType.savings.length})
           </TabsTrigger>
           <TabsTrigger value="trading">
-            Titres ({accountsByType.trading.length})
+            {t('tradingAccounts')} ({accountsByType.trading.length})
           </TabsTrigger>
         </TabsList>
 
@@ -180,19 +183,19 @@ export default function AccountsClient({ userId }: AccountsClientProps) {
               <CardContent className="pt-12 pb-12 text-center">
                 <Wallet className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                 <h3 className="text-lg font-semibold mb-2">
-                  Aucun compte trouvé
+                  {t('noAccounts')}
                 </h3>
                 <p className="text-muted-foreground mb-4">
                   {searchQuery
-                    ? "Essayez un autre terme de recherche"
-                    : "Créez votre premier compte"}
+                    ? t('tryOtherSearch')
+                    : t('createFirst')}
                 </p>
                 {!searchQuery && (
                   <Button
                     onClick={() => router.push("/dashboard/accounts/new")}
                   >
                     <Plus className="mr-2 h-4 w-4" />
-                    Créer un compte
+                    {t('createAccount')}
                   </Button>
                 )}
               </CardContent>
@@ -243,12 +246,12 @@ export default function AccountsClient({ userId }: AccountsClientProps) {
                         </div>
                         {account.authorizedOverdraft && (
                           <p className="text-sm text-muted-foreground">
-                            Disponible: {formatAmount(available)}
+                            {t('available')}: {formatAmount(available)}
                           </p>
                         )}
                         {overdrawn && (
                           <div className="mt-3 p-2 bg-destructive/10 rounded text-xs text-destructive">
-                            ⚠️ Découvert
+                            ⚠️ {t('overdraft')}
                           </div>
                         )}
                       </div>
@@ -294,7 +297,7 @@ export default function AccountsClient({ userId }: AccountsClientProps) {
                     </div>
                     {account.authorizedOverdraft && (
                       <p className="text-sm text-muted-foreground">
-                        Disponible: {formatAmount(available)}
+                        {t('available')}: {formatAmount(available)}
                       </p>
                     )}
                   </CardContent>

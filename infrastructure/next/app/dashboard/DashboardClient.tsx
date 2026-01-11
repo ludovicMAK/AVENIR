@@ -35,6 +35,7 @@ import {
   ArrowDownLeft,
   ArrowUpRight,
 } from "lucide-react";
+import { useTranslations } from "@/lib/i18n/simple-i18n";
 
 type DashboardClientProps = {
   userId: string;
@@ -45,6 +46,8 @@ export default function DashboardClient({ userId }: DashboardClientProps) {
   const { accounts, isLoading, error, fetchAccounts } =
     useAccountsByOwner(userId);
   const { transfers, isLoading: isLoadingTransfers } = useTransferHistory();
+  
+  const tDashboard = useTranslations('dashboard');
 
   useEffect(() => {
     fetchAccounts();
@@ -71,13 +74,13 @@ export default function DashboardClient({ userId }: DashboardClientProps) {
     return (
       <Card className="border-destructive">
         <CardHeader>
-          <CardTitle className="text-destructive">Erreur</CardTitle>
+          <CardTitle className="text-destructive">{useTranslations('common')('error')}</CardTitle>
           <CardDescription>
             Impossible de charger vos comptes: {error.message}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Button onClick={() => fetchAccounts()}>Réessayer</Button>
+          <Button onClick={() => fetchAccounts()}>{useTranslations('common')('retry')}</Button>
         </CardContent>
       </Card>
     );
@@ -89,26 +92,26 @@ export default function DashboardClient({ userId }: DashboardClientProps) {
 
   const stats = [
     {
-      title: "Solde total",
+      title: tDashboard('totalBalance'),
       value: formatAmount(totalBalance),
-      description: `${openAccounts.length} compte(s) actif(s)`,
+      description: `${openAccounts.length} ${tDashboard('accounts_count')}`,
       icon: Wallet,
       trend: totalBalance >= 0 ? "up" : "down",
     },
     {
-      title: "Comptes courants",
+      title: tDashboard('currentAccounts'),
       value: formatAmountCompact(
         calculateTotalBalance(groupedAccounts.current || [])
       ),
-      description: `${groupedAccounts.current?.length || 0} compte(s)`,
+      description: `${groupedAccounts.current?.length || 0} ${tDashboard('accounts_count')}`,
       icon: CreditCard,
     },
     {
-      title: "Épargne",
+      title: tDashboard('savingsAccounts'),
       value: formatAmountCompact(
         calculateTotalBalance(groupedAccounts.savings || [])
       ),
-      description: `${groupedAccounts.savings?.length || 0} compte(s)`,
+      description: `${groupedAccounts.savings?.length || 0} ${tDashboard('accounts_count')}`,
       icon: PiggyBank,
     },
   ];
@@ -117,14 +120,14 @@ export default function DashboardClient({ userId }: DashboardClientProps) {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Tableau de bord</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{tDashboard('title')}</h1>
           <p className="text-muted-foreground">
-            Vue d'ensemble de vos comptes et transactions
+            {tDashboard('subtitle')}
           </p>
         </div>
         <Button onClick={() => router.push("/dashboard/accounts/new")}>
           <Plus className="mr-2 h-4 w-4" />
-          Nouveau compte
+          {tDashboard('newAccount')}
         </Button>
       </div>
 
@@ -168,20 +171,20 @@ export default function DashboardClient({ userId }: DashboardClientProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Vos comptes</CardTitle>
-          <CardDescription>Liste de tous vos comptes bancaires</CardDescription>
+          <CardTitle>{tDashboard('yourAccounts')}</CardTitle>
+          <CardDescription>{tDashboard('accountsList')}</CardDescription>
         </CardHeader>
         <CardContent>
           {openAccounts.length === 0 ? (
             <div className="text-center py-12">
               <Wallet className="mx-auto h-12 w-12 text-muted-foreground" />
-              <h3 className="mt-4 text-lg font-semibold">Aucun compte</h3>
+              <h3 className="mt-4 text-lg font-semibold">{tDashboard('noAccounts')}</h3>
               <p className="text-muted-foreground mb-4">
-                Commencez par créer votre premier compte bancaire
+                {tDashboard('noAccountsDesc')}
               </p>
               <Button onClick={() => router.push("/dashboard/accounts/new")}>
                 <Plus className="mr-2 h-4 w-4" />
-                Créer un compte
+                {tDashboard('createAccount')}
               </Button>
             </div>
           ) : (
@@ -230,7 +233,7 @@ export default function DashboardClient({ userId }: DashboardClientProps) {
                           </div>
                           {account.authorizedOverdraft && (
                             <p className="text-xs text-muted-foreground">
-                              Disponible: {formatAmount(available)}
+                              {tDashboard('available')}: {formatAmount(available)}
                             </p>
                           )}
                         </div>
@@ -239,11 +242,10 @@ export default function DashboardClient({ userId }: DashboardClientProps) {
                       {overdrawn && (
                         <div className="mt-4 p-3 bg-destructive/10 rounded-md">
                           <p className="text-sm text-destructive font-medium">
-                            ⚠️ Compte en découvert
+                            ⚠️ {tDashboard('overdraft')}
                             {account.overdraftLimit && (
                               <span className="ml-2 font-normal">
-                                (Limite: {formatAmount(-account.overdraftLimit)}
-                                )
+                                ({tDashboard('limit')}: {formatAmount(-account.overdraftLimit)})
                               </span>
                             )}
                           </p>
@@ -260,8 +262,8 @@ export default function DashboardClient({ userId }: DashboardClientProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Activité récente</CardTitle>
-          <CardDescription>Vos dernières transactions</CardDescription>
+          <CardTitle>{tDashboard('recentActivity')}</CardTitle>
+          <CardDescription>{tDashboard('latestTransactions')}</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoadingTransfers ? (
@@ -272,7 +274,7 @@ export default function DashboardClient({ userId }: DashboardClientProps) {
             </div>
           ) : transfers.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
-              <p>Aucune transaction récente</p>
+              <p>{tDashboard('noTransactions')}</p>
             </div>
           ) : (
             <div className="space-y-4">

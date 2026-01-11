@@ -14,43 +14,49 @@ import {
   ArrowRight,
   CheckCircle2,
 } from "lucide-react";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useTranslations } from "@/lib/i18n/simple-i18n";
 
 export default function LandingPage() {
   const { user } = useCurrentUser();
+  const t = useTranslations('landing.hero');
+  const tFeatures = useTranslations('landing.features');
+  const tAccountTypes = useTranslations('landing.accountTypes');
+  const tBenefits = useTranslations('landing.benefits');
+  const tCta = useTranslations('landing.cta');
+  const tAuth = useTranslations('auth');
+  const tNav = useTranslations('navigation');
 
   const features = [
     {
       icon: Wallet,
-      title: "Gestion multi-comptes",
-      description:
-        "Gérez vos comptes courants, épargne et titres en un seul endroit",
+      title: tFeatures('multiAccount.title'),
+      description: tFeatures('multiAccount.description'),
     },
     {
       icon: Shield,
-      title: "Sécurité maximale",
-      description:
-        "Vos données sont protégées avec les dernières technologies de sécurité",
+      title: tFeatures('security.title'),
+      description: tFeatures('security.description'),
     },
     {
       icon: TrendingUp,
-      title: "Suivi en temps réel",
-      description: "Consultez vos soldes et transactions instantanément",
+      title: tFeatures('realTime.title'),
+      description: tFeatures('realTime.description'),
     },
     {
       icon: BarChart3,
-      title: "Analyses détaillées",
-      description:
-        "Visualisez vos dépenses et revenus avec des graphiques clairs",
+      title: tFeatures('analytics.title'),
+      description: tFeatures('analytics.description'),
     },
   ];
 
   const benefits = [
-    "Ouverture de compte en 5 minutes",
-    "Aucun frais cachés",
-    "Support client 7j/7",
-    "Application mobile disponible",
-    "Virements instantanés",
-    "Découvert autorisé disponible",
+    tBenefits('benefit1'),
+    tBenefits('benefit2'),
+    tBenefits('benefit3'),
+    tBenefits('benefit4'),
+    tBenefits('benefit5'),
+    tBenefits('benefit6'),
   ];
 
   return (
@@ -62,21 +68,22 @@ export default function LandingPage() {
             <span className="text-2xl font-bold">AVENIR</span>
           </div>
           <nav className="flex items-center gap-4">
+            <LanguageSwitcher />
             {user ? (
               <Button asChild>
                 <Link href="/dashboard">
-                  Tableau de bord
+                  {tNav('dashboard')}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
             ) : (
               <>
                 <Button variant="ghost" asChild>
-                  <Link href="/login">Connexion</Link>
+                  <Link href="/login">{tAuth('login')}</Link>
                 </Button>
                 <Button asChild>
                   <Link href="/register">
-                    Inscription
+                    {tAuth('register')}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
@@ -89,23 +96,21 @@ export default function LandingPage() {
       <section className="container mx-auto px-4 py-20 text-center">
         <div className="max-w-3xl mx-auto space-y-6">
           <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
-            Votre banque en ligne
-            <span className="block text-primary mt-2">nouvelle génération</span>
+            {t('title')}
+            <span className="block text-primary mt-2">{t('subtitle')}</span>
           </h1>
           <p className="text-xl text-muted-foreground">
-            AVENIR simplifie la gestion de vos finances avec une interface
-            moderne et intuitive. Ouvrez votre compte en quelques minutes et
-            profitez d'une expérience bancaire réinventée.
+            {t('description')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
             <Button size="lg" asChild>
               <Link href="/register">
-                Ouvrir un compte
+                {t('openAccount')}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
             <Button size="lg" variant="outline" asChild>
-              <Link href="/login">Se connecter</Link>
+              <Link href="/login">{t('login')}</Link>
             </Button>
           </div>
         </div>
@@ -113,7 +118,7 @@ export default function LandingPage() {
 
       <section className="container mx-auto px-4 py-20">
         <h2 className="text-3xl font-bold text-center mb-12">
-          Tout ce dont vous avez besoin
+          {tFeatures('title')}
         </h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {features.map((feature) => {
@@ -140,28 +145,28 @@ export default function LandingPage() {
 
       <section className="container mx-auto px-4 py-20">
         <h2 className="text-3xl font-bold text-center mb-12">
-          Des comptes adaptés à vos besoins
+          {tAccountTypes('title')}
         </h2>
         <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           <Card className="border-2">
             <CardContent className="pt-6">
               <CreditCard className="h-10 w-10 text-blue-600 mb-4" />
-              <h3 className="font-semibold text-xl mb-2">Compte Courant</h3>
+              <h3 className="font-semibold text-xl mb-2">{tAccountTypes('current.title')}</h3>
               <p className="text-muted-foreground mb-4">
-                Pour vos dépenses quotidiennes avec découvert autorisé
+                {tAccountTypes('current.description')}
               </p>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-600" />
-                  Carte bancaire gratuite
+                  {tAccountTypes('current.feature1')}
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-600" />
-                  Virements illimités
+                  {tAccountTypes('current.feature2')}
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-600" />
-                  Découvert personnalisable
+                  {tAccountTypes('current.feature3')}
                 </li>
               </ul>
             </CardContent>
@@ -170,22 +175,22 @@ export default function LandingPage() {
           <Card className="border-2">
             <CardContent className="pt-6">
               <PiggyBank className="h-10 w-10 text-green-600 mb-4" />
-              <h3 className="font-semibold text-xl mb-2">Compte Épargne</h3>
+              <h3 className="font-semibold text-xl mb-2">{tAccountTypes('savings.title')}</h3>
               <p className="text-muted-foreground mb-4">
-                Faites fructifier votre argent en toute sécurité
+                {tAccountTypes('savings.description')}
               </p>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-600" />
-                  Taux d'intérêt compétitif
+                  {tAccountTypes('savings.feature1')}
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-600" />
-                  Retraits flexibles
+                  {tAccountTypes('savings.feature2')}
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-600" />
-                  Capital garanti
+                  {tAccountTypes('savings.feature3')}
                 </li>
               </ul>
             </CardContent>
@@ -194,22 +199,22 @@ export default function LandingPage() {
           <Card className="border-2">
             <CardContent className="pt-6">
               <TrendingUp className="h-10 w-10 text-purple-600 mb-4" />
-              <h3 className="font-semibold text-xl mb-2">Compte Titres</h3>
+              <h3 className="font-semibold text-xl mb-2">{tAccountTypes('trading.title')}</h3>
               <p className="text-muted-foreground mb-4">
-                Investissez en bourse simplement
+                {tAccountTypes('trading.description')}
               </p>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-600" />
-                  Accès aux marchés
+                  {tAccountTypes('trading.feature1')}
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-600" />
-                  Frais réduits
+                  {tAccountTypes('trading.feature2')}
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-600" />
-                  Analyses en temps réel
+                  {tAccountTypes('trading.feature3')}
                 </li>
               </ul>
             </CardContent>
@@ -220,7 +225,7 @@ export default function LandingPage() {
       <section className="container mx-auto px-4 py-20">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12">
-            Pourquoi choisir AVENIR ?
+            {tBenefits('title')}
           </h2>
           <div className="grid md:grid-cols-2 gap-4">
             {benefits.map((benefit) => (
@@ -239,20 +244,19 @@ export default function LandingPage() {
       <section className="container mx-auto px-4 py-20">
         <Card className="max-w-3xl mx-auto border-2 border-primary">
           <CardContent className="pt-12 pb-12 text-center">
-            <h2 className="text-3xl font-bold mb-4">Prêt à commencer ?</h2>
+            <h2 className="text-3xl font-bold mb-4">{tCta('title')}</h2>
             <p className="text-muted-foreground text-lg mb-8">
-              Rejoignez des milliers d'utilisateurs qui font confiance à AVENIR
-              pour gérer leurs finances au quotidien.
+              {tCta('description')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" asChild>
                 <Link href="/register">
-                  Créer mon compte gratuitement
+                  {tCta('createAccount')}
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
-                <Link href="/login">J'ai déjà un compte</Link>
+                <Link href="/login">{tAuth('hasAccount')}</Link>
               </Button>
             </div>
           </CardContent>
