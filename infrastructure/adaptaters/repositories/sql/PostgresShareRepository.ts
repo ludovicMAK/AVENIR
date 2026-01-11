@@ -3,7 +3,7 @@ import { ShareRepository } from "@application/repositories/share";
 import { Share } from "@domain/entities/share";
 import { ShareRow } from "@adapters/repositories/types/ShareRow";
 import { InfrastructureError } from "@application/errors";
-import { ensureError } from "@application/utils/errors";
+import { ensureError, ErrorLike } from "@application/utils/errors";
 
 export class PostgresShareRepository implements ShareRepository {
   constructor(private readonly pool: Pool) {}
@@ -119,7 +119,7 @@ export class PostgresShareRepository implements ShareRepository {
     );
   }
 
-  private handleDatabaseError(error: unknown): never {
+  private handleDatabaseError(error: ErrorLike): never {
     const err = ensureError(error);
     throw new InfrastructureError(`Database error: ${err.message}`);
   }

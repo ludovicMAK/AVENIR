@@ -1,6 +1,7 @@
 import { request } from "./client";
 import { ApiError } from "@/lib/errors";
 import { isJsonObject } from "@/lib/json";
+import { JsonObject } from "@/types/json";
 
 export interface Order {
   id: string;
@@ -34,31 +35,31 @@ export interface Position {
   gainLossPercentage: number;
 }
 
-function parseOrder(data: any): Order {
+function parseOrder(data: JsonObject): Order {
   return {
-    id: data.id,
-    customerId: data.customerId,
-    shareId: data.shareId,
-    direction: data.direction,
+    id: String(data.id),
+    customerId: String(data.customerId),
+    shareId: String(data.shareId),
+    direction: String(data.direction) as Order["direction"],
     quantity: Number(data.quantity),
     priceLimit: Number(data.priceLimit),
-    validity: data.validity,
-    status: data.status,
-    dateCaptured: data.dateCaptured,
+    validity: String(data.validity),
+    status: String(data.status),
+    dateCaptured: String(data.dateCaptured),
     blockedAmount: Number(data.blockedAmount),
   };
 }
 
-function parsePosition(data: any): Position {
+function parsePosition(data: JsonObject): Position {
   return {
-    shareId: data.shareId || '',
-    shareName: data.shareName || 'Unknown',
-    quantity: Number(data.quantity || 0),
-    averagePrice: Number(data.averagePrice || 0),
-    currentPrice: Number(data.currentPrice || 0),
-    totalValue: Number(data.totalValue || 0),
-    gainLoss: Number(data.gainLoss || 0),
-    gainLossPercentage: Number(data.gainLossPercentage || 0),
+    shareId: String(data.shareId),
+    shareName: String(data.shareName),
+    quantity: Number(data.quantity),
+    averagePrice: Number(data.averagePrice),
+    currentPrice: Number(data.currentPrice),
+    totalValue: Number(data.totalValue),
+    gainLoss: Number(data.gainLoss),
+    gainLossPercentage: Number(data.gainLossPercentage),
   };
 }
 
@@ -82,7 +83,11 @@ export const ordersApi = {
     if (!isJsonObject(response) || !Array.isArray(response.orders)) {
       throw new ApiError("INFRASTRUCTURE_ERROR", "Invalid orders response");
     }
-    return response.orders.map(parseOrder);
+    const orders = response.orders.filter(isJsonObject);
+    if (orders.length !== response.orders.length) {
+      throw new ApiError("INFRASTRUCTURE_ERROR", "Invalid orders response");
+    }
+    return orders.map(parseOrder);
   },
 
   async cancelOrder(orderId: string): Promise<void> {
@@ -96,6 +101,10 @@ export const ordersApi = {
     if (!isJsonObject(response) || !Array.isArray(response.positions)) {
       throw new ApiError("INFRASTRUCTURE_ERROR", "Invalid positions response");
     }
-    return response.positions.map(parsePosition);
+    const positions = response.positions.filter(isJsonObject);
+    if (positions.length !== response.positions.length) {
+      throw new ApiError("INFRASTRUCTURE_ERROR", "Invalid positions response");
+    }
+    return positions.map(parsePosition);
   },
 };

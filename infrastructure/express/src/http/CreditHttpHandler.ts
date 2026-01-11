@@ -6,6 +6,8 @@ import { ValidationError, UnauthorizedError } from "@application/errors";
 import { GrantCreditRequest, PayInstallmentRequest, GetCustomerCreditsWithDueDatesRequest, GetMyCreditsRequest, GetCreditStatusRequest, GetPaymentHistoryRequest, EarlyRepaymentRequest } from "@application/requests/credit";
 import { CreditsWithDueDatesResponseData, SerializedCreditsWithDueDatesData, SerializedCreditWithDueDates, DueDatesResponseData } from "@express/types/responses";
 import { AuthGuard } from "@express/src/http/AuthGuard";
+import { CreditWithDueDates } from "@domain/types/CreditWithDueDates";
+import { DueDate } from "@domain/entities/dueDate";
 
 export class CreditHttpHandler {
   constructor(
@@ -30,7 +32,9 @@ export class CreditHttpHandler {
     return { user, token };
   }
 
-  private serializeCreditWithDueDates(creditWithDueDates: any): SerializedCreditWithDueDates {
+  private serializeCreditWithDueDates(
+    creditWithDueDates: CreditWithDueDates
+  ): SerializedCreditWithDueDates {
     const credit = creditWithDueDates.credit;
     const dueDates = creditWithDueDates.dueDates;
 
@@ -38,8 +42,8 @@ export class CreditHttpHandler {
     const totalAmountDue = credit.getTotalAmountToPay();
 
     const totalPaid = dueDates
-      .filter((dd: any) => dd.isPaid())
-      .reduce((sum: number, dd: any) => sum + Number(dd.totalAmount), 0);
+      .filter((dueDate: DueDate) => dueDate.isPaid())
+      .reduce((sum: number, dueDate: DueDate) => sum + dueDate.totalAmount, 0);
     
     const remainingAmount = totalAmountDue - totalPaid;
     
@@ -53,22 +57,22 @@ export class CreditHttpHandler {
       insuranceRate: credit.insuranceRate,
       durationInMonths: credit.durationInMonths,
       monthlyPayment,
-      status: typeof credit.status === 'string' ? credit.status : credit.status.getValue(),
+      status: credit.status.getValue(),
       dateGranted: credit.startDate,
       totalAmountDue,
       totalPaid,
       remainingAmount,
-      dueDates: dueDates.map((dd: any) => ({
-        id: dd.id,
-        creditId: dd.creditId,
-        dueDate: dd.dueDate,
-        amountDue: dd.totalAmount,
-        principal: dd.repaymentPortion,
-        interest: dd.shareInterest,
-        insurance: dd.shareInsurance,
-        status: typeof dd.status === 'string' ? dd.status : dd.status.getValue(),
-        paidDate: dd.paymentDate,
-        paidAmount: dd.totalAmount,
+      dueDates: dueDates.map((dueDate: DueDate) => ({
+        id: dueDate.id,
+        creditId: dueDate.creditId,
+        dueDate: dueDate.dueDate,
+        amountDue: dueDate.totalAmount,
+        principal: dueDate.repaymentPortion,
+        interest: dueDate.shareInterest,
+        insurance: dueDate.shareInsurance,
+        status: dueDate.status.getValue(),
+        paidDate: dueDate.paymentDate,
+        paidAmount: dueDate.totalAmount,
       })),
     };
   }
@@ -231,17 +235,17 @@ export class CreditHttpHandler {
         token: token || "",
       });
 
-      const serializedDueDates = dueDates.map((dd) => ({
-        id: dd.id,
-        creditId: dd.creditId,
-        dueDate: dd.dueDate,
-        amountDue: dd.totalAmount,
-        principal: dd.repaymentPortion,
-        interest: dd.shareInterest,
-        insurance: dd.shareInsurance,
-        status: typeof dd.status === 'string' ? dd.status : dd.status.getValue(),
-        paidDate: dd.paymentDate,
-        paidAmount: dd.totalAmount,
+      const serializedDueDates = dueDates.map((dueDate) => ({
+        id: dueDate.id,
+        creditId: dueDate.creditId,
+        dueDate: dueDate.dueDate,
+        amountDue: dueDate.totalAmount,
+        principal: dueDate.repaymentPortion,
+        interest: dueDate.shareInterest,
+        insurance: dueDate.shareInsurance,
+        status: typeof dueDate.status === 'string' ? dueDate.status : dueDate.status.getValue(),
+        paidDate: dueDate.paymentDate,
+        paidAmount: dueDate.totalAmount,
       }));
 
       return sendSuccess<DueDatesResponseData>(response, {

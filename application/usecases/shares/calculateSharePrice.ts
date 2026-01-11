@@ -1,7 +1,7 @@
 import { OrderRepository } from "@application/repositories/order";
 import { OrderDirection } from "@domain/values/orderDirection";
 
-interface PriceCalculation {
+export interface PriceCalculation {
   equilibriumPrice: number | null;
   buyOrders: number;
   sellOrders: number;

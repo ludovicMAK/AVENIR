@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getClientPositions } from "@/config/usecases";
+import { ErrorPayload, getErrorMessage } from "@/lib/api/errors";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { customerId: string } }
+  { params }: { params: Promise<{ customerId: string }> }
 ) {
   try {
     const userId = request.headers.get("x-user-id");
     const token = request.headers.get("authorization")?.replace("Bearer ", "");
+    const { customerId } = await params;
 
     if (!userId || !token) {
       return NextResponse.json(
@@ -17,13 +19,13 @@ export async function GET(
     }
 
     const positions = await getClientPositions.execute({
-      customerId: params.customerId,
+      customerId,
     });
 
     return NextResponse.json(positions, { status: 200 });
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
-      { error: error.message || "Failed to get positions" },
+      { error: getErrorMessage(error as ErrorPayload, "Failed to get positions") },
       { status: 500 }
     );
   }

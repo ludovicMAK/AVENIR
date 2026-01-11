@@ -1,6 +1,13 @@
 import { NextResponse } from "next/server";
+import { JsonValue } from "@/types/json";
+import {
+  ErrorPayload,
+  getErrorCode,
+  getErrorMessage,
+  getStatusCodeFromError,
+} from "@/lib/api/errors";
 
-export function createSuccessResponse<T = any>(
+export function createSuccessResponse<T extends JsonValue>(
   data: T,
   options: {
     code?: string;
@@ -26,23 +33,26 @@ export function createErrorResponse(
     code?: string;
     message?: string;
     status?: number;
-    data?: any;
+    data?: JsonValue;
+    error?: ErrorPayload;
   } = {}
 ) {
-  const {
-    code = "ERROR",
-    message = "An error occurred",
-    status = 500,
-    data,
-  } = options;
+  const { code, message, status, data, error } = options;
+  const resolvedStatus =
+    status ?? (error ? getStatusCodeFromError(error) : 500);
+  const resolvedCode =
+    code ?? (error ? getErrorCode(error) : undefined) ?? "ERROR";
+  const resolvedMessage =
+    message ??
+    (error ? getErrorMessage(error as ErrorPayload, "An error occurred") : "An error occurred");
 
   return NextResponse.json(
     {
-      status,
-      code,
-      message,
+      status: resolvedStatus,
+      code: resolvedCode,
+      message: resolvedMessage,
       data,
     },
-    { status }
+    { status: resolvedStatus }
   );
 }

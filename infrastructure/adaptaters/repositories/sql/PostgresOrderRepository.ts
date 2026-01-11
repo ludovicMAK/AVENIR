@@ -6,7 +6,7 @@ import { OrderValidity } from "@domain/values/orderValidity";
 import { OrderStatus } from "@domain/values/orderStatus";
 import { OrderRow } from "@adapters/repositories/types/OrderRow";
 import { InfrastructureError } from "@application/errors";
-import { ensureError } from "@application/utils/errors";
+import { ensureError, ErrorLike } from "@application/utils/errors";
 
 export class PostgresOrderRepository implements OrderRepository {
   constructor(private readonly pool: Pool) {}
@@ -141,7 +141,7 @@ export class PostgresOrderRepository implements OrderRepository {
     );
   }
 
-  private handleDatabaseError(error: unknown): never {
+  private handleDatabaseError(error: ErrorLike): never {
     const err = ensureError(error);
     throw new InfrastructureError(`Database error: ${err.message}`);
   }

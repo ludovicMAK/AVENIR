@@ -1,11 +1,7 @@
 import { Response } from "express";
-import {
-  SuccessOptions,
-  SuccessPayload,
-  SuccessData,
-} from "@express/types/responses";
+import { SuccessOptions, SuccessPayload } from "@express/types/responses";
 
-export function sendSuccess<ResponseData extends SuccessData>(
+export function sendSuccess<ResponseData = SuccessPayload["data"]>(
   response: Response,
   options: SuccessOptions<ResponseData>
 ) {

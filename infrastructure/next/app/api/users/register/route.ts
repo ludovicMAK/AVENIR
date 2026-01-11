@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { registerUser } from "@/config/usecases";
+import {
+  ErrorCode,
+  ErrorPayload,
+  getErrorCode,
+  getErrorMessage,
+} from "@/lib/api/errors";
 
 export async function POST(request: NextRequest) {
   try {
@@ -7,10 +13,15 @@ export async function POST(request: NextRequest) {
     const user = await registerUser.execute(body);
 
     return NextResponse.json(user, { status: 201 });
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
-      { error: error.message || "Registration failed" },
-      { status: error.code === "CONFLICT" ? 409 : 400 }
+      { error: getErrorMessage(error as ErrorPayload, "Registration failed") },
+      {
+        status:
+          getErrorCode(error as ErrorPayload) === "CONFLICT"
+            ? ErrorCode.CONFLICT
+            : ErrorCode.BAD_REQUEST,
+      }
     );
   }
 }

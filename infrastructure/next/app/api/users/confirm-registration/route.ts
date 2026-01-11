@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { confirmRegistration } from "@/config/usecases";
+import { ErrorPayload, getErrorMessage } from "@/lib/api/errors";
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,15 +11,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Token is required" }, { status: 400 });
     }
 
-    await confirmRegistration.execute({ token });
+    await confirmRegistration.execute(token);
 
     return NextResponse.json(
       { message: "Registration confirmed" },
       { status: 200 }
     );
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
-      { error: error.message || "Confirmation failed" },
+      { error: getErrorMessage(error as ErrorPayload, "Confirmation failed") },
       { status: 400 }
     );
   }

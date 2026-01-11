@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAccountBalance } from "@/config/usecases";
+import {
+  ErrorCode,
+  ErrorPayload,
+  getErrorCode,
+  getErrorMessage,
+  getStatusCodeFromError,
+} from "@/lib/api/errors";
 
 export async function GET(
   request: NextRequest,
@@ -36,14 +43,33 @@ export async function GET(
       },
       { status: 200 }
     );
-  } catch (error: any) {
+  } catch (error) {
+    let code: string = "INTERNAL_ERROR";
+    let status: number = 500;
+    let message = "Failed to get account balance";
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      typeof (error as { code?: string | number | boolean | symbol | null }).code === "string"
+    ) {
+      code = (error as { code: string }).code;
+    } else {
+      code = getErrorCode(error as ErrorPayload) ?? "INTERNAL_ERROR";
+    }
+    if (code === "NOT_FOUND") {
+      status = ErrorCode.NOT_FOUND;
+    } else {
+      status = getStatusCodeFromError(error as ErrorPayload);
+    }
+    message = getErrorMessage(error as ErrorPayload, "Failed to get account balance");
     return NextResponse.json(
       {
-        status: error.code === "NOT_FOUND" ? 404 : 500,
-        code: error.code || "INTERNAL_ERROR",
-        message: error.message || "Failed to get account balance",
+        status,
+        code,
+        message,
       },
-      { status: error.code === "NOT_FOUND" ? 404 : 500 }
+      { status }
     );
   }
 }

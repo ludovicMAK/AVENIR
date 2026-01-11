@@ -21,7 +21,7 @@ export const Card = ({ className, asLink, linkProps, ...props }: CardProps) => {
         <Link
             href="#account"
             {...linkProps}
-            className={`block text-left w-full rounded-lg border border-transparent hover:border-white transition hover:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white${linkProps?.className ? ` ${linkProps.className}` : ""}`}
+            className={`block text-left w-full rounded-lg border border-transparent hover:border-white transition hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white${linkProps?.className ? ` ${linkProps.className}` : ""}`}
         >
             {content}
         </Link>

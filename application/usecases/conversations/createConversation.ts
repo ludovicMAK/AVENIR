@@ -26,8 +26,12 @@ export class CreateConversation {
     private readonly sessionRepository: SessionRepository,
     private readonly userRepository: UserRepository,
     private readonly uuidGenerator: UuidGenerator,
-    private readonly webSocketService?: WebSocketService
+    private webSocketService?: WebSocketService
   ) {}
+
+  setWebSocketService(service: WebSocketService): void {
+    this.webSocketService = service;
+  }
 
   async execute(request: CreateConversationRequest): Promise<Conversation> {
     const isConnected = await this.sessionRepository.isConnected(

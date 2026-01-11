@@ -1,7 +1,7 @@
 import { request } from "./client";
 import { ApiError } from "@/lib/errors";
 import { isJsonObject } from "@/lib/json";
-import { JsonValue } from "@/types/json";
+import { JsonObject, JsonValue } from "@/types/json";
 
 export type TransferStatus = "PENDING" | "VALIDATED" | "REJECTED";
 
@@ -32,6 +32,18 @@ const invalidTransferResponseError = () =>
     "Invalid transfer payload received from API."
   );
 
+const parseTransfer = (data: JsonObject): Transfer => ({
+  id: String(data.id),
+  accountIBAN: String(data.accountIBAN),
+  transactionDirection: String(data.transactionDirection),
+  amount: Number(data.amount),
+  reason: String(data.reason),
+  accountDate: String(data.accountDate),
+  status: String(data.status),
+  transferId: data.transferId !== undefined && data.transferId !== null ? String(data.transferId) : undefined,
+  counterpartyIBAN: data.counterpartyIBAN !== undefined && data.counterpartyIBAN !== null ? String(data.counterpartyIBAN) : undefined,
+});
+
 export const transfersApi = {
   async create(data: CreateTransferRequest) {
     const response = await request(`/transaction`, {
@@ -51,7 +63,8 @@ export const transfersApi = {
         "Invalid transaction history response"
       );
     }
-    return response as unknown as { transactions: Transfer[] };
+    const transactions = response.transactions.filter(isJsonObject);
+    return { transactions: transactions.map(parseTransfer) };
   },
 
   async validate(transferId: string) {

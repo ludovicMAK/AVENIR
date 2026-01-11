@@ -83,7 +83,7 @@ export class GrantCredit {
           creditId
         );
 
-        await this.dueDateRepository.save(due, unitOfWork as any);
+        await this.dueDateRepository.save(due, unitOfWork);
       }
 
       await this.accountRepository.updateBalance(customerAccount.id, request.amountBorrowed, unitOfWork);

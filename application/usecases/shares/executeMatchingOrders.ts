@@ -8,6 +8,7 @@ import { UnitOfWorkFactory } from "@application/services/UnitOfWork";
 import { OrderDirection } from "@domain/values/orderDirection";
 import { OrderStatus } from "@domain/values/orderStatus";
 import { ShareTransaction } from "@domain/entities/shareTransaction";
+import { SecuritiesPosition } from "@domain/entities/securitiesPosition";
 import { NotFoundError, UnprocessableError } from "@application/errors";
 
 export class ExecuteMatchingOrders {
@@ -143,14 +144,14 @@ export class ExecuteMatchingOrders {
               buyerPosition.blockedQuantity
             );
           } else {
-            const newPosition = {
-              id: this.uuidGenerator.generate(),
-              customerId: buyOrder.customerId,
-              shareId: shareId,
-              totalQuantity: quantity,
-              blockedQuantity: 0,
-            };
-            await this.securitiesPositionRepository.save(newPosition as any);
+            const newPosition = new SecuritiesPosition(
+              this.uuidGenerator.generate(),
+              buyOrder.customerId,
+              shareId,
+              quantity,
+              0
+            );
+            await this.securitiesPositionRepository.save(newPosition);
           }
 
           await this.orderRepository.updateStatus(

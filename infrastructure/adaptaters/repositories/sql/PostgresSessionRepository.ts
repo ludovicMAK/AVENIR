@@ -3,7 +3,7 @@ import { SecuritiesPositionRepository } from "@application/repositories/securiti
 import { SecuritiesPosition } from "@domain/entities/securitiesPosition";
 import { SecuritiesPositionRow } from "@adapters/repositories/types/SecuritiesPositionRow";
 import { InfrastructureError } from "@application/errors";
-import { ensureError } from "@application/utils/errors";
+import { ensureError, ErrorLike } from "@application/utils/errors";
 import { User } from "@domain/entities/users";
 import { Session } from "@domain/entities/session";
 import { SessionRepository } from "@application/repositories/session";
@@ -71,7 +71,7 @@ export class PostgresSessionRepository implements SessionRepository {
     );
   }
 
-  private handleDatabaseError(error: unknown): never {
+  private handleDatabaseError(error: ErrorLike): never {
     const err = ensureError(error);
     throw new InfrastructureError(`Database error: ${err.message}`);
   }

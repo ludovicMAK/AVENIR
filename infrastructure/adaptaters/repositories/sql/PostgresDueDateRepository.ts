@@ -1,7 +1,7 @@
-import { Pool } from "pg";
+import { Pool, PoolClient } from "pg";
 import { DueDateRepository } from "@application/repositories/dueDate";
 import { InfrastructureError } from "@application/errors";
-import { ensureError } from "@application/utils/errors";
+import { ensureError, ErrorLike } from "@application/utils/errors";
 import { DueDate } from "@domain/entities/dueDate";
 import { DueDateRow } from "../types/DueDateRow";
 import { DueDateStatus } from "@domain/values/dueDateStatus";
@@ -13,7 +13,7 @@ export class PostgresDueDateRepository implements DueDateRepository {
   async save(dueDate: DueDate, unitOfWork?: PostgresUnitOfWork): Promise<void> {
     try {
       const client = unitOfWork instanceof PostgresUnitOfWork ? unitOfWork.getClient() : null;
-      const executor: any = client || this.pool;
+      const executor: PoolClient | Pool = client ?? this.pool;
 
       await executor.query(
         `
@@ -116,7 +116,7 @@ export class PostgresDueDateRepository implements DueDateRepository {
   async update(dueDate: DueDate, unitOfWork?: PostgresUnitOfWork): Promise<void> {
     try {
       const client = unitOfWork instanceof PostgresUnitOfWork ? unitOfWork.getClient() : null;
-      const executor: any = client || this.pool;
+      const executor: PoolClient | Pool = client ?? this.pool;
 
       await executor.query(
         `
@@ -171,7 +171,7 @@ export class PostgresDueDateRepository implements DueDateRepository {
     );
   }
 
-  private handleDatabaseError(error: unknown): never {
+  private handleDatabaseError(error: ErrorLike): never {
     const err = ensureError(error);
     throw new InfrastructureError(`Database error: ${err.message}`);
   }

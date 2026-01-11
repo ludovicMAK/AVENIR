@@ -1,6 +1,7 @@
 import { request } from "./client";
 import { ApiError } from "@/lib/errors";
 import { isJsonObject } from "@/lib/json";
+import { JsonObject, JsonValue } from "@/types/json";
 
 export interface Share {
   id: string;
@@ -25,12 +26,8 @@ export interface UpdateShareRequest {
   totalNumberOfParts?: number;
 }
 
-function parseShare(data: any): Share {
-  if (!isJsonObject(data)) {
-    throw new ApiError("INFRASTRUCTURE_ERROR", "Invalid share payload");
-  }
-
-  const hasValue = (value: any): boolean =>
+function parseShare(data: JsonObject): Share {
+  const hasValue = (value: JsonValue | undefined): boolean =>
     value !== undefined && value !== null;
 
   const id = data.id;
@@ -63,7 +60,11 @@ export const sharesApi = {
     if (!isJsonObject(response) || !Array.isArray(response.shares)) {
       throw new ApiError("INFRASTRUCTURE_ERROR", "Invalid shares response");
     }
-    return response.shares.map(parseShare);
+    const shares = response.shares.filter(isJsonObject);
+    if (shares.length !== response.shares.length) {
+      throw new ApiError("INFRASTRUCTURE_ERROR", "Invalid shares response");
+    }
+    return shares.map(parseShare);
   },
 
   async getById(shareId: string): Promise<ShareWithPrice> {
@@ -89,7 +90,19 @@ export const sharesApi = {
         "Invalid create share response"
       );
     }
-    return { id: (response as any).id || (response as any).share?.id };
+    const id =
+      typeof response.id === "string"
+        ? response.id
+        : isJsonObject(response.share) && typeof response.share.id === "string"
+        ? response.share.id
+        : null;
+    if (!id) {
+      throw new ApiError(
+        "INFRASTRUCTURE_ERROR",
+        "Invalid create share response"
+      );
+    }
+    return { id };
   },
 
   async update(shareId: string, data: UpdateShareRequest): Promise<Share> {
@@ -132,12 +145,19 @@ export const sharesApi = {
       ? response.sellOrders
       : [];
 
+    const bids = bidsRaw.filter(isJsonObject);
+    const asks = asksRaw.filter(isJsonObject);
+
+    if (bids.length !== bidsRaw.length || asks.length !== asksRaw.length) {
+      throw new ApiError("INFRASTRUCTURE_ERROR", "Invalid order book response");
+    }
+
     return {
-      bids: bidsRaw.map((bid: any) => ({
+      bids: bids.map((bid) => ({
         price: Number(bid.price),
         quantity: Number(bid.quantity),
       })),
-      asks: asksRaw.map((ask: any) => ({
+      asks: asks.map((ask) => ({
         price: Number(ask.price),
         quantity: Number(ask.quantity),
       })),

@@ -4,7 +4,7 @@ import { Conversation } from "@domain/entities/conversation";
 import { ConversationStatus } from "@domain/values/conversationStatus";
 import { ConversationType } from "@domain/values/conversationType";
 import { InfrastructureError } from "@application/errors";
-import { ensureError } from "@application/utils/errors";
+import { ensureError, ErrorLike } from "@application/utils/errors";
 
 interface ConversationRow {
   id: string;
@@ -137,7 +137,7 @@ export class PostgresConversationRepository implements ConversationRepository {
     );
   }
 
-  private handleDatabaseError(unknownError: unknown): never {
+  private handleDatabaseError(unknownError: ErrorLike): never {
     const error = ensureError(unknownError, "Unexpected database error");
     console.error("Database operation failed", error);
     throw new InfrastructureError(

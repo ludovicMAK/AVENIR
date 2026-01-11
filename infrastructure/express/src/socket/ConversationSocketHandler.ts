@@ -2,6 +2,7 @@ import { Server } from "socket.io";
 import { ConversationController } from "@express/controllers/ConversationController";
 import { ParticipantConversationRepository } from "@application/repositories/participantConversation";
 import { ConversationRepository } from "@application/repositories/conversation";
+import { ErrorLike } from "@application/utils/errors";
 
 export class ConversationSocketHandler {
   constructor(
@@ -33,9 +34,12 @@ export class ConversationSocketHandler {
               success: true,
               messageId: message.id,
             });
-          } catch (error: any) {
+          } catch (error) {
             socket.emit("message:error", {
-              error: error.message || "Failed to send message",
+              error: this.extractErrorMessage(
+                error,
+                "Failed to send message"
+              ),
             });
           }
         }
@@ -88,9 +92,12 @@ export class ConversationSocketHandler {
           console.log(
             `User ${userId} joined conversation room: ${conversationId}`
           );
-        } catch (error: any) {
+        } catch (error) {
           socket.emit("conversation:error", {
-            error: error.message || "Failed to join conversation",
+            error: this.extractErrorMessage(
+              error,
+              "Failed to join conversation"
+            ),
           });
         }
       });
@@ -121,5 +128,21 @@ export class ConversationSocketHandler {
         console.log(`User ${userId} disconnected from WebSocket`);
       });
     });
+  }
+
+  private extractErrorMessage(error: ErrorLike, fallback: string): string {
+    if (typeof error === "string") {
+      return error;
+    }
+    if (error instanceof Error) {
+      return error.message;
+    }
+    if (error && typeof error === "object" && "message" in error) {
+      const message = (error as { message?: string }).message;
+      if (typeof message === "string") {
+        return message;
+      }
+    }
+    return fallback;
   }
 }

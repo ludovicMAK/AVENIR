@@ -2,7 +2,7 @@ import { Pool } from "pg";
 import { MessageRepository } from "@application/repositories/message";
 import { Message } from "@domain/entities/message";
 import { InfrastructureError } from "@application/errors";
-import { ensureError } from "@application/utils/errors";
+import { ensureError, ErrorLike } from "@application/utils/errors";
 
 interface MessageRow {
   id: string;
@@ -139,7 +139,7 @@ export class PostgresMessageRepository implements MessageRepository {
     );
   }
 
-  private handleDatabaseError(unknownError: unknown): never {
+  private handleDatabaseError(unknownError: ErrorLike): never {
     const error = ensureError(unknownError, "Unexpected database error");
     console.error("Database operation failed", error);
     throw new InfrastructureError(

@@ -3,7 +3,7 @@ import { SavingsRateRepository } from "@application/repositories/savingsRate";
 import { SavingsRate } from "@domain/entities/savingsRate";
 import { SavingsRateRow } from "../types/SavingsRateRow";
 import { InfrastructureError } from "@application/errors";
-import { ensureError } from "@application/utils/errors";
+import { ensureError, ErrorLike } from "@application/utils/errors";
 
 export class PostgresSavingsRateRepository implements SavingsRateRepository {
   constructor(private readonly pool: Pool) {}
@@ -91,7 +91,7 @@ export class PostgresSavingsRateRepository implements SavingsRateRepository {
     return new SavingsRate(row.id, Number(row.rate), new Date(row.date_effect));
   }
 
-  private handleDatabaseError(unknownError: unknown): never {
+  private handleDatabaseError(unknownError: ErrorLike): never {
     const error = ensureError(unknownError, "Unexpected database error");
     console.error("Database operation failed", error);
     throw new InfrastructureError(

@@ -1,6 +1,7 @@
 import { request } from "./client";
 import { ApiError } from "@/lib/errors";
 import { isJsonObject } from "@/lib/json";
+import { JsonObject } from "@/types/json";
 
 export interface Conversation {
   id: string;
@@ -36,15 +37,38 @@ export interface TransferConversationRequest {
   newAdvisorId: string;
 }
 
-function parseConversation(data: any): Conversation {
+function parseConversation(data: JsonObject): Conversation {
   return {
-    id: data.id || '',
-    subject: data.subject || 'Conversation',
-    status: data.status || 'open',
-    createdAt: data.createdAt || data.dateOuverture || new Date().toISOString(),
-    closedAt: data.closedAt || data.dateFermeture,
-    customerId: data.customerId || '',
-    assignedAdvisorId: data.assignedAdvisorId,
+    id: String(data.id ?? ""),
+    subject: String(data.subject ?? "Conversation"),
+    status: String(data.status ?? "open"),
+    createdAt:
+      String(data.createdAt ?? data.dateOuverture ?? new Date().toISOString()),
+    closedAt:
+      data.closedAt !== undefined && data.closedAt !== null
+        ? String(data.closedAt)
+        : data.dateFermeture
+        ? String(data.dateFermeture)
+        : undefined,
+    customerId: String(data.customerId ?? ""),
+    assignedAdvisorId:
+      data.assignedAdvisorId !== undefined && data.assignedAdvisorId !== null
+        ? String(data.assignedAdvisorId)
+        : undefined,
+  };
+}
+
+function parseMessage(data: JsonObject): Message {
+  return {
+    id: String(data.id ?? ""),
+    conversationId: String(data.conversationId ?? data.conversation_id ?? ""),
+    senderId: String(data.senderId ?? ""),
+    senderName:
+      data.senderName !== undefined && data.senderName !== null
+        ? String(data.senderName)
+        : undefined,
+    content: String(data.content ?? ""),
+    sentAt: String(data.sentAt ?? data.sendDate ?? new Date().toISOString()),
   };
 }
 
@@ -57,7 +81,14 @@ export const conversationsApi = {
         "Invalid conversations response"
       );
     }
-    return response.conversations.map(parseConversation);
+    const conversations = response.conversations.filter(isJsonObject);
+    if (conversations.length !== response.conversations.length) {
+      throw new ApiError(
+        "INFRASTRUCTURE_ERROR",
+        "Invalid conversations response"
+      );
+    }
+    return conversations.map(parseConversation);
   },
 
   async getAdvisorConversations(advisorId: string): Promise<Conversation[]> {
@@ -68,7 +99,14 @@ export const conversationsApi = {
         "Invalid conversations response"
       );
     }
-    return response.conversations.map(parseConversation);
+    const conversations = response.conversations.filter(isJsonObject);
+    if (conversations.length !== response.conversations.length) {
+      throw new ApiError(
+        "INFRASTRUCTURE_ERROR",
+        "Invalid conversations response"
+      );
+    }
+    return conversations.map(parseConversation);
   },
 
   async getMessages(conversationId: string): Promise<Message[]> {
@@ -76,7 +114,11 @@ export const conversationsApi = {
     if (!isJsonObject(response) || !Array.isArray(response.messages)) {
       throw new ApiError("INFRASTRUCTURE_ERROR", "Invalid messages response");
     }
-    return response.messages as unknown as Message[];
+    const messages = response.messages.filter(isJsonObject);
+    if (messages.length !== response.messages.length) {
+      throw new ApiError("INFRASTRUCTURE_ERROR", "Invalid messages response");
+    }
+    return messages.map(parseMessage);
   },
 
   async createConversation(
@@ -93,7 +135,7 @@ export const conversationsApi = {
       );
     }
     return {
-      conversationId: (response.conversation as { id: string }).id,
+      conversationId: String(response.conversation.id),
     };
   },
 
@@ -108,7 +150,7 @@ export const conversationsApi = {
         "Invalid send message response"
       );
     }
-    return { messageId: (response.message as { id: string }).id };
+    return { messageId: String(response.message.id) };
   },
 
   async closeConversation(conversationId: string): Promise<void> {

@@ -1,17 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getShareById } from "@/config/usecases";
+import {
+  ErrorCode,
+  ErrorPayload,
+  getErrorCode,
+  getErrorMessage,
+} from "@/lib/api/errors";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const share = await getShareById.execute({ shareId: params.id });
+    const { id } = await params;
+    const share = await getShareById.execute({ shareId: id });
     return NextResponse.json(share, { status: 200 });
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
-      { error: error.message || "Share not found" },
-      { status: error.code === "NOT_FOUND" ? 404 : 500 }
+      { error: getErrorMessage(error as ErrorPayload, "Share not found") },
+      {
+        status:
+          getErrorCode(error as ErrorPayload) === "NOT_FOUND"
+            ? ErrorCode.NOT_FOUND
+            : ErrorCode.INTERNAL_SERVER_ERROR,
+      }
     );
   }
 }

@@ -7,19 +7,24 @@ import {
   conversationRepository,
   participantConversationRepository,
 } from "./repositories";
+import { ConversationController } from "@express/controllers/ConversationController";
+
+type WebSocketAware = {
+  setWebSocketService: (service: SocketIOService) => void;
+};
 
 let socketService: SocketIOService | null = null;
 
 export function initializeWebSocket(
   httpServer: HttpServer,
-  conversationController: any,
+  conversationController: ConversationController,
   useCases: {
-    createConversation: any;
-    createGroupConversation: any;
-    sendMessage: any;
-    transferConversation: any;
-    closeConversation: any;
-    addParticipant: any;
+    createConversation: WebSocketAware;
+    createGroupConversation: WebSocketAware;
+    sendMessage: WebSocketAware;
+    transferConversation: WebSocketAware;
+    closeConversation: WebSocketAware;
+    addParticipant: WebSocketAware;
   }
 ): SocketIOService {
   socketService = new SocketIOService(httpServer);
@@ -29,12 +34,12 @@ export function initializeWebSocket(
 
   socketService.initialize();
 
-  (useCases.createConversation as any).webSocketService = socketService;
-  (useCases.createGroupConversation as any).webSocketService = socketService;
-  (useCases.sendMessage as any).webSocketService = socketService;
-  (useCases.transferConversation as any).webSocketService = socketService;
-  (useCases.closeConversation as any).webSocketService = socketService;
-  (useCases.addParticipant as any).webSocketService = socketService;
+  useCases.createConversation.setWebSocketService(socketService);
+  useCases.createGroupConversation.setWebSocketService(socketService);
+  useCases.sendMessage.setWebSocketService(socketService);
+  useCases.transferConversation.setWebSocketService(socketService);
+  useCases.closeConversation.setWebSocketService(socketService);
+  useCases.addParticipant.setWebSocketService(socketService);
 
   const conversationHandler = new ConversationSocketHandler(
     socketService.getIO(),

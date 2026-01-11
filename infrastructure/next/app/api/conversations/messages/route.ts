@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendMessage } from "@/config/usecases";
+import { ErrorPayload, getErrorMessage } from "@/lib/api/errors";
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,9 +23,9 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(message, { status: 201 });
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
-      { error: error.message || "Failed to send message" },
+      { error: getErrorMessage(error as ErrorPayload, "Failed to send message") },
       { status: 400 }
     );
   }

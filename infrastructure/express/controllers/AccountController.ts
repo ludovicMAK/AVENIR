@@ -4,14 +4,22 @@ import { GetAccountById } from "@application/usecases/accounts/getAccountById";
 import { CloseOwnAccount } from "@application/usecases/accounts/closeOwnAccount";
 import { UpdateNameAccount } from "@application/usecases/accounts/updateNameAccount";
 import { GetAccountBalance } from "@application/usecases/accounts/getAccountBalance";
-import { GetAccountTransactions } from "@application/usecases/accounts/getAccountTransactions";
-import { GetAccountStatement } from "@application/usecases/accounts/getAccountStatement";
+import {
+  GetAccountTransactions,
+  AccountTransactionsResponse,
+} from "@application/usecases/accounts/getAccountTransactions";
+import {
+  GetAccountStatement,
+  AccountStatementResponse,
+} from "@application/usecases/accounts/getAccountStatement";
 import {
   CreateAccountRequest,
   GetAccountBalanceRequest,
   GetAccountTransactionsRequest,
   GetAccountStatementRequest,
 } from "@application/requests/accounts";
+import { Account } from "@domain/entities/account";
+import { AccountBalanceResponse } from "@application/usecases/accounts/getAccountBalance";
 
 export class AccountController {
   public constructor(
@@ -25,15 +33,15 @@ export class AccountController {
     private readonly getAccountStatement: GetAccountStatement
   ) {}
 
-  public async listByOwnerId(idOwner: string): Promise<Array<any>> {
+  public async listByOwnerId(idOwner: string): Promise<Account[]> {
     return await this.getAccountsFromOwnerId.execute({ id: idOwner });
   }
 
-  public async getById(id: string): Promise<any> {
+  public async getById(id: string): Promise<Account> {
     return await this.getAccountById.execute({ id });
   }
 
-  public async create(accountData: CreateAccountRequest): Promise<any> {
+  public async create(accountData: CreateAccountRequest): Promise<Account> {
     return await this.createAccount.execute(accountData);
   }
 
@@ -54,17 +62,21 @@ export class AccountController {
     });
   }
 
-  public async getBalance(request: GetAccountBalanceRequest): Promise<any> {
+  public async getBalance(
+    request: GetAccountBalanceRequest
+  ): Promise<AccountBalanceResponse> {
     return await this.getAccountBalance.execute(request);
   }
 
   public async getTransactions(
     request: GetAccountTransactionsRequest
-  ): Promise<any> {
+  ): Promise<AccountTransactionsResponse> {
     return await this.getAccountTransactions.execute(request);
   }
 
-  public async getStatement(request: GetAccountStatementRequest): Promise<any> {
+  public async getStatement(
+    request: GetAccountStatementRequest
+  ): Promise<AccountStatementResponse> {
     return await this.getAccountStatement.execute(request);
   }
 }

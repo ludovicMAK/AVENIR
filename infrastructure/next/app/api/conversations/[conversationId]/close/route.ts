@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { closeConversation } from "@/config/usecases";
+import { ErrorPayload, getErrorMessage } from "@/lib/api/errors";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { conversationId: string } }
+  { params }: { params: Promise<{ conversationId: string }> }
 ) {
   try {
     const userId = request.headers.get("x-user-id");
     const token = request.headers.get("authorization")?.replace("Bearer ", "");
+    const { conversationId } = await params;
 
     if (!userId || !token) {
       return NextResponse.json(
@@ -17,7 +19,7 @@ export async function POST(
     }
 
     await closeConversation.execute({
-      conversationId: params.conversationId,
+      conversationId,
       token,
       userId,
     });
@@ -26,9 +28,9 @@ export async function POST(
       { message: "Conversation closed" },
       { status: 200 }
     );
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
-      { error: error.message || "Failed to close conversation" },
+      { error: getErrorMessage(error as ErrorPayload, "Failed to close conversation") },
       { status: 400 }
     );
   }

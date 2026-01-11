@@ -1,7 +1,7 @@
-import { Pool } from "pg";
+import { Pool, PoolClient } from "pg";
 import { CreditRepository } from "@application/repositories/credit";
 import { InfrastructureError } from "@application/errors";
-import { ensureError } from "@application/utils/errors";
+import { ensureError, ErrorLike } from "@application/utils/errors";
 import { Credit } from "@domain/entities/credit";
 import { CreditRow } from "../types/CreditRow";
 import { CreditStatus } from "@domain/values/creditStatus";
@@ -14,7 +14,7 @@ export class PostgresCreditRepository implements CreditRepository {
   async save(credit: Credit, unitOfWork?: PostgresUnitOfWork): Promise<void> {
     try {
       const client = unitOfWork instanceof PostgresUnitOfWork ? unitOfWork.getClient() : null;
-      const executor: any = client || this.pool;
+      const executor: PoolClient | Pool = client ?? this.pool;
 
       await executor.query(
         `
@@ -146,7 +146,7 @@ export class PostgresCreditRepository implements CreditRepository {
     );
   }
 
-  private handleDatabaseError(error: unknown): never {
+  private handleDatabaseError(error: ErrorLike): never {
     const err = ensureError(error);
     throw new InfrastructureError(`Database error: ${err.message}`);
   }

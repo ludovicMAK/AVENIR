@@ -10,7 +10,6 @@
       "@domain/*": ["../domain/*"]
     },
     "declaration": true,
-    "emitDeclarationOnly": true,
     "ignoreDeprecations": "5.0"
   },
   "references": [{ "path": "../domain" }],

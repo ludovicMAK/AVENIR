@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdvisorConversations } from "@/config/usecases";
+import { ErrorPayload, getErrorMessage } from "@/lib/api/errors";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { advisorId: string } }
+  { params }: { params: Promise<{ advisorId: string }> }
 ) {
   try {
     const userId = request.headers.get("x-user-id");
     const token = request.headers.get("authorization")?.replace("Bearer ", "");
+    const { advisorId } = await params;
 
     if (!userId || !token) {
       return NextResponse.json(
@@ -17,14 +19,14 @@ export async function GET(
     }
 
     const conversations = await getAdvisorConversations.execute({
-      advisorId: params.advisorId,
+      advisorId,
       token,
     });
 
     return NextResponse.json(conversations, { status: 200 });
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
-      { error: error.message || "Failed to fetch conversations" },
+      { error: getErrorMessage(error as ErrorPayload, "Failed to fetch conversations") },
       { status: 500 }
     );
   }

@@ -3,7 +3,7 @@ import { Pool } from "pg";
 import { UserRepository } from "@application/repositories/users";
 import { User } from "@domain/entities/users";
 import { InfrastructureError } from "@application/errors";
-import { ensureError } from "@application/utils/errors";
+import { ensureError, ErrorLike } from "@application/utils/errors";
 import { Role } from "@domain/values/role";
 import { UserRow } from "@adapters/repositories/types/UserRow";
 import { UserInfoConnected } from "@domain/values/userInfoConnected";
@@ -217,7 +217,7 @@ export class PostgresUserRepository implements UserRepository {
     );
   }
 
-  private handleDatabaseError(unknownError: unknown): never {
+  private handleDatabaseError(unknownError: ErrorLike): never {
     const error = ensureError(unknownError, "Unexpected database error");
     console.error("Database operation failed", error);
     throw new InfrastructureError(

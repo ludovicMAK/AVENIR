@@ -9,7 +9,7 @@ import {
 } from "@application/errors";
 import { Transaction } from "@domain/entities/transaction";
 
-type AccountStatementResponse = {
+export interface AccountStatementResponse {
   account: {
     iban: string;
     name: string;
@@ -21,7 +21,7 @@ type AccountStatementResponse = {
   initialBalance: number;
   transactions: Transaction[];
   finalBalance: number;
-};
+}
 
 export class GetAccountStatement {
   constructor(

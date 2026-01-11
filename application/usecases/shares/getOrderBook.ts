@@ -1,13 +1,14 @@
 import { OrderRepository } from "@application/repositories/order";
 import { OrderDirection } from "@domain/values/orderDirection";
+import { Order } from "@domain/entities/order";
 
-interface OrderBookLevel {
+export interface OrderBookLevel {
   price: number;
   quantity: number;
   orders: number;
 }
 
-interface OrderBook {
+export interface OrderBook {
   shareId: string;
   buyOrders: OrderBookLevel[];
   sellOrders: OrderBookLevel[];
@@ -50,7 +51,7 @@ export class GetOrderBook {
     };
   }
 
-  private aggregateOrdersByPrice(orders: any[]): OrderBookLevel[] {
+  private aggregateOrdersByPrice(orders: Order[]): OrderBookLevel[] {
     const priceMap = new Map<number, { quantity: number; count: number }>();
 
     for (const order of orders) {

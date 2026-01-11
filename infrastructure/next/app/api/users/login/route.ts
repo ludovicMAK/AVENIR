@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { loginUser } from "@/config/usecases";
+import {
+  ErrorCode,
+  ErrorPayload,
+  getErrorCode,
+  getErrorMessage,
+} from "@/lib/api/errors";
 
 export async function POST(request: NextRequest) {
   try {
@@ -7,10 +13,16 @@ export async function POST(request: NextRequest) {
     const session = await loginUser.execute(body);
 
     return NextResponse.json(session, { status: 200 });
-  } catch (error: any) {
+  } catch (error) {
+    const code = getErrorCode(error as ErrorPayload) ?? "LOGIN_FAILED";
     return NextResponse.json(
-      { error: error.message || "Login failed" },
-      { status: error.code === "UNAUTHORIZED" ? 401 : 400 }
+      { error: getErrorMessage(error as ErrorPayload, "Login failed") },
+      {
+        status:
+          code === "UNAUTHORIZED"
+            ? ErrorCode.UNAUTHORIZED
+            : ErrorCode.BAD_REQUEST,
+      }
     );
   }
 }

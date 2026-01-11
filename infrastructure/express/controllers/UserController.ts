@@ -38,7 +38,15 @@ export class UserController {
 
   public async login(
     payload: LoginUserInput
-  ): Promise<{ user: User; token: string }> {
+  ): Promise<{ user: {
+    id: string;
+    lastname: string;
+    firstname: string;
+    email: string;
+    role: string;
+    status: string;
+    emailVerifiedAt: string | null;
+  }; token: string }> {
     return this.loginUser.execute(payload);
   }
 

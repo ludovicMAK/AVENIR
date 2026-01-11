@@ -2,7 +2,7 @@ import { Pool } from "pg";
 
 import { AccountRepository } from "@application/repositories/account";
 import { InfrastructureError } from "@application/errors";
-import { ensureError } from "@application/utils/errors";
+import { ensureError, ErrorLike } from "@application/utils/errors";
 import { Account } from "@domain/entities/account";
 import { AccountRow } from "../types/AccountRow";
 import { AccountType } from "@domain/values/accountType";
@@ -325,7 +325,7 @@ export class PostgresAccountRepository implements AccountRepository {
     );
   }
 
-  private handleDatabaseError(unknownError: unknown): never {
+  private handleDatabaseError(unknownError: ErrorLike): never {
     const error = ensureError(unknownError, "Unexpected database error");
     console.error("Database operation failed", error);
     throw new InfrastructureError(

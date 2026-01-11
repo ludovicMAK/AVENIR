@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { transferConversation } from "@/config/usecases";
+import { ErrorPayload, getErrorMessage } from "@/lib/api/errors";
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,9 +24,14 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(conversation, { status: 200 });
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
-      { error: error.message || "Failed to transfer conversation" },
+      {
+        error: getErrorMessage(
+          error as ErrorPayload,
+          "Failed to transfer conversation"
+        ),
+      },
       { status: 400 }
     );
   }

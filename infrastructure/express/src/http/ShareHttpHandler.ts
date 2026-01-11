@@ -44,28 +44,33 @@ export class ShareHttpHandler {
     return { user, token };
   }
 
-  private parseNumber(value: unknown, fieldName: string): number {
-    if (typeof value !== "number" || Number.isNaN(value)) {
+  private parseNumber(
+    value: number | string | null | undefined,
+    fieldName: string
+  ): number {
+    const parsed =
+      typeof value === "string" ? Number(value) : value ?? Number.NaN;
+    if (typeof parsed !== "number" || Number.isNaN(parsed)) {
       throw new ValidationError(`${fieldName} must be a number`);
     }
-    return value;
+    return parsed;
   }
 
   private parseOptionalNumber(
-    value: unknown,
+    value: number | string | null | undefined,
     fieldName: string
   ): number | undefined {
-    if (value === undefined) {
+    if (value === undefined || value === null) {
       return undefined;
     }
     return this.parseNumber(value, fieldName);
   }
 
   private parseOptionalString(
-    value: unknown,
+    value: string | null | undefined,
     fieldName: string
   ): string | undefined {
-    if (value === undefined) {
+    if (value === undefined || value === null) {
       return undefined;
     }
     if (typeof value !== "string") {

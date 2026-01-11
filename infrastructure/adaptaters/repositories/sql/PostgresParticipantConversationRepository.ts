@@ -2,7 +2,7 @@ import { Pool } from "pg";
 import { ParticipantConversationRepository } from "@application/repositories/participantConversation";
 import { ParticipantConversation } from "@domain/entities/participantConversation";
 import { InfrastructureError } from "@application/errors";
-import { ensureError } from "@application/utils/errors";
+import { ensureError, ErrorLike } from "@application/utils/errors";
 
 interface ParticipantConversationRow {
   id: string;
@@ -210,7 +210,7 @@ export class PostgresParticipantConversationRepository
     );
   }
 
-  private handleDatabaseError(unknownError: unknown): never {
+  private handleDatabaseError(unknownError: ErrorLike): never {
     const error = ensureError(unknownError, "Unexpected database error");
     console.error("Database operation failed", error);
     throw new InfrastructureError(

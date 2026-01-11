@@ -9,6 +9,15 @@ import { PaymentHistoryItem } from "@domain/types/PaymentHistoryItem";
 import { TransactionHistoryResult } from "@domain/types/TransferHistoryResult";
 import { DailyInterestDto, SavingsRateDto } from "./savings";
 
+type SerializablePrimitive = string | number | boolean | null | Date;
+export type JsonValue =
+  | SerializablePrimitive
+  | JsonValue[]
+  | { [key: string]: JsonValue }
+  | undefined;
+
+export type SuccessData = JsonValue;
+
 export type UserView = {
   id: string;
   firstname: string;
@@ -163,62 +172,28 @@ export type PaymentHistoryItemData = {
   payments: PaymentHistoryItem[];
 };
 
-export type ShareView = {
-  id: string;
-  name: string;
-  totalNumberOfParts: number;
-  initialPrice: number;
-  lastExecutedPrice: number | null;
-};
-
 export type ShareResponseData = { id: string; share: ShareView };
 export type ShareUpdateResponseData = { share: ShareView };
 export type ShareDeleteResponseData = Record<string, never>;
 
 export type OrderResponseData = { orderId: string };
 
-export type SuccessData =
-  | UserResponseData
-  | UserListResponseData
-  | UserStatsListResponseData
-  | UserRegistrationResponseData
-  | SavingsRateResponseData
-  | SavingsRateHistoryResponseData
-  | AccountResponseData
-  | SingleAccountResponseData
-  | ConversationResponseData
-  | ConversationsListResponseData
-  | MessageResponseData
-  | MessagesListResponseData
-  | CreditResponseData
-  | CreditsResponseData
-  | DueDateResponseData
-  | DueDatesResponseData
-  | AmortizationScheduleResponseData
-  | creditsWithDueDatesData
-  | CreditsWithDueDatesResponseData
-  | SerializedCreditsWithDueDatesData
-  | CreditStatusResponseData
-  | PaymentHistoryItemData
-  | AccountInterestHistoryResponseData
-  | ProcessDailyInterestResponseData
-  | MarkOverdueResult
-  | OverdueDueDateWithCreditData
-  | TransactionHistoryResult
-  | ShareResponseData
-  | ShareUpdateResponseData
-  | ShareDeleteResponseData
-  | OrderResponseData
-  | undefined;
+export type AccountInterestHistoryResponseData = {
+  interests: DailyInterestDto[];
+};
 
-export type SuccessPayload<ResponseData extends SuccessData = SuccessData> = {
+export type ProcessDailyInterestResponseData = {
+  interests: DailyInterestDto[];
+};
+
+export type SuccessPayload<ResponseData = SuccessData> = {
   status: number;
   code: string;
   message?: string;
   data?: ResponseData;
 };
 
-export type SuccessOptions<ResponseData extends SuccessData = SuccessData> = {
+export type SuccessOptions<ResponseData = SuccessData> = {
   status?: number;
   code: string;
   message?: string;

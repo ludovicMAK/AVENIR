@@ -2,7 +2,7 @@ import { Pool } from "pg";
 import { TransferConversationRepository } from "@application/repositories/transferConversation";
 import { TransferConversation } from "@domain/entities/transferConversation";
 import { InfrastructureError } from "@application/errors";
-import { ensureError } from "@application/utils/errors";
+import { ensureError, ErrorLike } from "@application/utils/errors";
 
 interface TransferConversationRow {
   id: string;
@@ -165,7 +165,7 @@ export class PostgresTransferConversationRepository
     );
   }
 
-  private handleDatabaseError(unknownError: unknown): never {
+  private handleDatabaseError(unknownError: ErrorLike): never {
     const error = ensureError(unknownError, "Unexpected database error");
     console.error("Database operation failed", error);
     throw new InfrastructureError(

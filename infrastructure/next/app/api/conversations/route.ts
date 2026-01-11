@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createConversation } from "@/config/usecases";
+import { ErrorPayload, getErrorMessage } from "@/lib/api/errors";
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,9 +18,9 @@ export async function POST(request: NextRequest) {
     const conversation = await createConversation.execute(body);
 
     return NextResponse.json(conversation, { status: 201 });
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
-      { error: error.message || "Failed to create conversation" },
+      { error: getErrorMessage(error as ErrorPayload, "Failed to create conversation") },
       { status: 400 }
     );
   }

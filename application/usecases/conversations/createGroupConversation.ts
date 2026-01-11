@@ -27,8 +27,12 @@ export class CreateGroupConversation {
     private readonly sessionRepository: SessionRepository,
     private readonly userRepository: UserRepository,
     private readonly uuidGenerator: UuidGenerator,
-    private readonly webSocketService?: WebSocketService
+    private webSocketService?: WebSocketService
   ) {}
+
+  setWebSocketService(service: WebSocketService): void {
+    this.webSocketService = service;
+  }
 
   async execute(
     request: CreateGroupConversationRequest

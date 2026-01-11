@@ -8,7 +8,7 @@ import {
     UnprocessableError,
     ValidationError,
 } from "@application/errors"
-import { ensureError } from "@application/utils/errors"
+import { ensureError, ErrorLike } from "@application/utils/errors"
 
 function resolveStatus(error: ApplicationError): number {
     if (error instanceof ValidationError) return 400
@@ -20,7 +20,7 @@ function resolveStatus(error: ApplicationError): number {
     return 400
 }
 
-export function mapErrorToHttpResponse(response: Response, unknownError: unknown) {
+export function mapErrorToHttpResponse(response: Response, unknownError: ErrorLike) {
     const error = ensureError(unknownError)
 
     if (error instanceof ApplicationError) {

@@ -24,6 +24,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus, Pencil, Trash2, TrendingUp } from "lucide-react";
 
+type ErrorMessageInput = Error | { message?: string } | string;
+
+const extractErrorMessage = (
+  error: ErrorMessageInput,
+  fallback: string
+): string =>
+  typeof error === "string"
+    ? error
+    : error instanceof Error
+    ? error.message
+    : error.message || fallback;
+
 export default function SharesManagementClient() {
   const [shares, setShares] = useState<Share[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,16 +50,26 @@ export default function SharesManagementClient() {
     initialPrice: "",
   });
 
+  const alertError = (error: ErrorMessageInput, fallback: string) =>
+    alert(extractErrorMessage(error, fallback));
+
   const loadShares = useCallback(async () => {
-    try {
-      setLoading(true);
-      const data = await sharesApi.getAll();
-      setShares(data);
-    } catch (error) {
-      alert("Erreur: Impossible de charger les actions");
-    } finally {
-      setLoading(false);
+    setLoading(true);
+
+    let fetched: Share[] | null = null;
+    await sharesApi
+      .getAll()
+      .then((data) => {
+        fetched = data;
+      })
+      .catch((error: ErrorMessageInput) =>
+        alertError(error, "Erreur: Impossible de charger les actions")
+      );
+
+    if (fetched) {
+      setShares(fetched);
     }
+    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -56,54 +78,70 @@ export default function SharesManagementClient() {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      await sharesApi.create({
+
+    const created = await sharesApi
+      .create({
         name: formData.name,
         totalNumberOfParts: parseInt(formData.totalNumberOfParts),
         initialPrice: parseFloat(formData.initialPrice),
+      })
+      .then(() => true)
+      .catch((error: ErrorMessageInput) => {
+        alert(`Erreur: ${extractErrorMessage(error, "Impossible de créer l'action")}`);
+        return false;
       });
-      alert("Action créée avec succès");
-      setIsCreateDialogOpen(false);
-      setFormData({ name: "", totalNumberOfParts: "", initialPrice: "" });
-      loadShares();
-    } catch (error: any) {
-      alert(`Erreur: ${error.message || "Impossible de créer l'action"}`);
-    }
+
+    if (!created) return;
+
+    alert("Action créée avec succès");
+    setIsCreateDialogOpen(false);
+    setFormData({ name: "", totalNumberOfParts: "", initialPrice: "" });
+    loadShares();
   };
 
   const handleEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedShare) return;
 
-    try {
-      await sharesApi.update(selectedShare.id, {
+    const updated = await sharesApi
+      .update(selectedShare.id, {
         name: formData.name || undefined,
         totalNumberOfParts: formData.totalNumberOfParts
           ? parseInt(formData.totalNumberOfParts)
           : undefined,
+      })
+      .then(() => true)
+      .catch((error: ErrorMessageInput) => {
+        alert(`Erreur: ${extractErrorMessage(error, "Impossible de modifier l'action")}`);
+        return false;
       });
-      alert("Action modifiée avec succès");
-      setIsEditDialogOpen(false);
-      setSelectedShare(null);
-      setFormData({ name: "", totalNumberOfParts: "", initialPrice: "" });
-      loadShares();
-    } catch (error: any) {
-      alert(`Erreur: ${error.message || "Impossible de modifier l'action"}`);
-    }
+
+    if (!updated) return;
+
+    alert("Action modifiée avec succès");
+    setIsEditDialogOpen(false);
+    setSelectedShare(null);
+    setFormData({ name: "", totalNumberOfParts: "", initialPrice: "" });
+    loadShares();
   };
 
   const handleDelete = async () => {
     if (!selectedShare) return;
 
-    try {
-      await sharesApi.delete(selectedShare.id);
-      alert("Action supprimée avec succès");
-      setIsDeleteDialogOpen(false);
-      setSelectedShare(null);
-      loadShares();
-    } catch (error: any) {
-      alert(`Erreur: ${error.message || "Impossible de supprimer l'action"}`);
-    }
+    const deleted = await sharesApi
+      .delete(selectedShare.id)
+      .then(() => true)
+      .catch((error: ErrorMessageInput) => {
+        alert(`Erreur: ${extractErrorMessage(error, "Impossible de supprimer l'action")}`);
+        return false;
+      });
+
+    if (!deleted) return;
+
+    alert("Action supprimée avec succès");
+    setIsDeleteDialogOpen(false);
+    setSelectedShare(null);
+    loadShares();
   };
 
   const openEditDialog = (share: Share) => {

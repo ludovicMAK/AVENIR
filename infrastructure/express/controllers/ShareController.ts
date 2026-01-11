@@ -9,7 +9,7 @@ import { GetClientPositions } from "@application/usecases/shares/getClientPositi
 import { GetOrdersByCustomer } from "@application/usecases/shares/getOrdersByCustomer";
 import { ExecuteMatchingOrders } from "@application/usecases/shares/executeMatchingOrders";
 import { CalculateSharePrice } from "@application/usecases/shares/calculateSharePrice";
-import { GetOrderBook } from "@application/usecases/shares/getOrderBook";
+import { GetOrderBook, OrderBook } from "@application/usecases/shares/getOrderBook";
 import { GetShareTransactionHistory } from "@application/usecases/shares/getShareTransactionHistory";
 import {
   CreateShareInput,
@@ -27,6 +27,7 @@ import { SecuritiesPosition } from "@domain/entities/securitiesPosition";
 import { ShareTransaction } from "@domain/entities/shareTransaction";
 import { ActivateShare } from "@application/usecases/shares/activateShare";
 import { DeactivateShare } from "@application/usecases/shares/deactivateShare";
+import { PriceCalculation } from "@application/usecases/shares/calculateSharePrice";
 
 export class ShareController {
   constructor(
@@ -89,11 +90,11 @@ export class ShareController {
     return this.executeMatchingOrdersUseCase.execute(shareId);
   }
 
-  async calculatePrice(shareId: string): Promise<any> {
+  async calculatePrice(shareId: string): Promise<PriceCalculation> {
     return this.calculateSharePriceUseCase.execute(shareId);
   }
 
-  async getOrderBook(shareId: string): Promise<any> {
+  async getOrderBook(shareId: string): Promise<OrderBook> {
     return this.getOrderBookUseCase.execute(shareId);
   }
 

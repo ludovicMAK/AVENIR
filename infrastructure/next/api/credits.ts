@@ -1,6 +1,7 @@
 import { request } from "./client";
 import { ApiError } from "@/lib/errors";
 import { isJsonObject } from "@/lib/json";
+import { JsonObject, JsonValue } from "@/types/json";
 
 export interface Credit {
   id: string;
@@ -73,70 +74,85 @@ export interface GrantCreditRequest {
   durationInMonths: number;
 }
 
-function parseDueDate(data: any): DueDate {
-  const extractValue = (field: any): string => {
-    if (typeof field === 'string') return field;
-    if (field && typeof field === 'object' && 'value' in field) return field.value;
-    return '';
-  };
+const isJsonObjectArray = (
+  value: JsonValue | undefined
+): value is JsonObject[] =>
+  Array.isArray(value) && value.every(isJsonObject);
 
+const extractString = (field: JsonValue | undefined): string => {
+  if (field === null || field === undefined) {
+    return "";
+  }
+  if (typeof field === "string") {
+    return field;
+  }
+  if (typeof field === "number" || typeof field === "boolean") {
+    return String(field);
+  }
+  if (!Array.isArray(field) && typeof field === "object" && "value" in field) {
+    const nestedValue = (field as JsonObject).value;
+    if (
+      typeof nestedValue === "string" ||
+      typeof nestedValue === "number" ||
+      typeof nestedValue === "boolean"
+    ) {
+      return String(nestedValue);
+    }
+  }
+  return "";
+};
+
+function parseDueDate(data: JsonObject): DueDate {
   return {
-    id: extractValue(data.id) || '',
-    creditId: extractValue(data.creditId || data.credit_id) || '',
-    dueDate: extractValue(data.dueDate || data.due_date) || new Date().toISOString(),
-    amountDue: Number(data.amountDue || data.amount_due || data.totalAmount || 0),
-    principal: Number(data.principal || data.repaymentPortion || 0),
-    interest: Number(data.interest || data.shareInterest || 0),
-    insurance: Number(data.insurance || data.shareInsurance || 0),
-    status: extractValue(data.status) || 'pending',
-    paidDate: data.paidDate || data.paid_date || data.paymentDate ? extractValue(data.paidDate || data.paid_date || data.paymentDate) : undefined,
-    paidAmount: data.paidAmount || data.paid_amount ? Number(data.paidAmount || data.paid_amount) : undefined,
+    id: extractString(data.id),
+    creditId: extractString(data.creditId),
+    dueDate: extractString(data.dueDate),
+    amountDue: Number(data.amountDue),
+    principal: Number(data.principal),
+    interest: Number(data.interest),
+    insurance: Number(data.insurance),
+    status: extractString(data.status),
+    paidDate: data.paidDate ? extractString(data.paidDate) : undefined,
+    paidAmount: data.paidAmount ? Number(data.paidAmount) : undefined,
   };
 }
 
-function parseCredit(data: any): Credit {
-  const extractValue = (field: any): string => {
-    if (typeof field === 'string') return field;
-    if (field && typeof field === 'object' && 'value' in field) return field.value;
-    return '';
-  };
-
+function parseCredit(data: JsonObject): Credit {
   return {
-    id: extractValue(data.id) || '',
-    customerId: extractValue(data.customerId || data.customer_id) || '',
-    advisorId: extractValue(data.advisorId || data.advisor_id) || '',
-    accountId: extractValue(data.accountId || data.account_id) || '',
-    amountBorrowed: Number(data.amountBorrowed || data.amount_borrowed || 0),
-    annualRate: Number(data.annualRate || data.annual_rate || 0),
-    insuranceRate: Number(data.insuranceRate || data.insurance_rate || 0),
-    durationInMonths: Number(data.durationInMonths || data.duration_in_months || 0),
-    monthlyPayment: Number(data.monthlyPayment || data.monthly_payment || 0),
-    status: extractValue(data.status) || 'unknown',
-    dateGranted: extractValue(data.dateGranted || data.date_granted || data.startDate) || new Date().toISOString(),
-    totalAmountDue: Number(data.totalAmountDue || data.total_amount_due || 0),
-    totalPaid: Number(data.totalPaid || data.total_paid || 0),
-    remainingAmount: Number(data.remainingAmount || data.remaining_amount || data.amountBorrowed || data.amount_borrowed || 0),
+    id: extractString(data.id),
+    customerId: extractString(data.customerId),
+    advisorId: extractString(data.advisorId),
+    accountId: extractString(data.accountId),
+    amountBorrowed: Number(data.amountBorrowed),
+    annualRate: Number(data.annualRate),
+    insuranceRate: Number(data.insuranceRate),
+    durationInMonths: Number(data.durationInMonths),
+    monthlyPayment: Number(data.monthlyPayment),
+    status: extractString(data.status),
+    dateGranted: extractString(data.dateGranted),
+    totalAmountDue: Number(data.totalAmountDue),
+    totalPaid: Number(data.totalPaid),
+    remainingAmount: Number(data.remainingAmount),
   };
 }
 
-function parseCreditWithDueDates(data: any): CreditWithDueDates {
-  const creditData = data.credit || data;
-  const dueDatesData = data.dueDates || [];
-  
+function parseCreditWithDueDates(data: JsonObject): CreditWithDueDates {
   return {
-    ...parseCredit(creditData),
-    dueDates: dueDatesData.map(parseDueDate),
+    ...parseCredit(data),
+    dueDates: Array.isArray(data.dueDates)
+      ? data.dueDates.filter(isJsonObject).map(parseDueDate)
+      : [],
   };
 }
 
-function parseAmortizationEntry(data: any): AmortizationScheduleEntry {
+function parseAmortizationEntry(data: JsonObject): AmortizationScheduleEntry {
   return {
     month: Number(data.month),
-    dueDate: data.dueDate,
-    monthlyPayment: Number(data.monthlyPayment || data.totalAmount),
-    principal: Number(data.principal || data.repaymentPortion),
-    interest: Number(data.interest || data.shareInterest),
-    insurance: Number(data.insurance || data.shareInsurance),
+    dueDate: extractString(data.dueDate),
+    monthlyPayment: Number(data.monthlyPayment),
+    principal: Number(data.principal),
+    interest: Number(data.interest),
+    insurance: Number(data.insurance),
     remainingCapital: Number(data.remainingCapital),
   };
 }
@@ -144,60 +160,34 @@ function parseAmortizationEntry(data: any): AmortizationScheduleEntry {
 export const creditsApi = {
   async getMyCredits(): Promise<CreditWithDueDates[]> {
     const response = await request("/my-credits");
-    if (!isJsonObject(response)) {
+    if (!isJsonObject(response) || !Array.isArray(response.credits) || !response.credits.every(isJsonObject)) {
       throw new ApiError("INFRASTRUCTURE_ERROR", "Invalid credits response");
     }
-    const creditsData =
-      (response as { credits?: unknown; creditWithDueDates?: unknown })
-        .credits ?? response.creditWithDueDates;
-    if (!Array.isArray(creditsData)) {
-      throw new ApiError("INFRASTRUCTURE_ERROR", "Invalid credits response");
-    }
-    return creditsData.map(parseCreditWithDueDates);
+    return (response.credits as JsonObject[]).map(parseCreditWithDueDates);
   },
 
   async getCreditStatus(creditId: string): Promise<Credit> {
     const response = await request(`/credits/${creditId}/status`);
-    if (!isJsonObject(response)) {
-      throw new ApiError(
-        "INFRASTRUCTURE_ERROR",
-        "Invalid credit status response"
-      );
+    if (!isJsonObject(response) || !isJsonObject(response.creditStatusData) || !isJsonObject(response.creditStatusData.credit) || !isJsonObject(response.creditStatusData.progress)) {
+      throw new ApiError("INFRASTRUCTURE_ERROR", "Invalid credit status response");
     }
-    const creditStatusData = response.creditStatusData;
-    if (!isJsonObject(creditStatusData) || !isJsonObject(creditStatusData.credit) || !isJsonObject(creditStatusData.progress)) {
-      throw new ApiError(
-        "INFRASTRUCTURE_ERROR",
-        "Invalid credit status response"
-      );
-    }
-    
-    const credit = creditStatusData.credit;
-    const progress = creditStatusData.progress;
-    
-    const totalAmount = Number(progress.totalAmountToPay || 0);
-    const duration = Number(credit.durationInMonths || 1);
-    const monthlyPayment = duration > 0 ? totalAmount / duration : 0;
-    const parsedCredit = parseCredit(credit);
-
+    const credit = response.creditStatusData.credit;
+    const progress = response.creditStatusData.progress;
     return {
-      ...parsedCredit,
-      monthlyPayment,
-      totalAmountDue: Number(progress.totalAmountToPay || 0),
-      totalPaid: Number(progress.totalAmountPaid || 0),
-      remainingAmount: Number(progress.totalAmountRemaining || 0),
+      ...parseCredit(credit),
+      monthlyPayment: Number(progress.monthlyPayment),
+      totalAmountDue: Number(progress.totalAmountToPay),
+      totalPaid: Number(progress.totalAmountPaid),
+      remainingAmount: Number(progress.totalAmountRemaining),
     };
   },
 
   async getPaymentHistory(creditId: string): Promise<DueDate[]> {
     const response = await request(`/credits/${creditId}/due-dates`);
-    if (!isJsonObject(response) || !Array.isArray(response.dueDates)) {
-      throw new ApiError(
-        "INFRASTRUCTURE_ERROR",
-        "Invalid due dates response"
-      );
+    if (!isJsonObject(response) || !Array.isArray(response.dueDates) || !response.dueDates.every(isJsonObject)) {
+      throw new ApiError("INFRASTRUCTURE_ERROR", "Invalid due dates response");
     }
-    return response.dueDates.map(parseDueDate);
+    return response.dueDates.filter(isJsonObject).map(parseDueDate);
   },
 
   async simulateSchedule(
@@ -207,11 +197,8 @@ export const creditsApi = {
       method: "POST",
       body: JSON.stringify(data),
     });
-    if (!isJsonObject(response) || !Array.isArray(response.schedule)) {
-      throw new ApiError(
-        "INFRASTRUCTURE_ERROR",
-        "Invalid simulate schedule response"
-      );
+    if (!isJsonObject(response) || !Array.isArray(response.schedule) || !response.schedule.every(isJsonObject)) {
+      throw new ApiError("INFRASTRUCTURE_ERROR", "Invalid simulate schedule response");
     }
     return response.schedule.map(parseAmortizationEntry);
   },
@@ -239,11 +226,8 @@ export const creditsApi = {
       body: JSON.stringify(data),
     });
     if (!isJsonObject(response) || !isJsonObject(response.credit)) {
-      throw new ApiError(
-        "INFRASTRUCTURE_ERROR",
-        "Invalid grant credit response"
-      );
+      throw new ApiError("INFRASTRUCTURE_ERROR", "Invalid grant credit response");
     }
-    return { creditId: (response.credit as { id: string }).id };
+    return { creditId: String(response.credit.id) };
   },
 };

@@ -2,7 +2,7 @@ import { Pool } from "pg"
 import { EmailConfirmationTokenRepository } from "@application/repositories/emailConfirmationTokens"
 import { EmailConfirmationToken } from "@domain/entities/emailConfirmationToken"
 import { InfrastructureError } from "@application/errors"
-import { ensureError } from "@application/utils/errors"
+import { ensureError, ErrorLike } from "@application/utils/errors"
 import { EmailConfirmationTokenRow } from "@adapters/repositories/types/EmailConfirmationTokenRow"
 
 export class PostgresEmailConfirmationTokenRepository implements EmailConfirmationTokenRepository {
@@ -77,7 +77,7 @@ export class PostgresEmailConfirmationTokenRepository implements EmailConfirmati
         return new EmailConfirmationToken(row.user_id, row.token, row.expires_at)
     }
 
-    private handleDatabaseError(unknownError: unknown): never {
+    private handleDatabaseError(unknownError: ErrorLike): never {
         const error = ensureError(unknownError, "Unexpected database error")
         console.error("Database operation failed", error)
         throw new InfrastructureError("Database unavailable. Please try again later.")

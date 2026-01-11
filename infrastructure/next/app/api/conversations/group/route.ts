@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createGroupConversation } from "@/config/usecases";
+import { ErrorPayload, getErrorMessage } from "@/lib/api/errors";
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,9 +18,14 @@ export async function POST(request: NextRequest) {
     const conversation = await createGroupConversation.execute(body);
 
     return NextResponse.json(conversation, { status: 201 });
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
-      { error: error.message || "Failed to create group conversation" },
+      {
+        error: getErrorMessage(
+          error as ErrorPayload,
+          "Failed to create group conversation"
+        ),
+      },
       { status: 400 }
     );
   }

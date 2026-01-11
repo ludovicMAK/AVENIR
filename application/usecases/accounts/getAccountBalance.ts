@@ -7,11 +7,11 @@ import {
   UnauthorizedError,
 } from "@application/errors";
 
-type AccountBalanceResponse = {
+export interface AccountBalanceResponse {
   balance: number;
   availableBalance: number;
   blockedAmount: number;
-};
+}
 
 export class GetAccountBalance {
   constructor(

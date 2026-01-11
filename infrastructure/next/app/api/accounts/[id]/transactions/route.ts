@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAccountTransactions } from "@/config/usecases";
+import {
+  ErrorCode,
+  ErrorPayload,
+  getErrorCode,
+  getErrorMessage,
+  getStatusCodeFromError,
+} from "@/lib/api/errors";
 
 export async function GET(
   request: NextRequest,
@@ -54,14 +61,20 @@ export async function GET(
       },
       { status: 200 }
     );
-  } catch (error: any) {
+  } catch (error) {
+    const code = getErrorCode(error as ErrorPayload) ?? "INTERNAL_ERROR";
+    const status =
+      code === "NOT_FOUND" ? ErrorCode.NOT_FOUND : getStatusCodeFromError(error as ErrorPayload);
     return NextResponse.json(
       {
-        status: error.code === "NOT_FOUND" ? 404 : 500,
-        code: error.code || "INTERNAL_ERROR",
-        message: error.message || "Failed to get account transactions",
+        status,
+        code,
+        message: getErrorMessage(
+          error as ErrorPayload,
+          "Failed to get account transactions"
+        ),
       },
-      { status: error.code === "NOT_FOUND" ? 404 : 500 }
+      { status }
     );
   }
 }

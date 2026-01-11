@@ -1,7 +1,8 @@
 import { NextRequest } from "next/server";
+import { JsonObject, JsonValue } from "@/types/json";
 
 export function validateRequired(
-  body: any,
+  body: JsonObject,
   requiredFields: string[]
 ): { valid: boolean; missing?: string[] } {
   const missing = requiredFields.filter((field) => !body[field]);
@@ -13,7 +14,7 @@ export function validateRequired(
   return { valid: true };
 }
 
-export async function parseBody(request: NextRequest): Promise<any> {
+export async function parseBody(request: NextRequest): Promise<JsonValue> {
   try {
     return await request.json();
   } catch (error) {

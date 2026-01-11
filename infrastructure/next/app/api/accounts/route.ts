@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAccountsFromOwnerId, createAccount } from "@/config/usecases";
 import { createSuccessResponse, createErrorResponse } from "@/lib/api/response";
+import {
+  ErrorPayload,
+  getErrorCode,
+  getErrorMessage,
+  getStatusCodeFromError,
+} from "@/lib/api/errors";
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,18 +22,32 @@ export async function GET(request: NextRequest) {
     }
 
     const accounts = await getAccountsFromOwnerId.execute({ id: ownerId });
+    const serializedAccounts = accounts.map(account => ({
+      id: account.id,
+      accountType: typeof account.accountType?.getValue === 'function' ? String(account.accountType.getValue()) : String(account.accountType),
+      IBAN: account.IBAN,
+      accountName: account.accountName,
+      authorizedOverdraft: account.authorizedOverdraft,
+      overdraftLimit: account.overdraftLimit,
+      overdraftFees: account.overdraftFees,
+      status: typeof account.status?.getValue === 'function' ? String(account.status.getValue()) : String(account.status),
+      idOwner: account.idOwner,
+      balance: account.balance,
+      availableBalance: account.availableBalance
+    }));
     return createSuccessResponse(
-      { accounts },
+      { accounts: serializedAccounts },
       {
         code: "ACCOUNTS_RETRIEVED",
         status: 200,
       }
     );
-  } catch (error: any) {
+  } catch (error) {
     return createErrorResponse({
-      code: error.code || "FETCH_ACCOUNTS_FAILED",
-      message: error.message || "Failed to fetch accounts",
-      status: 500,
+      code: getErrorCode(error as ErrorPayload) ?? "FETCH_ACCOUNTS_FAILED",
+      message: getErrorMessage(error as ErrorPayload, "Failed to fetch accounts"),
+      status: getStatusCodeFromError(error as ErrorPayload),
+      error: error as ErrorPayload | undefined,
     });
   }
 }
@@ -47,20 +67,33 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const account = await createAccount.execute(body);
-
+    const serializedAccount = {
+      id: account.id,
+      accountType: typeof account.accountType?.getValue === 'function' ? String(account.accountType.getValue()) : String(account.accountType),
+      IBAN: account.IBAN,
+      accountName: account.accountName,
+      authorizedOverdraft: account.authorizedOverdraft,
+      overdraftLimit: account.overdraftLimit,
+      overdraftFees: account.overdraftFees,
+      status: typeof account.status?.getValue === 'function' ? String(account.status.getValue()) : String(account.status),
+      idOwner: account.idOwner,
+      balance: account.balance,
+      availableBalance: account.availableBalance
+    };
     return createSuccessResponse(
-      { account },
+      { account: serializedAccount },
       {
         code: "ACCOUNT_CREATED",
         message: "Account created successfully",
         status: 201,
       }
     );
-  } catch (error: any) {
+  } catch (error) {
     return createErrorResponse({
-      code: error.code || "CREATE_ACCOUNT_FAILED",
-      message: error.message || "Failed to create account",
-      status: 400,
+      code: getErrorCode(error as ErrorPayload) ?? "CREATE_ACCOUNT_FAILED",
+      message: getErrorMessage(error as ErrorPayload, "Failed to create account"),
+      status: getStatusCodeFromError(error as ErrorPayload),
+      error: error as ErrorPayload | undefined,
     });
   }
 }

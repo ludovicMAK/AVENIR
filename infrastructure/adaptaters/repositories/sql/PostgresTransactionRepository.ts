@@ -1,6 +1,6 @@
 import { Pool } from "pg";
 import { InfrastructureError } from "@application/errors";
-import { ensureError } from "@application/utils/errors";
+import { ensureError, ErrorLike } from "@application/utils/errors";
 import { TransactionRepository } from "@application/repositories/transaction";
 import { Transaction } from "@domain/entities/transaction";
 import { UnitOfWork } from "@application/services/UnitOfWork";
@@ -134,7 +134,7 @@ export class PostgresTransactionRepository implements TransactionRepository {
   ): Promise<{ transactions: Transaction[]; total: number }> {
     try {
       const conditions: string[] = ["account_iban = $1"];
-      const params: any[] = [iban];
+      const params: Array<string | number | Date> = [iban];
       let paramIndex = 2;
 
       if (filters?.startDate) {
@@ -230,7 +230,7 @@ export class PostgresTransactionRepository implements TransactionRepository {
     }
   }
 
-  private handleDatabaseError(unknownError: unknown): never {
+  private handleDatabaseError(unknownError: ErrorLike): never {
     const error = ensureError(unknownError, "Unexpected database error");
     console.error("Database operation failed", error);
     throw new InfrastructureError(

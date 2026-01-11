@@ -4,6 +4,16 @@ import { WebSocketService } from "@application/services/WebSocketService";
 import { Message } from "@domain/entities/message";
 import { Conversation } from "@domain/entities/conversation";
 
+type SocketPayload =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | Date
+  | SocketPayload[]
+  | { [key: string]: SocketPayload };
+
 export class SocketIOService implements WebSocketService {
   private io: Server;
   private userSockets: Map<string, string[]> = new Map();
@@ -145,7 +155,11 @@ export class SocketIOService implements WebSocketService {
     }
   }
 
-  private emitToUser(userId: string, event: string, data: any): void {
+  private emitToUser(
+    userId: string,
+    event: string,
+    data: SocketPayload
+  ): void {
     const socketIds = this.userSockets.get(userId);
     if (socketIds) {
       socketIds.forEach((socketId) => {

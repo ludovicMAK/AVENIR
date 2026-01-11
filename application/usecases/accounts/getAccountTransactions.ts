@@ -9,12 +9,12 @@ import {
 } from "@application/errors";
 import { Transaction } from "@domain/entities/transaction";
 
-type AccountTransactionsResponse = {
+export interface AccountTransactionsResponse {
   transactions: Transaction[];
   total: number;
   page: number;
   totalPages: number;
-};
+}
 
 export class GetAccountTransactions {
   constructor(

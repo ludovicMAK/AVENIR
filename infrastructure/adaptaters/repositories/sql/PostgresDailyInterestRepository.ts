@@ -3,7 +3,7 @@ import { DailyInterestRepository } from "@application/repositories/dailyInterest
 import { DailyInterest } from "@domain/entities/dailyInterest";
 import { CreditMode } from "@domain/values/creditMode";
 import { InfrastructureError } from "@application/errors";
-import { ensureError } from "@application/utils/errors";
+import { ensureError, ErrorLike } from "@application/utils/errors";
 import { DailyInterestRow } from "../types/DailyInterestRow";
 import { UnitOfWork } from "@application/services/UnitOfWork";
 import { PostgresUnitOfWork } from "@adapters/services/PostgresUnitOfWork";
@@ -141,7 +141,7 @@ export class PostgresDailyInterestRepository
     );
   }
 
-  private handleDatabaseError(unknownError: unknown): never {
+  private handleDatabaseError(unknownError: ErrorLike): never {
     const error = ensureError(unknownError, "Unexpected database error");
     console.error("Database operation failed", error);
     throw new InfrastructureError(

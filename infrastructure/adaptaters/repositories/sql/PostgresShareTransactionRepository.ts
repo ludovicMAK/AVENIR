@@ -3,7 +3,7 @@ import { ShareTransactionRepository } from "@application/repositories/shareTrans
 import { ShareTransaction } from "@domain/entities/shareTransaction";
 import { ShareTransactionRow } from "@adapters/repositories/types/ShareTransactionRow";
 import { InfrastructureError } from "@application/errors";
-import { ensureError } from "@application/utils/errors";
+import { ensureError, ErrorLike } from "@application/utils/errors";
 
 export class PostgresShareTransactionRepository
   implements ShareTransactionRepository
@@ -102,7 +102,7 @@ export class PostgresShareTransactionRepository
     );
   }
 
-  private handleDatabaseError(error: unknown): never {
+  private handleDatabaseError(error: ErrorLike): never {
     const err = ensureError(error);
     throw new InfrastructureError(`Database error: ${err.message}`);
   }

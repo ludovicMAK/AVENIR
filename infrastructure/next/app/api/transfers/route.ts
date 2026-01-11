@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createTransfer } from "@/config/usecases";
+import { createTransaction } from "@/config/usecases";
+import { ErrorPayload, getErrorMessage } from "@/lib/api/errors";
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,12 +15,12 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const transfer = await createTransfer.execute(body);
+    const transfer = await createTransaction.execute(body);
 
     return NextResponse.json(transfer, { status: 201 });
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
-      { error: error.message || "Failed to create transfer" },
+      { error: getErrorMessage(error as ErrorPayload, "Failed to create transfer") },
       { status: 400 }
     );
   }

@@ -44,9 +44,9 @@ export async function withAuth<T>(
 
   try {
     return await handler(auth.userId, auth.token, request);
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
-      { error: error.message || "Internal server error" },
+      { error: getErrorMessage(error as StrictError) },
       { status: 500 }
     );
   }
@@ -57,4 +57,16 @@ export function requireRole(
   requiredRoles: string[]
 ): boolean {
   return requiredRoles.includes(userRole);
+}
+
+type StrictError = Error & { message: string } | { message: string } | string;
+
+function getErrorMessage(error: StrictError): string {
+  if (typeof error === "string") {
+    return error;
+  }
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return typeof error.message === "string" ? error.message : "Internal server error";
 }

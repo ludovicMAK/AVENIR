@@ -63,7 +63,6 @@ export function RenameAccountDialog({
     },
   });
 
-  // Réinitialiser le formulaire quand le nom actuel change ou que la modal s'ouvre
   useEffect(() => {
     if (open) {
       form.reset({ accountName: currentName });

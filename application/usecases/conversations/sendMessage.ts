@@ -23,8 +23,12 @@ export class SendMessage {
     private readonly sessionRepository: SessionRepository,
     private readonly userRepository: UserRepository,
     private readonly uuidGenerator: UuidGenerator,
-    private readonly webSocketService?: WebSocketService
+    private webSocketService?: WebSocketService
   ) {}
+
+  setWebSocketService(service: WebSocketService): void {
+    this.webSocketService = service;
+  }
 
   async execute(request: SendMessageRequest): Promise<Message> {
     const isConnected = await this.sessionRepository.isConnected(

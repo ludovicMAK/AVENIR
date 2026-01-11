@@ -218,14 +218,49 @@ export class UserHttpHandler {
     }
   }
 
-  private toUserView(user: User): UserView {
+  private toUserView(user: User): UserView & { emailVerifiedAt?: string | null };
+  private toUserView(user: {
+    id: string;
+    firstname: string;
+    lastname: string;
+    email: string;
+    role: string;
+    status: string;
+    emailVerifiedAt?: string | null;
+  }): UserView & { emailVerifiedAt?: string | null };
+  private toUserView(
+    user: User | {
+      id: string;
+      firstname: string;
+      lastname: string;
+      email: string;
+      role: string;
+      status: string;
+      emailVerifiedAt?: string | null;
+    }
+  ): UserView & { emailVerifiedAt?: string | null } {
+    let role: string;
+    if (typeof user.role === 'object' && user.role !== null && 'getValue' in user.role && typeof user.role.getValue === 'function') {
+      role = String(user.role.getValue());
+    } else {
+      role = String(user.role);
+    }
+    let emailVerifiedAt: string | null | undefined = undefined;
+    if (user.emailVerifiedAt !== undefined) {
+      if (user.emailVerifiedAt instanceof Date) {
+        emailVerifiedAt = user.emailVerifiedAt.toISOString();
+      } else {
+        emailVerifiedAt = user.emailVerifiedAt ?? undefined;
+      }
+    }
     return {
       id: user.id,
       firstname: user.firstname,
       lastname: user.lastname,
       email: user.email,
-      role: user.role.getValue(),
+      role,
       status: user.status,
+      ...(emailVerifiedAt !== undefined ? { emailVerifiedAt } : {}),
     };
   }
 

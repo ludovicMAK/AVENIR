@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 
 import { authApi } from "@/api/auth"
@@ -14,7 +14,8 @@ import {
     CardTitle,
 } from "@/components/Card"
 
-export default function ConfirmRegistrationPage() {
+
+function ConfirmRegistrationPageInner() {
     const searchParams = useSearchParams()
     const router = useRouter()
     const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
@@ -99,5 +100,13 @@ export default function ConfirmRegistrationPage() {
                 </div>
             </div>
         </div>
+    )
+}
+
+export default function ConfirmRegistrationPage() {
+    return (
+        <Suspense>
+            <ConfirmRegistrationPageInner />
+        </Suspense>
     )
 }

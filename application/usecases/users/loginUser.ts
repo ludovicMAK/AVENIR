@@ -17,7 +17,15 @@ export class LoginUser {
     private readonly sessionRepository: SessionRepository
   ) {}
 
-  async execute(input: LoginUserInput): Promise<{ user: User; token: string }> {
+  async execute(input: LoginUserInput): Promise<{ user: {
+    id: string;
+    lastname: string;
+    firstname: string;
+    email: string;
+    role: string;
+    status: string;
+    emailVerifiedAt: string | null;
+  }; token: string }> {
     const email = input.email.toLowerCase();
 
     const user = await this.userRepository.findByEmail(email);
@@ -53,6 +61,17 @@ export class LoginUser {
 
     await this.sessionRepository.createSession(session);
 
-    return { user, token };
+    return {
+      user: {
+        id: user.id,
+        lastname: user.lastname,
+        firstname: user.firstname,
+        email: user.email,
+        role: typeof user.role?.getValue === 'function' ? String(user.role.getValue()) : String(user.role),
+        status: user.status,
+        emailVerifiedAt: user.emailVerifiedAt ? user.emailVerifiedAt.toISOString() : null,
+      },
+      token
+    };
   }
 }
