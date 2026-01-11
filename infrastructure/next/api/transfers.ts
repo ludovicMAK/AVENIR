@@ -12,6 +12,9 @@ export interface Transfer {
   dateExecuted?: string;
   description: string;
   status: string;
+  transactionDirection: string;
+  reason: string;
+  counterpartyIBAN?: string;
 }
 
 export interface CreateTransferRequest {
@@ -39,6 +42,9 @@ const parseTransfer = (data: JsonObject): Transfer => ({
       : undefined,
   description: String(data.description),
   status: String(data.status),
+  transactionDirection: String(data.transactionDirection ?? "debit"),
+    reason: String(data.reason),
+  counterpartyIBAN: data.counterpartyIBAN !== undefined && data.counterpartyIBAN !== null ? String(data.counterpartyIBAN) : undefined,
 });
 
 export const transfersApi = {

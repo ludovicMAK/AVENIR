@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import ChatClient from "./ChatClient";
+import ChatClient from "../../../../components/molecules/ChatClient";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default async function ChatPage({

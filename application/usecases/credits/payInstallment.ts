@@ -71,7 +71,9 @@ export class PayInstallment {
         new Date(),
         new Date(),
         `Installment payment for credit ${credit.id}`,
-        StatusTransfer.VALIDATED
+        StatusTransfer.VALIDATED,
+        TransactionDirection.DEBIT,
+        "Installment payment"
       );
 
       await this.transferRepository.save(transfer, unitOfWork);

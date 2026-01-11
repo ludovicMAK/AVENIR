@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import SimulatorClient from "./SimulatorClient";
+import SimulatorClient from "../../../../components/molecules/SimulatorClient";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function SimulatorPage() {

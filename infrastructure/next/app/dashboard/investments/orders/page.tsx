@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import OrdersClient from "./OrdersClient";
+import OrdersClient from "../../../../components/molecules/OrdersClient";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function OrdersPage() {

@@ -1,6 +1,7 @@
 import { TransferRepository } from "@application/repositories/transfer";
 import { Transfer } from "@domain/entities/transfer";
 import { StatusTransfer } from "@domain/values/statusTransfer";
+import { TransactionDirection } from "@domain/values/transactionDirection";
 import { ConnectedError, NotFoundError, UnauthorizedError, TransferCreationFailedError } from "@application/errors/index";
 import { UnitOfWorkFactory } from "@application/services/UnitOfWork";
 import { UserRepository } from "@application/repositories/users";
@@ -65,7 +66,9 @@ export class CancelTransfer {
         transfer.dateRequested,
         transfer.dateExecuted,
         transfer.description,
-        StatusTransfer.CANCELLED
+        StatusTransfer.CANCELLED,
+        transfer.transactionDirection,
+        "Cancelled by user"
       );
 
       const updateResult = await this.transferRepository.update(cancelledTransfer, unitOfWork);

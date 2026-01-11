@@ -56,7 +56,7 @@ const transferSchema = z
         message: "IBAN invalide (format: FR76 XXXX XXXX XXXX XXXX XXXX XXX)",
       }),
     amount: z
-      .number({ invalid_type_error: "Le montant doit être un nombre" })
+      .number({ error: "Le montant doit être un nombre" })
       .positive({ message: "Le montant doit être positif" })
       .min(0.01, { message: "Le montant minimum est 0.01€" }),
     reason: z

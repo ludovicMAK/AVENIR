@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/users/server";
-import TransfersClient from "./TransfersClient";
+import TransfersClient from "../../../components/molecules/TransfersClient";
 
 export default async function TransfersPage() {
   const user = await getCurrentUser();

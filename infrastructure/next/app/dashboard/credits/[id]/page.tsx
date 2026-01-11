@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import CreditDetailClient from "./CreditDetailClient";
+import CreditDetailClient from "../../../../components/molecules/CreditDetailClient";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default async function CreditDetailPage({

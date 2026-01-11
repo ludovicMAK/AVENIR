@@ -78,7 +78,9 @@ export class EarlyRepayCredit {
         new Date(),
         new Date(),
         `Early repayment for credit ${credit.id}`,
-        StatusTransfer.VALIDATED
+        StatusTransfer.VALIDATED,
+        TransactionDirection.DEBIT,
+        "Early repayment"
       );
 
       await this.transferRepository.save(transfer, unitOfWork);

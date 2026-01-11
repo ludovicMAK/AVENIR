@@ -313,7 +313,9 @@ export default function DashboardClient({ userId }: DashboardClientProps) {
                           {transaction.reason || "Virement"}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          {formatDate(transaction.accountDate)}
+                          {typeof transaction.dateRequested === "string" && transaction.dateRequested
+                            ? formatDate(transaction.dateRequested)
+                            : ""}
                           {transaction.counterpartyIBAN && (
                             <> • {formatIBAN(transaction.counterpartyIBAN)}</>
                           )}

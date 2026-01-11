@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import CreditsClient from "./CreditsClient";
+import CreditsClient from "../../../components/molecules/CreditsClient";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function CreditsPage() {

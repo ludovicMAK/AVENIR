@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import ShareDetailClient from "./ShareDetailClient";
+import ShareDetailClient from "../../../../../components/molecules/ShareDetailClient";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default async function ShareDetailPage({

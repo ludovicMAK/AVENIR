@@ -63,7 +63,9 @@ export class PostgresTransferRepository implements TransferRepository {
         row.date_requested,
         row.date_executed,
         row.description,
-        StatusTransfer.from(row.status)
+        StatusTransfer.from(row.status),
+        row.transaction_direction,
+        row.reason
       );
     } catch (error) {
       console.error("Database operation failed", error);

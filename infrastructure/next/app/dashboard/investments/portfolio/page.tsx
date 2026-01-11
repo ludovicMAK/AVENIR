@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import PortfolioClient from "./PortfolioClient";
+import PortfolioClient from "../../../../components/molecules/PortfolioClient";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function PortfolioPage() {

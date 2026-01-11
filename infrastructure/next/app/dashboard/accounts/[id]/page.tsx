@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/users/server";
-import AccountDetailClient from "./AccountDetailClient";
+import AccountDetailClient from "../../../../components/molecules/AccountDetailClient";
 
 interface PageProps {
   params: Promise<{ id: string }>;
