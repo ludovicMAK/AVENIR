@@ -9,8 +9,45 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "AVENIR - Votre banque en ligne",
-  description: "AVENIR - Banque en ligne moderne offrant des services de gestion de comptes, investissements et crédits",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3001"
+  ),
+  title: {
+    default: "AVENIR - Votre banque en ligne",
+    template: "%s | AVENIR",
+  },
+  description:
+    "AVENIR - Banque en ligne moderne offrant des services de gestion de comptes, investissements et crédits",
+  keywords: [
+    "banque en ligne",
+    "compte bancaire",
+    "investissement",
+    "crédit",
+    "épargne",
+    "AVENIR",
+    "banque digitale",
+  ],
+  authors: [{ name: "AVENIR" }],
+  creator: "AVENIR",
+  openGraph: {
+    type: "website",
+    locale: "fr_FR",
+    url: "/",
+    siteName: "AVENIR",
+    title: "AVENIR - Votre banque en ligne",
+    description:
+      "Banque en ligne moderne avec gestion de comptes, investissements et crédits",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AVENIR - Votre banque en ligne",
+    description:
+      "Banque en ligne moderne avec gestion de comptes, investissements et crédits",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
@@ -23,9 +60,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} antialiased bg-background text-white`}
       >
-        <I18nProvider>
-          {children}
-        </I18nProvider>
+        <I18nProvider>{children}</I18nProvider>
       </body>
     </html>
   );
