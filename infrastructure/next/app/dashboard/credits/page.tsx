@@ -1,6 +1,6 @@
 import { Suspense } from "react";
-import CreditsClient from "./CreditsClient";
-import { Skeleton } from "@/components/ui/skeleton";
+import Credits from "../../../components/organisms/Credits";
+import { Skeleton } from "@/components/atoms/Skeleton";
 
 export default function CreditsPage() {
   return (
@@ -12,7 +12,7 @@ export default function CreditsPage() {
         </div>
       }
     >
-      <CreditsClient />
+      <Credits />
     </Suspense>
   );
 }

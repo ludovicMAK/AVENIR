@@ -68,7 +68,9 @@ export class CreateTransaction {
       new Date(),
       input.dateExecuted,
       input.description,
-      StatusTransfer.VALIDATED
+      StatusTransfer.VALIDATED,
+      TransactionDirection.DEBIT,
+      "" // Add a default empty string for 'reason' or replace with appropriate value
     );
 
     const unitOfWork = this.unitOfWorkFactory();

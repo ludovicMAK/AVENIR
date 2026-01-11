@@ -6,6 +6,10 @@ export function createTransferRoutes(
 ): Router {
   const router = Router();
 
+  router.get("/transfers/history", (request, response) =>
+    transferHttpHandler.getHistory(request, response)
+  );
+
   router.patch("/transfers/validate", (request, response) =>
     transferHttpHandler.validateTransferByAdmin(request, response)
   );

@@ -45,7 +45,9 @@ export class ValidTransferByAdmin {
         transfer.dateRequested,
         transfer.dateExecuted, 
         transfer.description,
-        StatusTransfer.VALIDATED 
+        StatusTransfer.VALIDATED,
+        transfer.transactionDirection,
+        transfer.reason
       );
 
       const saveResult = await this.transferRepository.update(updatedTransfer, unitOfWork);

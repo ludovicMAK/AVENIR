@@ -7,12 +7,20 @@ import { useUser } from "@/lib/auth/UserContext";
 
 export function useTransferHistory() {
   const [transfers, setTransfers] = useState<Transfer[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<ApiError | Error | null>(null);
   const { user, isLoading: isUserLoading } = useUser();
 
   const fetchHistory = useCallback(async () => {
-    if (!user || isUserLoading) return;
+    if (isUserLoading) {
+      return;
+    }
+    
+    if (!user?.id) {
+      setError(new Error("Utilisateur non connecté"));
+      setIsLoading(false);
+      return;
+    }
 
     setIsLoading(true);
     setError(null);
@@ -29,7 +37,7 @@ export function useTransferHistory() {
     } finally {
       setIsLoading(false);
     }
-  }, [user, isUserLoading]);
+  }, [user?.id, isUserLoading]);
 
   useEffect(() => {
     fetchHistory();

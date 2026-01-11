@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/users/server";
-import NewTransferClient from "./NewTransferClient";
+import NewTransfer from "../../../../components/organisms/NewTransfer";
 
 export default async function NewTransferPage() {
   const user = await getCurrentUser();
@@ -9,5 +9,5 @@ export default async function NewTransferPage() {
     redirect("/login?redirect=/dashboard/transfers/new");
   }
 
-  return <NewTransferClient userId={user.id} />;
+  return <NewTransfer userId={user.id} />;
 }

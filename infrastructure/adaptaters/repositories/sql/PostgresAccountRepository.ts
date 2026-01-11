@@ -316,12 +316,12 @@ export class PostgresAccountRepository implements AccountRepository {
       row.iban,
       row.account_name,
       row.authorized_overdraft,
-      parseInt(row.overdraft_limit.toString(), 10),
-      parseInt(row.overdraft_fees.toString(), 10),
+      parseFloat(row.overdraft_limit.toString()),
+      parseFloat(row.overdraft_fees.toString()),
       StatusAccount.from(row.status),
       row.id_owner,
-      parseInt(row.balance.toString(), 10),
-      parseInt(row.available_balance.toString(), 10)
+      parseFloat(row.balance.toString()),
+      parseFloat(row.available_balance.toString())
     );
   }
 

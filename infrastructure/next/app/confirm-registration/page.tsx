@@ -5,14 +5,14 @@ import { useSearchParams, useRouter } from "next/navigation"
 
 import { authApi } from "@/api/auth"
 import { ApiError } from "@/lib/errors"
-import { Button } from "@/components/Button"
+import { Button } from "@/components/atoms/Button"
 import {
     Card,
     CardContent,
     CardDescription,
     CardHeader,
     CardTitle,
-} from "@/components/Card"
+} from "@/components/atoms/Card"
 
 
 function ConfirmRegistrationPageInner() {

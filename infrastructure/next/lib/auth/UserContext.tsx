@@ -1,9 +1,8 @@
 "use client";
 
-import React, { createContext, useContext, ReactNode, useEffect } from "react";
+import React, { createContext, useContext, ReactNode } from "react";
 import { UserSummary } from "@/types/users";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { setCurrentUserId } from "@/api/client";
 
 interface UserContextValue {
   user: UserSummary | null;
@@ -15,11 +14,7 @@ const UserContext = createContext<UserContextValue | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const { user, isLoading, error } = useCurrentUser();
-
-  useEffect(() => {
-    setCurrentUserId(user?.id || null);
-  }, [user]);
-
+  
   return (
     <UserContext.Provider value={{ user, isLoading, error }}>
       {children}

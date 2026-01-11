@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/users/server";
-import DashboardClient from "./DashboardClient";
+import Dashboard from "../../components/organisms/Dashboard";
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
@@ -9,5 +9,5 @@ export default async function DashboardPage() {
     redirect("/login?redirect=/dashboard");
   }
 
-  return <DashboardClient userId={user.id} />;
+  return <Dashboard userId={user.id} />;
 }

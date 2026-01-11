@@ -12,13 +12,22 @@ import {
   EarlyRepaymentRequest,
 } from "@/api/credits";
 import { ApiError } from "@/lib/errors";
+import { useCurrentUser } from "./useCurrentUser";
 
 export function useCredits() {
+  const { user, isLoading: isUserLoading } = useCurrentUser();
   const [credits, setCredits] = useState<CreditWithDueDates[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<ApiError | Error | null>(null);
 
   const fetchCredits = useCallback(async () => {
+    if (isUserLoading) return;
+    
+    if (!user?.id) {
+      setError(new Error("Utilisateur non connecté"));
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
@@ -34,7 +43,7 @@ export function useCredits() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [user, isUserLoading]);
 
   useEffect(() => {
     fetchCredits();
@@ -42,7 +51,7 @@ export function useCredits() {
 
   return {
     credits,
-    isLoading,
+    isLoading: isLoading || isUserLoading,
     error,
     refresh: fetchCredits,
   };

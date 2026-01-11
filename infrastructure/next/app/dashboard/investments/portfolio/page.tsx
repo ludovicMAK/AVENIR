@@ -1,6 +1,6 @@
 import { Suspense } from "react";
-import PortfolioClient from "./PortfolioClient";
-import { Skeleton } from "@/components/ui/skeleton";
+import Portfolio from "../../../../components/organisms/Portfolio";
+import { Skeleton } from "@/components/atoms/Skeleton";
 
 export default function PortfolioPage() {
   return (
@@ -12,7 +12,7 @@ export default function PortfolioPage() {
         </div>
       }
     >
-      <PortfolioClient />
+      <Portfolio />
     </Suspense>
   );
 }

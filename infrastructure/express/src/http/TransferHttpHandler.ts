@@ -32,37 +32,36 @@ export class TransferHttpHandler {
     return { user, token };
   }
 
-    public async validateTransferByAdmin(request: Request, response: Response) {
-  try {
-    const { user, token } = await this.getAuthContext(request);
-    const { idTransfer } = request.body;
+  public async validateTransferByAdmin(request: Request, response: Response) {
+    try {
+      const { user, token } = await this.getAuthContext(request);
+      const { idTransfer } = request.body;
 
-    const parsed = ValidateTransferByAdmin.safeParse({ idTransfer });
-    if (!parsed.success) {
-      const issues = parsed.error.issues
-        .map((issue) => issue.message)
-        .join(", ");
-      throw new Error(issues || "Invalid payload.");
+      const parsed = ValidateTransferByAdmin.safeParse({ idTransfer });
+      if (!parsed.success) {
+        const issues = parsed.error.issues
+          .map((issue) => issue.message)
+          .join(", ");
+        throw new Error(issues || "Invalid payload.");
+      }
+
+      const input: confirmTransfer = {
+        userId: user.id,
+        token: token || "",
+        idTransfer: idTransfer,
+      };
+
+      await this.controller.validateTransferByAdmin(input);
+
+      return sendSuccess(response, {
+        status: 200,
+        code: "TRANSFER_VALIDATED",
+        message: "The transfer has been successfully validated and processed.",
+      });
+    } catch (error) {
+      return mapErrorToHttpResponse(response, error);
     }
-
-    const input: confirmTransfer = {
-      userId: user.id,
-      token: token || "",
-      idTransfer: idTransfer,
-    };
-
-    await this.controller.validateTransferByAdmin(input);
-
-    return sendSuccess(response, {
-      status: 200,
-      code: "TRANSFER_VALIDATED",
-      message: "The transfer has been successfully validated and processed.",
-    });
-
-  } catch (error) {
-    return mapErrorToHttpResponse(response, error);
   }
-}
 
   public async cancelTransfer(request: Request, response: Response) {
     try {
@@ -86,7 +85,23 @@ export class TransferHttpHandler {
         code: "TRANSFER_CANCELLED",
         message: "The transfer has been successfully cancelled.",
       });
+    } catch (error) {
+      return mapErrorToHttpResponse(response, error);
+    }
+  }
 
+  public async getHistory(request: Request, response: Response) {
+    try {
+      await this.getAuthContext(request);
+
+      const transfers = await this.controller.getHistory();
+
+      return sendSuccess(response, {
+        status: 200,
+        code: "TRANSFERS_RETRIEVED",
+        message: "Transfer history retrieved successfully.",
+        data: transfers,
+      });
     } catch (error) {
       return mapErrorToHttpResponse(response, error);
     }

@@ -1,6 +1,6 @@
 import { Suspense } from "react";
-import CreditDetailClient from "./CreditDetailClient";
-import { Skeleton } from "@/components/ui/skeleton";
+import CreditDetail from "../../../../components/organisms/CreditDetail";
+import { Skeleton } from "@/components/atoms/Skeleton";
 
 export default async function CreditDetailPage({
   params,
@@ -18,7 +18,7 @@ export default async function CreditDetailPage({
         </div>
       }
     >
-      <CreditDetailClient creditId={id} />
+      <CreditDetail creditId={id} />
     </Suspense>
   );
 }

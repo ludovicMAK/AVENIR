@@ -1,8 +1,11 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { authApi } from "@/api/auth";
 import {
   clearRedirectHint,
@@ -12,75 +15,55 @@ import {
 import { sanitizeRedirectPath } from "@/lib/auth/redirect";
 import { ApiError } from "@/lib/errors";
 import { setCurrentUserId } from "@/api/client";
-import { Button } from "@/components/Button";
+import { Button } from "@/components/atoms/Button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/Card";
+} from "@/components/atoms/Card";
 import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/Field";
-import { Input } from "@/components/Input";
-import { LoginPayload } from "@/types/auth";
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/molecules/Form";
+import { Input } from "@/components/atoms/Input";
+import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
+import { useTranslations } from "@/lib/i18n/simple-i18n";
 
-type FieldErrors = {
-  email?: string[];
-  password?: string[];
-};
+const loginSchema = z.object({
+  email: z
+    .string()
+    .min(1, { message: "L'email est requis" })
+    .email({ message: "Email invalide" }),
+  password: z
+    .string()
+    .min(1, { message: "Le mot de passe est requis" })
+    .min(6, { message: "Le mot de passe doit contenir au moins 6 caractères" }),
+});
+
+type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function Page() {
-  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
-  const [isLoading, setIsLoading] = useState(false);
+  const [apiError, setApiError] = useState<string>("");
   const router = useRouter();
+  const tAuth = useTranslations('auth');
+  const tCommon = useTranslations('common');
 
-  const extractFieldErrors = (message: string): FieldErrors => {
-    const result: FieldErrors = {};
-    const parts = message.split(",");
+  const form = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
-    parts.forEach((part) => {
-      const text = part.trim();
-      if (!text) return;
-      const lower = text.toLowerCase();
-
-      if (lower.includes("email")) {
-        result.email = [...(result.email ?? []), text];
-      } else if (lower.includes("pass")) {
-        result.password = [...(result.password ?? []), text];
-      } else {
-        result.password = [...(result.password ?? []), text];
-      }
-    });
-
-    if (!result.email && message.toLowerCase().includes("email")) {
-      result.email = [message];
-    }
-    if (!result.password && message.toLowerCase().includes("pass")) {
-      result.password = [message];
-    }
-    if (!result.email && !result.password) {
-      result.password = [message];
-    }
-
-    return result;
-  };
-
-  async function handleLogin(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setFieldErrors({});
-    setIsLoading(true);
-
-    const formData = new FormData(event.currentTarget);
-    const data: LoginPayload = {
-      email: formData.get("email") as string,
-      password: formData.get("password") as string,
-    };
+  async function onSubmit(data: LoginFormValues) {
+    setApiError("");
 
     try {
       const response = await authApi.login(data);
@@ -108,76 +91,93 @@ export default function Page() {
           ? error.message
           : "An unexpected error occurred";
 
-      setFieldErrors(extractFieldErrors(message));
-    } finally {
-      setIsLoading(false);
+      setApiError(message);
     }
   }
 
   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10 bg-gradient-to-br from-background to-primary/10">
+      <div className="absolute top-4 right-4">
+        <LanguageSwitcher />
+      </div>
       <div className="w-full max-w-sm">
         <div className="flex flex-col gap-6">
           <Link
             href="/"
             className="text-sm text-muted-foreground hover:text-primary transition-colors text-center"
           >
-            ← Retour à l'accueil
+            ← {tCommon('back')} {tCommon('home')}
           </Link>
           <Card className="border-primary/20">
             <CardHeader>
-              <CardTitle>Connexion</CardTitle>
+              <CardTitle>{tAuth('login')}</CardTitle>
               <CardDescription>
-                Connectez-vous à votre compte AVENIR
+                Connectez-vous à votre compte {tCommon('appName')}
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleLogin}>
-                <FieldGroup>
-                  <Field>
-                    <FieldLabel htmlFor="email">Email</FieldLabel>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      required
-                      className="border-primary/20"
-                    />
-                    {fieldErrors.email && (
-                      <FieldError
-                        errors={fieldErrors.email.map((message) => ({
-                          message,
-                        }))}
-                      />
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  {apiError && (
+                    <div className="p-3 text-sm text-red-500 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-md">
+                      {apiError}
+                    </div>
+                  )}
+                  
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{tAuth('email')}</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="email"
+                            placeholder="email@exemple.com"
+                            className="border-primary/20"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
-                  </Field>
-                  <Field>
-                    <FieldLabel htmlFor="password">Mot de passe</FieldLabel>
-                    <Input
-                      id="password"
-                      name="password"
-                      type="password"
-                      required
-                      className="border-primary/20"
-                    />
-                    {fieldErrors.password && (
-                      <FieldError
-                        errors={fieldErrors.password.map((message) => ({
-                          message,
-                        }))}
-                      />
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{tAuth('password')}</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="password"
+                            placeholder="••••••••"
+                            className="border-primary/20"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
-                  </Field>
-                  <Field>
-                    <Button type="submit" disabled={isLoading}>
-                      {isLoading ? "Logging in..." : "Login"}
-                    </Button>
-                    <FieldDescription className="text-center">
-                      Don’t have an account? <a href="/register">Sign up</a>
-                    </FieldDescription>
-                  </Field>
-                </FieldGroup>
-              </form>
+                  />
+                  
+                  <Button 
+                    type="submit" 
+                    disabled={form.formState.isSubmitting}
+                    className="w-full"
+                  >
+                    {form.formState.isSubmitting ? tCommon('loading') : tAuth('login')}
+                  </Button>
+                  
+                  <p className="text-center text-sm text-muted-foreground">
+                    {tAuth('noAccount')}{" "}
+                    <Link href="/register" className="text-primary hover:underline">
+                      {tAuth('register')}
+                    </Link>
+                  </p>
+                </form>
+              </Form>
             </CardContent>
           </Card>
         </div>

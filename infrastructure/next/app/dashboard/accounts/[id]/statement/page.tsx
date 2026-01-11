@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/users/server";
-import StatementClient from "./StatementClient";
+import Statement from "../../../../../components/organisms/Statement";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -14,5 +14,5 @@ export default async function StatementPage({ params }: PageProps) {
     redirect("/login?redirect=/dashboard/accounts/" + id + "/statement");
   }
 
-  return <StatementClient accountId={id} />;
+  return <Statement accountId={id} />;
 }

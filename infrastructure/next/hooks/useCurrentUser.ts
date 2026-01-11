@@ -16,16 +16,20 @@ export function useCurrentUser() {
       try {
         const token = getAuthenticationToken();
         if (!token) {
+          console.log('[useCurrentUser] No token, clearing user');
           setUser(null);
           setCurrentUserId(null);
           setIsLoading(false);
           return;
         }
 
+        console.log('[useCurrentUser] Loading user...');
         const userData = await usersApi.me(token);
+        console.log('[useCurrentUser] User loaded:', userData);
         setUser(userData);
         setCurrentUserId(userData.id);
       } catch (err) {
+        console.error('[useCurrentUser] Error loading user:', err);
         setError(err instanceof Error ? err : new Error("Failed to load user"));
         setUser(null);
         setCurrentUserId(null);

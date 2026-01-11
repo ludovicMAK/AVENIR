@@ -1,6 +1,6 @@
 import { Suspense } from "react";
-import OrdersClient from "./OrdersClient";
-import { Skeleton } from "@/components/ui/skeleton";
+import Orders from "../../../../components/organisms/Orders";
+import { Skeleton } from "@/components/atoms/Skeleton";
 
 export default function OrdersPage() {
   return (
@@ -12,7 +12,7 @@ export default function OrdersPage() {
         </div>
       }
     >
-      <OrdersClient />
+      <Orders />
     </Suspense>
   );
 }

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/users/server";
-import SavingsClient from "./SavingsClient";
+import Savings from "../../../components/organisms/Savings";
 
 export default async function SavingsPage() {
   const user = await getCurrentUser();
@@ -9,5 +9,5 @@ export default async function SavingsPage() {
     redirect("/login?redirect=/dashboard/savings");
   }
 
-  return <SavingsClient userId={user.id} userRole={user.role} />;
+  return <Savings userId={user.id} userRole={user.role} />;
 }
