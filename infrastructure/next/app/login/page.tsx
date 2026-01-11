@@ -15,14 +15,14 @@ import {
 import { sanitizeRedirectPath } from "@/lib/auth/redirect";
 import { ApiError } from "@/lib/errors";
 import { setCurrentUserId } from "@/api/client";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/atoms/Button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/components/atoms/Card";
 import {
   Form,
   FormControl,
@@ -30,9 +30,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+} from "@/components/molecules/Form";
+import { Input } from "@/components/atoms/Input";
+import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
 import { useTranslations } from "@/lib/i18n/simple-i18n";
 
 const loginSchema = z.object({

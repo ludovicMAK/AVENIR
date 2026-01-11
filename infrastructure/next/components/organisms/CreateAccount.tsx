@@ -7,14 +7,14 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { accountsApi } from "@/api/account";
 import { ApiError } from "@/lib/errors";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/atoms/Button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/components/atoms/Card";
 import {
   Form,
   FormControl,
@@ -23,15 +23,15 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from "@/components/molecules/Form";
+import { Input } from "@/components/atoms/Input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/atoms/Select";
 import { ArrowLeft, Plus, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { AccountTypeValue } from "@/types/accounts";
@@ -70,7 +70,7 @@ interface CreateAccountClientProps {
   userId: string;
 }
 
-export default function CreateAccountClient({
+export default function CreateAccount({
   userId,
 }: CreateAccountClientProps) {
   const router = useRouter();

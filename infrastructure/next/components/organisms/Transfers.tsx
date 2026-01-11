@@ -8,11 +8,11 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from "@/components/atoms/Card";
+import { Button } from "@/components/atoms/Button";
+import { Badge } from "@/components/atoms/Badge";
+import { Input } from "@/components/atoms/Input";
+import { Label } from "@/components/atoms/Label";
 import { Plus, Filter, ArrowUpDown, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useTransferHistory } from "@/hooks/useTransfers";
@@ -22,7 +22,7 @@ interface TransfersClientProps {
   userId: string;
 }
 
-export default function TransfersClient({ userId }: TransfersClientProps) {
+export default function Transfers({ userId }: TransfersClientProps) {
   const router = useRouter();
   const { transfers, isLoading, error, refresh } = useTransferHistory();
   const t = useTranslations("transfers");

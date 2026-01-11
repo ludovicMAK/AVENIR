@@ -1,6 +1,6 @@
 import { Suspense } from "react";
-import ChatClient from "../../../../components/molecules/ChatClient";
-import { Skeleton } from "@/components/ui/skeleton";
+import Chat from "../../../../components/organisms/Chat";
+import { Skeleton } from "@/components/atoms/Skeleton";
 
 export default async function ChatPage({
   params,
@@ -18,7 +18,7 @@ export default async function ChatPage({
         </div>
       }
     >
-      <ChatClient conversationId={id} />
+      <Chat conversationId={id} />
     </Suspense>
   );
 }

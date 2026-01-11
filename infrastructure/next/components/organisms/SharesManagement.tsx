@@ -2,8 +2,8 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { sharesApi, Share } from "@/api/shares";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/atoms/Button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/Card";
 import {
   Table,
   TableBody,
@@ -11,7 +11,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/atoms/Table";
 import {
   Dialog,
   DialogContent,
@@ -19,9 +19,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from "@/components/atoms/Dialog";
+import { Input } from "@/components/atoms/Input";
+import { Label } from "@/components/atoms/Label";
 import { Plus, Pencil, Trash2, TrendingUp } from "lucide-react";
 
 type ErrorMessageInput = Error | { message?: string } | string;
@@ -36,7 +36,7 @@ const extractErrorMessage = (
     ? error.message
     : error.message || fallback;
 
-export default function SharesManagementClient() {
+export default function SharesManagement() {
   const [shares, setShares] = useState<Share[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);

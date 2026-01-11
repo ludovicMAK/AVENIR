@@ -2,8 +2,8 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/atoms/Button";
+import { Card, CardContent } from "@/components/atoms/Card";
 import { XCircle, Home, RefreshCw } from "lucide-react";
 
 export default function Error({

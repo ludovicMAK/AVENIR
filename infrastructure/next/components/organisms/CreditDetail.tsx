@@ -11,10 +11,10 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+} from "@/components/atoms/Card";
+import { Button } from "@/components/atoms/Button";
+import { Badge } from "@/components/atoms/Badge";
+import { Skeleton } from "@/components/atoms/Skeleton";
 import {
   Table,
   TableBody,
@@ -22,7 +22,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/atoms/Table";
 import {
   Dialog,
   DialogContent,
@@ -30,15 +30,15 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/atoms/Dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
+} from "@/components/atoms/Select";
+import { Label } from "@/components/atoms/Label";
 import {
   ArrowLeft,
   CheckCircle,
@@ -55,7 +55,7 @@ interface CreditDetailClientProps {
   creditId: string;
 }
 
-export default function CreditDetailClient({
+export default function CreditDetail({
   creditId,
 }: CreditDetailClientProps) {
   const router = useRouter();

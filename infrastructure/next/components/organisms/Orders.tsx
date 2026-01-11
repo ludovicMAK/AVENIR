@@ -11,10 +11,10 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+} from "@/components/atoms/Card";
+import { Button } from "@/components/atoms/Button";
+import { Badge } from "@/components/atoms/Badge";
+import { Skeleton } from "@/components/atoms/Skeleton";
 import {
   Table,
   TableBody,
@@ -22,7 +22,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/atoms/Table";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,14 +32,14 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+} from "@/components/atoms/AlertDialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/atoms/Tabs";
 import { Clock, CheckCircle, XCircle, X } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
-export default function OrdersClient() {
+export default function Orders() {
   const router = useRouter();
   const { orders, isLoading, refresh } = useOrders();
   const { cancelOrder, isLoading: cancelling } = useCancelOrder();

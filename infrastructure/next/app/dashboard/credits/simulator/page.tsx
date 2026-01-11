@@ -1,6 +1,6 @@
 import { Suspense } from "react";
-import SimulatorClient from "../../../../components/molecules/SimulatorClient";
-import { Skeleton } from "@/components/ui/skeleton";
+import Simulator from "../../../../components/organisms/Simulator";
+import { Skeleton } from "@/components/atoms/Skeleton";
 
 export default function SimulatorPage() {
   return (
@@ -12,7 +12,7 @@ export default function SimulatorPage() {
         </div>
       }
     >
-      <SimulatorClient />
+      <Simulator />
     </Suspense>
   );
 }

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { LandingHeader } from "@/components/LandingHeader";
-import { LandingContent } from "@/components/LandingContent";
+import { LandingHeader } from "@/components/molecules/LandingHeader";
+import { LandingContent } from "@/components/molecules/LandingContent";
 
 export const metadata: Metadata = {
   title: "AVENIR - Votre banque en ligne nouvelle génération",

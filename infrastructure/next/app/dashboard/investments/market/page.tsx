@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/users/server";
-import MarketClient from "../../../../components/molecules/MarketClient";
+import Market from "../../../../components/organisms/Market";
 
 export default async function MarketPage() {
   const user = await getCurrentUser();
@@ -9,5 +9,5 @@ export default async function MarketPage() {
     redirect("/login");
   }
 
-  return <MarketClient />;
+  return <Market />;
 }

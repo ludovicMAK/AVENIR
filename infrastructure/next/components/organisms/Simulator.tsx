@@ -9,10 +9,10 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from "@/components/atoms/Card";
+import { Button } from "@/components/atoms/Button";
+import { Input } from "@/components/atoms/Input";
+import { Label } from "@/components/atoms/Label";
 import {
   Table,
   TableBody,
@@ -20,13 +20,13 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/atoms/Table";
 import { ArrowLeft, Calculator, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
-export default function SimulatorClient() {
+export default function Simulator() {
   const router = useRouter();
   const { schedule, simulate, isLoading } = useSimulateSchedule();
 

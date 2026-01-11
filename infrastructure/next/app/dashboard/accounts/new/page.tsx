@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/users/server";
-import CreateAccountClient from "../../../../components/molecules/CreateAccountClient";
+import CreateAccount from "../../../../components/organisms/CreateAccount";
 
 export default async function NewAccountPage() {
   const user = await getCurrentUser();
@@ -9,5 +9,5 @@ export default async function NewAccountPage() {
     redirect("/login?redirect=/dashboard/accounts/new");
   }
 
-  return <CreateAccountClient userId={user.id} />;
+  return <CreateAccount userId={user.id} />;
 }

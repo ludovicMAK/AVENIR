@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/users/server";
-import AccountDetailClient from "../../../../components/molecules/AccountDetailClient";
+import AccountDetail from "../../../../components/organisms/AccountDetail";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -14,5 +14,5 @@ export default async function AccountDetailPage({ params }: PageProps) {
     redirect("/login?redirect=/dashboard/accounts/" + id);
   }
 
-  return <AccountDetailClient accountId={id} userId={user.id} />;
+  return <AccountDetail accountId={id} userId={user.id} />;
 }

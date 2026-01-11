@@ -1,6 +1,6 @@
 import { Suspense } from "react";
-import MessagesClient from "../../../components/molecules/MessagesClient";
-import { Skeleton } from "@/components/ui/skeleton";
+import Messages from "../../../components/organisms/Messages";
+import { Skeleton } from "@/components/atoms/Skeleton";
 
 export default function MessagesPage() {
   return (
@@ -12,7 +12,7 @@ export default function MessagesPage() {
         </div>
       }
     >
-      <MessagesClient />
+      <Messages />
     </Suspense>
   );
 }

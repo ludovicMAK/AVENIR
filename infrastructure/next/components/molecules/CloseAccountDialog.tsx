@@ -10,7 +10,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from "@/components/atoms/AlertDialog";
 import { Loader2, AlertTriangle } from "lucide-react";
 import { accountsApi } from "@/api/account";
 import { toast } from "sonner";

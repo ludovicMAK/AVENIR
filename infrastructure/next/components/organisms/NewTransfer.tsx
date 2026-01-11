@@ -14,17 +14,17 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+} from "@/components/atoms/Card";
+import { Button } from "@/components/atoms/Button";
+import { Input } from "@/components/atoms/Input";
+import { Textarea } from "@/components/atoms/Textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/atoms/Select";
 import {
   Form,
   FormControl,
@@ -33,9 +33,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Skeleton } from "@/components/ui/skeleton";
+} from "@/components/molecules/Form";
+import { Alert, AlertDescription } from "@/components/atoms/Alert";
+import { Skeleton } from "@/components/atoms/Skeleton";
 import { ArrowLeft, Send, CheckCircle } from "lucide-react";
 import Link from "next/link";
 
@@ -81,7 +81,7 @@ interface NewTransferClientProps {
 
 type TransferFormValues = z.infer<typeof transferSchema>;
 
-export default function NewTransferClient({ userId }: NewTransferClientProps) {
+export default function NewTransfer({ userId }: NewTransferClientProps) {
   const router = useRouter();
   const {
     accounts,

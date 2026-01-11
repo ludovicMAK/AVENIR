@@ -7,14 +7,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { authApi } from "@/api/auth";
 import { ApiError } from "@/lib/errors";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/atoms/Button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/components/atoms/Card";
 import {
   Form,
   FormControl,
@@ -22,10 +22,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from "@/components/molecules/Form";
+import { Input } from "@/components/atoms/Input";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
 import { useTranslations } from "@/lib/i18n/simple-i18n";
 
 const registerSchema = z.object({

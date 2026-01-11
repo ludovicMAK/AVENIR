@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/atoms/Button";
+import { Separator } from "@/components/atoms/Separator";
 import {
   Wallet,
   Home,
@@ -19,7 +19,7 @@ import {
   Briefcase,
   LogOut,
 } from "lucide-react";
-import { LanguageSwitcher } from "./LanguageSwitcher";
+import { LanguageSwitcher } from "../molecules/LanguageSwitcher";
 import { useTranslations } from "@/lib/i18n/simple-i18n";
 
 interface DashboardSidebarProps {

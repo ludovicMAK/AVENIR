@@ -12,11 +12,11 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Separator } from "@/components/ui/separator";
+} from "@/components/atoms/Card";
+import { Badge } from "@/components/atoms/Badge";
+import { Button } from "@/components/atoms/Button";
+import { Skeleton } from "@/components/atoms/Skeleton";
+import { Separator } from "@/components/atoms/Separator";
 import {
   Table,
   TableBody,
@@ -24,7 +24,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/atoms/Table"
 import {
   formatAmount,
   formatIBAN,
@@ -44,14 +44,14 @@ import {
   ChevronRight,
 } from "lucide-react";
 import Link from "next/link";
-import { CloseAccountDialog } from "@/components/CloseAccountDialog";
+import { CloseAccountDialog } from "@/components/molecules/CloseAccountDialog";
 
 interface AccountDetailClientProps {
   accountId: string;
   userId: string;
 }
 
-export default function AccountDetailClient({
+export default function AccountDetail({
   accountId,
   userId,
 }: AccountDetailClientProps) {

@@ -10,10 +10,10 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
+} from "@/components/atoms/Card";
+import { Badge } from "@/components/atoms/Badge";
+import { Skeleton } from "@/components/atoms/Skeleton";
+import { Button } from "@/components/atoms/Button";
 import {
   formatAmount,
   formatAmountCompact,
@@ -41,7 +41,7 @@ type DashboardClientProps = {
   userId: string;
 };
 
-export default function DashboardClient({ userId }: DashboardClientProps) {
+export default function Dashboard({ userId }: DashboardClientProps) {
   const router = useRouter();
   const { accounts, isLoading, error, fetchAccounts } =
     useAccountsByOwner(userId);

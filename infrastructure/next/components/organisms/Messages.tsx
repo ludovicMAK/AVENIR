@@ -9,13 +9,13 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+} from "@/components/atoms/Card";
+import { Button } from "@/components/atoms/Button";
+import { Input } from "@/components/atoms/Input";
+import { Label } from "@/components/atoms/Label";
+import { Textarea } from "@/components/atoms/Textarea";
+import { Badge } from "@/components/atoms/Badge";
+import { Skeleton } from "@/components/atoms/Skeleton";
 import {
   Dialog,
   DialogContent,
@@ -23,7 +23,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/atoms/Dialog";
 import {
   MessageSquare,
   Plus,
@@ -36,7 +36,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
-export default function MessagesClient() {
+export default function Messages() {
   const router = useRouter();
   const { conversations, isLoading, refresh } = useConversations();
   const { createConversation, isLoading: creating } = useCreateConversation();

@@ -3,19 +3,19 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAccountsByOwner } from "@/hooks/useAccounts";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/Card";
+import { Button } from "@/components/atoms/Button";
+import { Badge } from "@/components/atoms/Badge";
+import { Input } from "@/components/atoms/Input";
+import { Skeleton } from "@/components/atoms/Skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/atoms/Tabs";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/atoms/Select";
 import {
   formatAmount,
   formatIBAN,
@@ -38,7 +38,7 @@ type AccountsClientProps = {
   userId: string;
 };
 
-export default function AccountsClient({ userId }: AccountsClientProps) {
+export default function Accounts({ userId }: AccountsClientProps) {
   const router = useRouter();
   const { accounts, isLoading, error, fetchAccounts } =
     useAccountsByOwner(userId);

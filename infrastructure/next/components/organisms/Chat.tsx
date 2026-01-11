@@ -11,11 +11,11 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
+} from "@/components/atoms/Card";
+import { Button } from "@/components/atoms/Button";
+import { Input } from "@/components/atoms/Input";
+import { Skeleton } from "@/components/atoms/Skeleton";
+import { Badge } from "@/components/atoms/Badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,8 +25,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
+} from "@/components/atoms/AlertDialog";
+import { ScrollArea } from "@/components/atoms/ScrollArea";
 import { ArrowLeft, Send, X } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -36,7 +36,7 @@ interface ChatClientProps {
   conversationId: string;
 }
 
-export default function ChatClient({ conversationId }: ChatClientProps) {
+export default function Chat({ conversationId }: ChatClientProps) {
   const router = useRouter();
   const { user } = useCurrentUser();
   const { messages, isLoading, setMessages } = useMessages(conversationId);

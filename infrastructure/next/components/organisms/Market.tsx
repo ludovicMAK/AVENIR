@@ -10,15 +10,15 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
+} from "@/components/atoms/Card";
+import { Button } from "@/components/atoms/Button";
+import { Input } from "@/components/atoms/Input";
+import { Skeleton } from "@/components/atoms/Skeleton";
+import { Badge } from "@/components/atoms/Badge";
 import { Search, TrendingUp, TrendingDown, ArrowRight, AlertCircle } from "lucide-react";
 import { useTranslations } from "@/lib/i18n/simple-i18n";
 
-export default function MarketClient() {
+export default function Market() {
   const router = useRouter();
   const { shares, isLoading, error } = useShares();
   const { hasTradingAccount, isLoading: accountsLoading } = useTradingAccount();

@@ -1,6 +1,6 @@
 import { Suspense } from "react";
-import ShareDetailClient from "../../../../../components/molecules/ShareDetailClient";
-import { Skeleton } from "@/components/ui/skeleton";
+import ShareDetail from "../../../../../components/organisms/ShareDetail";
+import { Skeleton } from "@/components/atoms/Skeleton";
 
 export default async function ShareDetailPage({
   params,
@@ -18,7 +18,7 @@ export default async function ShareDetailPage({
         </div>
       }
     >
-      <ShareDetailClient shareId={shareId} />
+      <ShareDetail shareId={shareId} />
     </Suspense>
   );
 }

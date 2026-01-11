@@ -14,19 +14,19 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+} from "@/components/atoms/Card";
+import { Button } from "@/components/atoms/Button";
+import { Input } from "@/components/atoms/Input";
+import { Skeleton } from "@/components/atoms/Skeleton";
+import { Badge } from "@/components/atoms/Badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/atoms/Tabs";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/atoms/Select";
 import {
   Form,
   FormControl,
@@ -35,7 +35,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from "@/components/molecules/Form";
 import {
   ArrowLeft,
   TrendingUp,
@@ -69,7 +69,7 @@ interface ShareDetailClientProps {
 
 type OrderFormValues = z.infer<typeof orderSchema>;
 
-export default function ShareDetailClient({
+export default function ShareDetail({
   shareId,
 }: ShareDetailClientProps) {
   const router = useRouter();

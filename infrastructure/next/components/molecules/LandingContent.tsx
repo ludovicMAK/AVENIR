@@ -1,9 +1,9 @@
 "use client";
 
-import { LandingTranslations } from "./LandingTranslations";
+import { LandingTranslations } from "@/components/molecules/LandingTranslations";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/atoms/Button";
+import { Card, CardContent } from "@/components/atoms/Card";
 import {
   Wallet,
   TrendingUp,

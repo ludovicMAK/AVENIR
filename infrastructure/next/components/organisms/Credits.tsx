@@ -8,10 +8,10 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+} from "@/components/atoms/Card";
+import { Button } from "@/components/atoms/Button";
+import { Badge } from "@/components/atoms/Badge";
+import { Skeleton } from "@/components/atoms/Skeleton";
 import {
   CreditCard,
   Calendar,
@@ -25,7 +25,7 @@ import { format } from "date-fns";
 import { fr, enUS } from "date-fns/locale";
 import { useTranslations, useI18n } from "@/lib/i18n/simple-i18n";
 
-export default function CreditsClient() {
+export default function Credits() {
   const router = useRouter();
   const { credits, isLoading, error } = useCredits();
   const t = useTranslations('credits');

@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/atoms/Button";
 import { Wallet, ArrowRight } from "lucide-react";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
 import { useTranslations } from "@/lib/i18n/simple-i18n";
 
 export function LandingHeader() {

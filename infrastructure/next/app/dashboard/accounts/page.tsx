@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/users/server";
-import AccountsClient from "../../../components/molecules/AccountsClient";
+import Accounts from "../../../components/organisms/Accounts";
 
 export default async function AccountsPage() {
   const user = await getCurrentUser();
@@ -9,5 +9,5 @@ export default async function AccountsPage() {
     redirect("/login?redirect=/dashboard/accounts");
   }
 
-  return <AccountsClient userId={user.id} />;
+  return <Accounts userId={user.id} />;
 }

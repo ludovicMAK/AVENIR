@@ -16,10 +16,10 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from "@/components/atoms/Card";
+import { Button } from "@/components/atoms/Button";
+import { Input } from "@/components/atoms/Input";
+import { Label } from "@/components/atoms/Label";
 import {
   Table,
   TableBody,
@@ -27,16 +27,16 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/atoms/Table";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+} from "@/components/atoms/Select";
+import { Badge } from "@/components/atoms/Badge";
+import { Skeleton } from "@/components/atoms/Skeleton";
 import { RefreshCw, PiggyBank, History, Play } from "lucide-react";
 import { formatAmount } from "@/lib/accounts/utils";
 
@@ -54,7 +54,7 @@ const formatDate = (date: string) =>
 
 const formatRate = (rate: number) => `${rate.toFixed(2)} %`;
 
-export default function SavingsClient({ userId, userRole }: SavingsClientProps) {
+export default function Savings({ userId, userRole }: SavingsClientProps) {
   const isManager = userRole === "bankManager";
   const [activeRate, setActiveRate] = useState<SavingsRate | null>(null);
   const [rateHistory, setRateHistory] = useState<SavingsRate[]>([]);

@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/users/server";
 import { UserProvider } from "@/lib/auth/UserContext";
-import { DashboardSidebar } from "@/components/DashboardSidebar";
+import { DashboardSidebar } from "@/components/organisms/DashboardSidebar";
 
 export default async function DashboardLayout({
   children,

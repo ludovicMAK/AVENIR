@@ -12,7 +12,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/components/atoms/Card";
 import {
   Form,
   FormControl,
@@ -20,11 +20,11 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Separator } from "@/components/ui/separator";
+} from "@/components/molecules/Form";
+import { Button } from "@/components/atoms/Button";
+import { Input } from "@/components/atoms/Input";
+import { Skeleton } from "@/components/atoms/Skeleton";
+import { Separator } from "@/components/atoms/Separator";
 import {
   Table,
   TableBody,
@@ -32,7 +32,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/atoms/Table";
 import {
   formatAmount,
   formatIBAN,
@@ -106,7 +106,7 @@ type StatementData = {
   }>;
 };
 
-export default function StatementClient({ accountId }: StatementClientProps) {
+export default function Statement({ accountId }: StatementClientProps) {
   const router = useRouter();
   const [statement, setStatement] = useState<StatementData | null>(null);
   const [isLoading, setIsLoading] = useState(false);

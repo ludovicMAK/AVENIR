@@ -8,10 +8,10 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+} from "@/components/atoms/Card";
+import { Button } from "@/components/atoms/Button";
+import { Badge } from "@/components/atoms/Badge";
+import { Skeleton } from "@/components/atoms/Skeleton";
 import {
   Table,
   TableBody,
@@ -19,11 +19,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/atoms/Table";
 import { TrendingUp, TrendingDown, Briefcase, PieChart } from "lucide-react";
 import { useTranslations } from "@/lib/i18n/simple-i18n";
 
-export default function PortfolioClient() {
+export default function Portfolio() {
   const router = useRouter();
   const { positions, isLoading, error } = usePositions();
   const t = useTranslations('portfolio');
