@@ -6,6 +6,7 @@ import {
   sessionRepository,
   conversationRepository,
   participantConversationRepository,
+  userRepository,
 } from "./repositories";
 import { ConversationController } from "@express/controllers/ConversationController";
 
@@ -45,11 +46,10 @@ export function initializeWebSocket(
     socketService.getIO(),
     conversationController,
     participantConversationRepository,
-    conversationRepository
+    conversationRepository,
+    userRepository
   );
   conversationHandler.registerHandlers();
-
-  console.log("WebSocket server configured and ready");
 
   return socketService;
 }

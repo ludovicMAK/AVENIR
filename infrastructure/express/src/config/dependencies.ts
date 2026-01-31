@@ -42,6 +42,7 @@ import { GetConversationMessages } from "@application/usecases/conversations/get
 import { GetCustomerConversations } from "@application/usecases/conversations/getCustomerConversations";
 import { GetAdvisorConversations } from "@application/usecases/conversations/getAdvisorConversations";
 import { AddParticipant } from "@application/usecases/conversations/addParticipant";
+import { GetConversationParticipants } from "@application/usecases/conversations/getConversationParticipants";
 import {
   userRepository,
   emailConfirmationTokenRepository,
@@ -314,7 +315,6 @@ const transferController = new TransferController(
 const createConversation = new CreateConversation(
   conversationRepository,
   messageRepository,
-  participantConversationRepository,
   sessionRepository,
   userRepository,
   uuidGenerator,
@@ -363,6 +363,7 @@ const getConversationMessages = new GetConversationMessages(
 );
 const getCustomerConversations = new GetCustomerConversations(
   conversationRepository,
+  participantConversationRepository,
   sessionRepository,
   userRepository
 );
@@ -382,6 +383,13 @@ const addParticipant = new AddParticipant(
   undefined
 );
 
+const getConversationParticipants = new GetConversationParticipants(
+  conversationRepository,
+  participantConversationRepository,
+  sessionRepository,
+  userRepository
+);
+
 const conversationController = new ConversationController(
   createConversation,
   createGroupConversation,
@@ -391,7 +399,8 @@ const conversationController = new ConversationController(
   getConversationMessages,
   getCustomerConversations,
   getAdvisorConversations,
-  addParticipant
+  addParticipant,
+  getConversationParticipants
 );
 
 const grantCredit = new GrantCredit(

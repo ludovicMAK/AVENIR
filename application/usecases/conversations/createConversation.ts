@@ -1,13 +1,11 @@
 import { ConversationRepository } from "@application/repositories/conversation";
 import { MessageRepository } from "@application/repositories/message";
-import { ParticipantConversationRepository } from "@application/repositories/participantConversation";
 import { SessionRepository } from "@application/repositories/session";
 import { UserRepository } from "@application/repositories/users";
 import { UuidGenerator } from "@application/services/UuidGenerator";
 import { WebSocketService } from "@application/services/WebSocketService";
 import { Conversation } from "@domain/entities/conversation";
 import { Message } from "@domain/entities/message";
-import { ParticipantConversation } from "@domain/entities/participantConversation";
 import { ConversationStatus } from "@domain/values/conversationStatus";
 import { ConversationType } from "@domain/values/conversationType";
 import { Role } from "@domain/values/role";
@@ -22,7 +20,6 @@ export class CreateConversation {
   constructor(
     private readonly conversationRepository: ConversationRepository,
     private readonly messageRepository: MessageRepository,
-    private readonly participantConversationRepository: ParticipantConversationRepository,
     private readonly sessionRepository: SessionRepository,
     private readonly userRepository: UserRepository,
     private readonly uuidGenerator: UuidGenerator,
@@ -42,6 +39,12 @@ export class CreateConversation {
       throw new ConnectedError("User is not connected");
     }
 
+    if (request.type && request.type !== "private") {
+      throw new ValidationError(
+        "Customers can only create private conversations"
+      );
+    }
+
     if (!request.initialMessage || request.initialMessage.trim().length === 0) {
       throw new ValidationError("Initial message cannot be empty");
     }
@@ -55,25 +58,14 @@ export class CreateConversation {
       throw new ValidationError("Only customers can create conversations");
     }
 
-    const advisor = await this.userRepository.findById(
-      request.assignedAdvisorId
-    );
-    if (!advisor) {
-      throw new NotFoundError("Advisor not found");
-    }
-
-    if (!advisor.role.equals(Role.ADVISOR)) {
-      throw new ValidationError("Assigned user must be an advisor");
-    }
+    const subject = `${customer.firstname} ${customer.lastname} • En attente`;
 
     const conversationId = this.uuidGenerator.generate();
-    const conversationType =
-      request.type === "group"
-        ? ConversationType.GROUP
-        : ConversationType.PRIVATE;
+    const conversationType = ConversationType.PRIVATE;
 
     const conversation = new Conversation(
       conversationId,
+      subject,
       ConversationStatus.OPEN,
       conversationType,
       new Date(),
@@ -81,18 +73,6 @@ export class CreateConversation {
     );
 
     await this.conversationRepository.save(conversation);
-
-    const participantId = this.uuidGenerator.generate();
-    const participant = new ParticipantConversation(
-      participantId,
-      conversationId,
-      request.assignedAdvisorId,
-      new Date(),
-      null,
-      true
-    );
-
-    await this.participantConversationRepository.save(participant);
 
     const messageId = this.uuidGenerator.generate();
     const message = new Message(
@@ -110,10 +90,6 @@ export class CreateConversation {
       await this.webSocketService.emitConversationCreated(conversation);
       await this.webSocketService.joinConversationRoom(
         request.customerId,
-        conversationId
-      );
-      await this.webSocketService.joinConversationRoom(
-        request.assignedAdvisorId,
         conversationId
       );
       await this.webSocketService.emitNewMessage(conversationId, message);

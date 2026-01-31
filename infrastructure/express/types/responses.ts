@@ -136,10 +136,21 @@ export type DueDatesResponseData = {
 
 export type ConversationView = {
   id: string;
+  subject: string;
   status: string;
   type: string;
   dateOuverture: Date;
   customerId: string | null;
+};
+
+export type ConversationParticipantView = {
+  id: string;
+  firstname: string;
+  lastname: string;
+  role: string;
+  status: string;
+  isPrincipalAdvisor?: boolean;
+  isActiveParticipant?: boolean;
 };
 
 export type MessageView = {
@@ -161,6 +172,10 @@ export type ConversationResponseData = { conversation: ConversationView };
 
 export type ConversationsListResponseData = {
   conversations: ConversationView[];
+};
+
+export type ConversationParticipantsResponseData = {
+  participants: ConversationParticipantView[];
 };
 export type CreditStatusResponseData = { creditStatusData: CreditStatusData };
 export type DueDateResponseData = { dueDate: DueDate };

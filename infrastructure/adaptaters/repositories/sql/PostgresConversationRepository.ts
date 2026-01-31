@@ -8,6 +8,7 @@ import { ensureError, ErrorLike } from "@application/utils/errors";
 
 interface ConversationRow {
   id: string;
+  subject: string;
   status: string;
   type: string;
   date_ouverture: Date;
@@ -21,13 +22,14 @@ export class PostgresConversationRepository implements ConversationRepository {
     try {
       await this.pool.query(
         `
-          INSERT INTO conversations (id, status, type, date_ouverture, customer_id)
-          VALUES ($1, $2, $3, $4, $5)
+          INSERT INTO conversations (id, status, type, subject, date_ouverture, customer_id)
+          VALUES ($1, $2, $3, $4, $5, $6)
         `,
         [
           conversation.id,
           conversation.status.toString(),
-          conversation.type.toString().toLowerCase(),
+          conversation.type.toString(),
+          conversation.subject,
           conversation.dateOuverture,
           conversation.customerId,
         ]
@@ -41,7 +43,7 @@ export class PostgresConversationRepository implements ConversationRepository {
     try {
       const result = await this.pool.query<ConversationRow>(
         `
-          SELECT id, status, type, date_ouverture, customer_id
+          SELECT id, subject, status, type, date_ouverture, customer_id
           FROM conversations
           WHERE id = $1
           LIMIT 1
@@ -63,7 +65,7 @@ export class PostgresConversationRepository implements ConversationRepository {
     try {
       const result = await this.pool.query<ConversationRow>(
         `
-          SELECT id, status, type, date_ouverture, customer_id
+          SELECT id, subject, status, type, date_ouverture, customer_id
           FROM conversations
           WHERE customer_id = $1
           ORDER BY date_ouverture DESC
@@ -81,7 +83,7 @@ export class PostgresConversationRepository implements ConversationRepository {
     try {
       const result = await this.pool.query<ConversationRow>(
         `
-          SELECT id, status, type, date_ouverture, customer_id
+          SELECT id, subject, status, type, date_ouverture, customer_id
           FROM conversations
           WHERE status = $1
           ORDER BY date_ouverture DESC
@@ -113,6 +115,21 @@ export class PostgresConversationRepository implements ConversationRepository {
     }
   }
 
+  async updateSubject(conversationId: string, subject: string): Promise<void> {
+    try {
+      await this.pool.query(
+        `
+          UPDATE conversations
+          SET subject = $1
+          WHERE id = $2
+        `,
+        [subject, conversationId]
+      );
+    } catch (error) {
+      this.handleDatabaseError(error);
+    }
+  }
+
   async delete(conversationId: string): Promise<void> {
     try {
       await this.pool.query(
@@ -130,6 +147,7 @@ export class PostgresConversationRepository implements ConversationRepository {
   private mapRowToConversation(row: ConversationRow): Conversation {
     return new Conversation(
       row.id,
+      row.subject ?? "Conversation",
       ConversationStatus.from(row.status),
       ConversationType.fromString(row.type),
       row.date_ouverture,

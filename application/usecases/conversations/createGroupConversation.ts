@@ -63,9 +63,15 @@ export class CreateGroupConversation {
       );
     }
 
+    const subject =
+      request.subject && request.subject.trim().length > 0
+        ? request.subject.trim()
+        : "Équipe";
+
     const conversationId = this.uuidGenerator.generate();
     const conversation = new Conversation(
       conversationId,
+      subject,
       ConversationStatus.OPEN,
       ConversationType.GROUP,
       new Date(),
@@ -86,20 +92,27 @@ export class CreateGroupConversation {
 
     await this.participantConversationRepository.save(participant);
 
-    const managers = await this.userRepository.findByRole("bankManager");
-    for (const manager of managers) {
-      if (manager.id !== request.creatorId) {
-        const managerParticipantId = this.uuidGenerator.generate();
-        const managerParticipant = new ParticipantConversation(
-          managerParticipantId,
-          conversationId,
-          manager.id,
-          new Date(),
-          null,
-          false
-        );
-        await this.participantConversationRepository.save(managerParticipant);
-      }
+    const [advisors, managers] = await Promise.all([
+      this.userRepository.findByRole("bankAdvisor"),
+      this.userRepository.findByRole("bankManager"),
+    ]);
+
+    const staff = [...advisors, ...managers];
+    const staffIds = Array.from(
+      new Set(staff.map((staffMember) => staffMember.id))
+    ).filter((staffId) => staffId !== request.creatorId);
+
+    for (const staffId of staffIds) {
+      const staffParticipantId = this.uuidGenerator.generate();
+      const staffParticipant = new ParticipantConversation(
+        staffParticipantId,
+        conversationId,
+        staffId,
+        new Date(),
+        null,
+        false
+      );
+      await this.participantConversationRepository.save(staffParticipant);
     }
 
     const messageId = this.uuidGenerator.generate();
@@ -115,10 +128,10 @@ export class CreateGroupConversation {
     await this.messageRepository.save(message);
 
     if (this.webSocketService) {
-      await this.webSocketService.joinConversationRoom(
-        request.creatorId,
-        conversationId
-      );
+      await this.webSocketService.joinConversationRoom(request.creatorId, conversationId);
+      for (const staffId of staffIds) {
+        await this.webSocketService.joinConversationRoom(staffId, conversationId);
+      }
       await this.webSocketService.emitNewMessage(conversationId, message);
     }
 

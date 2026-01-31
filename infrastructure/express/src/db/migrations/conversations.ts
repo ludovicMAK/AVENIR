@@ -7,11 +7,17 @@ export async function ensureConversationsTable(): Promise<void> {
     await client.query(`
       CREATE TABLE IF NOT EXISTS conversations (
         id UUID PRIMARY KEY,
+        subject TEXT NOT NULL DEFAULT 'Conversation',
         status TEXT NOT NULL CHECK (status IN ('open', 'transferred', 'closed')),
-        type TEXT NOT NULL DEFAULT 'private' CHECK (type IN ('private', 'group')),
+        type TEXT NOT NULL DEFAULT 'PRIVATE' CHECK (type IN ('PRIVATE', 'GROUP')),
         date_ouverture TIMESTAMP NOT NULL DEFAULT NOW(),
         customer_id UUID REFERENCES users(id) ON DELETE CASCADE
       )
+    `);
+
+    await client.query(`
+      ALTER TABLE conversations
+      ADD COLUMN IF NOT EXISTS subject TEXT NOT NULL DEFAULT 'Conversation'
     `);
 
     await client.query(`

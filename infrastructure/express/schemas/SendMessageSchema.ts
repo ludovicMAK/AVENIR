@@ -1,8 +1,9 @@
 import { z } from "zod";
+import { uuid } from "./uuid";
 
 export const SendMessageSchema = z.object({
-  conversationId: z.string().uuid("Invalid conversation ID format"),
-  senderId: z.string().uuid("Invalid sender ID format"),
+  conversationId: uuid("Invalid conversation ID format"),
+  senderId: uuid("Invalid sender ID format"),
   text: z
     .string()
     .min(1, "Message text is required")

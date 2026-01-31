@@ -270,13 +270,19 @@
   "messages": {
     "title": "Messagerie",
     "subtitle": "Vos conversations avec vos conseillers",
+    "subtitleCustomer": "Vos conversations avec votre conseiller bancaire",
+    "subtitleAdvisor": "Vos conversations avec les clients",
+    "subtitleManager": "Vos discussions d'équipe",
+    "subtitleLoading": "Communiquez avec vos conseillers bancaires",
     "newMessage": "Nouveau message",
     "newConversation": "Nouvelle conversation",
+    "newGroupConversation": "Nouvelle discussion de groupe",
     "noMessages": "Aucun message",
     "noConversations": "Aucune conversation",
     "noConversationsMessage": "Vous n'avez pas encore de conversation",
     "startConversation": "Démarrer une conversation",
     "open": "Ouverte",
+    "transferred": "Transférée",
     "closed": "Fermée",
     "lastMessage": "Dernier message",
     "openedOn": "Ouverte le",
@@ -289,7 +295,126 @@
     "loading": "Chargement...",
     "error": "Erreur",
     "loadError": "Impossible de charger les conversations",
-    "retry": "Réessayer"
+    "retry": "Réessayer",
+    "sections": {
+      "open": "Conversations ouvertes",
+      "transferred": "Conversations transférées",
+      "closed": "Conversations fermées"
+    },
+    "stats": {
+      "total": "Total",
+      "open": "Ouvertes",
+      "transferred": "Transférées",
+      "closed": "Fermées"
+    },
+    "types": {
+      "private": "Conversation privée",
+      "group": "Conversation de groupe"
+    },
+    "preview": {
+      "loadingLastMessage": "Chargement du dernier message...",
+      "unknownDate": "Date inconnue"
+    },
+    "actions": {
+      "createConversation": "Créer la conversation",
+      "create": "Créer",
+      "creating": "Création...",
+      "closeConversation": "Fermer la conversation",
+      "closing": "Fermeture..."
+    },
+    "empty": {
+      "title": "Aucune conversation pour le moment",
+      "customerDescription": "Commencez une conversation avec un conseiller bancaire",
+      "defaultDescription": "Aucune conversation disponible"
+    },
+    "dialogs": {
+      "newConversation": {
+        "title": "Nouvelle conversation",
+        "description": "Commencez une conversation privée avec votre conseiller bancaire.",
+        "messageLabel": "Message",
+        "messagePlaceholder": "Décrivez votre demande..."
+      },
+      "newGroup": {
+        "title": "Créer une discussion de groupe",
+        "description": "Disponible pour les conseillers et directeurs.",
+        "groupNameLabel": "Nom du groupe",
+        "groupNamePlaceholder": "Équipe",
+        "initialMessageLabel": "Message initial",
+        "initialMessagePlaceholder": "Annonce / point d'équipe..."
+      },
+      "closeConversation": {
+        "title": "Fermer la conversation",
+        "description": "Êtes-vous sûr de vouloir fermer cette conversation ? Vous ne pourrez plus envoyer de messages."
+      }
+    },
+    "select": {
+      "loading": "Chargement...",
+      "noOpen": "Aucune conversation ouverte",
+      "placeholder": "Choisissez une conversation"
+    },
+    "participants": {
+      "loading": "Chargement des participants...",
+      "label": "Participants",
+      "unavailable": "Participants indisponibles",
+      "waitingAdvisor": "En attente d'un conseiller..."
+    },
+    "roles": {
+      "customer": "Client",
+      "bankAdvisor": "Conseiller",
+      "bankManager": "Directeur",
+      "counterpart": "Interlocuteur"
+    },
+    "chatbox": {
+      "loadingMessages": "Chargement des messages...",
+      "empty": {
+        "noConversationCustomer": "Aucune conversation ouverte. Écrivez un message pour démarrer.",
+        "selectConversation": "Sélectionnez une conversation pour afficher les messages.",
+        "noMessagesYet": "Aucun message pour le moment."
+      },
+      "input": {
+        "placeholder": {
+          "write": "Écrivez votre message...",
+          "cannotWrite": "Vous ne pouvez pas écrire ici",
+          "selectConversation": "Sélectionnez une conversation"
+        }
+      },
+      "aria": {
+        "openMessaging": "Ouvrir la messagerie",
+        "closeMessaging": "Fermer la messagerie",
+        "send": "Envoyer"
+      }
+    },
+    "socket": {
+      "online": "En ligne",
+      "connecting": "Connexion...",
+      "error": "Erreur",
+      "offline": "Hors ligne"
+    },
+    "toasts": {
+      "userNotConnected": "Utilisateur non connecté",
+      "cannotCreateConversation": "Vous ne pouvez pas créer de conversation",
+      "fillAllFields": "Veuillez remplir tous les champs",
+      "conversationCreated": "Conversation créée avec succès",
+      "createConversationFailed": "Erreur lors de la création de la conversation",
+      "cannotCreateGroupConversation": "Vous ne pouvez pas créer une discussion de groupe",
+      "groupCreated": "Discussion de groupe créée",
+      "createGroupFailed": "Erreur lors de la création du groupe",
+      "sendMessageFailed": "Impossible d'envoyer le message",
+      "conversationError": "Erreur de conversation",
+      "messageSendFailed": "Erreur lors de l'envoi du message",
+      "conversationClosed": "Conversation fermée",
+      "closeConversationFailed": "Erreur lors de la fermeture de la conversation"
+    },
+    "errors": {
+      "validation": "Requête invalide",
+      "unauthorized": "Authentification requise",
+      "forbidden": "Accès refusé",
+      "notFound": "Ressource introuvable",
+      "conflict": "Conflit",
+      "unprocessable": "Action impossible",
+      "infrastructure": "Service indisponible",
+      "generic": "Une erreur est survenue"
+    }
   },
   "landing": {
     "hero": {

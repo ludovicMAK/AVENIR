@@ -4,6 +4,7 @@ import { ConversationType } from "@domain/values/conversationType";
 export class Conversation {
   constructor(
     readonly id: string,
+    readonly subject: string,
     readonly status: ConversationStatus,
     readonly type: ConversationType,
     readonly dateOuverture: Date,

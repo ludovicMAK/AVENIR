@@ -6,6 +6,7 @@ export interface ConversationRepository {
   findById(id: string): Promise<Conversation | null>;
   findByCustomerId(customerId: string): Promise<Conversation[]>;
   findByStatus(status: ConversationStatus): Promise<Conversation[]>;
+  updateSubject(conversationId: string, subject: string): Promise<void>;
   updateStatus(
     conversationId: string,
     status: ConversationStatus

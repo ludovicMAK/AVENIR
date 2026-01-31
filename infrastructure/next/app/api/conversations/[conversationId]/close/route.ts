@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { closeConversation } from "@/config/usecases";
-import { ErrorPayload, getErrorMessage } from "@/lib/api/errors";
+import {
+  ErrorPayload,
+  getErrorCode,
+  getStatusCodeFromError,
+} from "@/lib/api/errors";
 
-export async function POST(
+async function handleClose(
   request: NextRequest,
-  { params }: { params: Promise<{ conversationId: string }> }
+  params: Promise<{ conversationId: string }>
 ) {
   try {
     const userId = request.headers.get("x-user-id");
@@ -13,7 +17,7 @@ export async function POST(
 
     if (!userId || !token) {
       return NextResponse.json(
-        { error: "Authentication required" },
+        { ok: false, code: "UNAUTHORIZED" },
         { status: 401 }
       );
     }
@@ -24,14 +28,29 @@ export async function POST(
       userId,
     });
 
-    return NextResponse.json(
-      { message: "Conversation closed" },
-      { status: 200 }
-    );
+    return new NextResponse(null, { status: 204 });
   } catch (error) {
+    const payload: ErrorPayload = error as ErrorPayload;
+    const statusCode = getStatusCodeFromError(payload);
+    const code = getErrorCode(payload);
+
     return NextResponse.json(
-      { error: getErrorMessage(error as ErrorPayload, "Failed to close conversation") },
-      { status: 400 }
+      { ok: false, code },
+      { status: statusCode }
     );
   }
+}
+
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ conversationId: string }> }
+) {
+  return handleClose(request, params);
+}
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ conversationId: string }> }
+) {
+  return handleClose(request, params);
 }

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/users/server";
 import { UserProvider } from "@/lib/auth/UserContext";
 import { DashboardSidebar } from "@/components/organisms/DashboardSidebar";
+import { ChatBox } from "@/components/molecules/ChatBox";
 
 export default async function DashboardLayout({
   children,
@@ -21,6 +22,7 @@ export default async function DashboardLayout({
         <main className="flex-1 overflow-auto">
           <div className="container mx-auto py-8 px-6">{children}</div>
         </main>
+        <ChatBox />
       </div>
     </UserProvider>
   );

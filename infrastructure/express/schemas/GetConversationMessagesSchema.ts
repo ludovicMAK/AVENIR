@@ -1,8 +1,9 @@
 import { z } from "zod";
+import { uuid } from "./uuid";
 
 export const GetConversationMessagesSchema = z.object({
-  conversationId: z.string().uuid("Invalid conversation ID format"),
-  userId: z.string().uuid("Invalid user ID format"),
+  conversationId: uuid("Invalid conversation ID format"),
+  userId: uuid("Invalid user ID format"),
 });
 
 export type GetConversationMessagesInput = z.infer<

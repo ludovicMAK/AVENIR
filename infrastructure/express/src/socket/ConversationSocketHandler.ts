@@ -2,22 +2,23 @@ import { Server } from "socket.io";
 import { ConversationController } from "@express/controllers/ConversationController";
 import { ParticipantConversationRepository } from "@application/repositories/participantConversation";
 import { ConversationRepository } from "@application/repositories/conversation";
+import { UserRepository } from "@application/repositories/users";
 import { ErrorLike } from "@application/utils/errors";
+import { Role } from "@domain/values/role";
 
 export class ConversationSocketHandler {
   constructor(
     private readonly io: Server,
     private readonly controller: ConversationController,
     private readonly participantRepository: ParticipantConversationRepository,
-    private readonly conversationRepository: ConversationRepository
+    private readonly conversationRepository: ConversationRepository,
+    private readonly userRepository: UserRepository
   ) {}
 
   registerHandlers(): void {
     this.io.on("connection", (socket) => {
       const userId = socket.data.userId;
       const token = socket.data.token;
-
-      console.log(`User ${userId} connected via WebSocket`);
 
       socket.on(
         "message:send",
@@ -69,7 +70,21 @@ export class ConversationSocketHandler {
                   conversationId,
                   userId
                 );
-              hasAccess = participant !== null;
+              if (participant !== null) {
+                hasAccess = true;
+              } else {
+                const activeParticipants =
+                  await this.participantRepository.findActiveByConversationId(
+                    conversationId
+                  );
+
+                if (activeParticipants.length === 0) {
+                  const user = await this.userRepository.findById(userId);
+                  if (user && user.role.equals(Role.ADVISOR)) {
+                    hasAccess = true;
+                  }
+                }
+              }
             }
           } else {
             const participant =
@@ -89,9 +104,6 @@ export class ConversationSocketHandler {
 
           socket.join(`conversation:${conversationId}`);
           socket.emit("conversation:joined", { conversationId });
-          console.log(
-            `User ${userId} joined conversation room: ${conversationId}`
-          );
         } catch (error) {
           socket.emit("conversation:error", {
             error: this.extractErrorMessage(
@@ -105,7 +117,6 @@ export class ConversationSocketHandler {
       socket.on("conversation:leave", (conversationId: string) => {
         socket.leave(`conversation:${conversationId}`);
         socket.emit("conversation:left", { conversationId });
-        console.log(`User ${userId} left conversation room: ${conversationId}`);
       });
 
       socket.on("typing:start", (data: { conversationId: string }) => {
@@ -122,10 +133,6 @@ export class ConversationSocketHandler {
             conversationId: data.conversationId,
             userId,
           });
-      });
-
-      socket.on("disconnect", () => {
-        console.log(`User ${userId} disconnected from WebSocket`);
       });
     });
   }

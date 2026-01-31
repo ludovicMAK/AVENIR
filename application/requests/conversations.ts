@@ -2,13 +2,14 @@ export type CreateConversationRequest = {
   token: string;
   customerId: string;
   initialMessage: string;
-  assignedAdvisorId: string;
-  type?: "private" | "group";
+  assignedAdvisorId?: string;
+  type?: "private";
 };
 
 export type CreateGroupConversationRequest = {
   token: string;
   creatorId: string;
+  subject?: string;
   initialMessage: string;
 };
 
@@ -47,4 +48,10 @@ export type GetCustomerConversationsRequest = {
 export type GetAdvisorConversationsRequest = {
   token: string;
   advisorId: string;
+};
+
+export type GetConversationParticipantsRequest = {
+  token: string;
+  conversationId: string;
+  userId: string;
 };

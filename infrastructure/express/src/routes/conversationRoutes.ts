@@ -42,6 +42,10 @@ export function createConversationRoutes(
     conversationHttpHandler.getAdvisorConversations(request, response)
   );
 
+  router.get("/conversations/:conversationId/participants", (request, response) =>
+    conversationHttpHandler.getParticipants(request, response)
+  );
+
   router.post(
     "/conversations/:conversationId/participants",
     (request, response) =>

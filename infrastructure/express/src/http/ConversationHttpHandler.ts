@@ -8,6 +8,7 @@ import { SendMessageSchema } from "@express/schemas/SendMessageSchema";
 import { TransferConversationSchema } from "@express/schemas/TransferConversationSchema";
 import { CloseConversationSchema } from "@express/schemas/CloseConversationSchema";
 import { GetConversationMessagesSchema } from "@express/schemas/GetConversationMessagesSchema";
+import { GetConversationParticipantsSchema } from "@express/schemas/GetConversationParticipantsSchema";
 import {
   GetCustomerConversationsSchema,
   GetAdvisorConversationsSchema,
@@ -15,6 +16,7 @@ import {
 import {
   ConversationResponseData,
   ConversationsListResponseData,
+  ConversationParticipantsResponseData,
   MessageResponseData,
   MessagesListResponseData,
 } from "@express/types/responses";
@@ -65,6 +67,7 @@ export class ConversationHttpHandler {
         data: {
           conversation: {
             id: conversation.id,
+            subject: conversation.subject,
             status: conversation.status.toString(),
             type: conversation.type.toString(),
             dateOuverture: conversation.dateOuverture,
@@ -136,11 +139,11 @@ export class ConversationHttpHandler {
 
   public async close(request: Request, response: Response) {
     try {
-      const { token } = await this.getAuthContext(request);
+      const { user, token } = await this.getAuthContext(request);
 
       const validatedData = CloseConversationSchema.parse({
         conversationId: request.params.conversationId,
-        userId: request.body.userId,
+        userId: user.id,
       });
 
       await this.controller.close(
@@ -194,6 +197,43 @@ export class ConversationHttpHandler {
     }
   }
 
+  public async getParticipants(request: Request, response: Response) {
+    try {
+      const { user, token } = await this.getAuthContext(request);
+
+      const validatedData = GetConversationParticipantsSchema.parse({
+        conversationId: request.params.conversationId,
+      });
+
+      const participants = await this.controller.getConversationParticipants(
+        validatedData.conversationId,
+        user.id,
+        token
+      );
+
+      return sendSuccess<ConversationParticipantsResponseData>(response, {
+        status: 200,
+        code: "CONVERSATION_PARTICIPANTS_RETRIEVED",
+        message: "Conversation participants retrieved successfully.",
+        data: {
+          participants: participants.map((participant) => ({
+            id: participant.user.id,
+            firstname: participant.user.firstname,
+            lastname: participant.user.lastname,
+            role: participant.user.role.getValue(),
+            status: participant.user.status,
+            isPrincipalAdvisor:
+              participant.isPrincipalAdvisor ?? undefined,
+            isActiveParticipant:
+              participant.isActiveParticipant ?? undefined,
+          })),
+        },
+      });
+    } catch (error) {
+      return mapErrorToHttpResponse(response, error);
+    }
+  }
+
   public async getMyConversations(request: Request, response: Response) {
     try {
       const { user, token } = await this.getAuthContext(request);
@@ -205,6 +245,7 @@ export class ConversationHttpHandler {
 
       const serializedConversations = conversations.map((conv) => ({
         id: conv.id,
+        subject: conv.subject,
         status: typeof conv.status === 'string' ? conv.status : conv.status.toString(),
         type: typeof conv.type === 'string' ? conv.type : conv.type.toString(),
         dateOuverture: conv.dateOuverture,
@@ -242,6 +283,7 @@ export class ConversationHttpHandler {
         data: {
           conversations: conversations.map((c) => ({
             id: c.id,
+            subject: c.subject,
             status: c.status.toString(),
             type: c.type.toString(),
             dateOuverture: c.dateOuverture,
@@ -274,6 +316,7 @@ export class ConversationHttpHandler {
         data: {
           conversations: conversations.map((c) => ({
             id: c.id,
+            subject: c.subject,
             status: c.status.toString(),
             type: c.type.toString(),
             dateOuverture: c.dateOuverture,
@@ -295,6 +338,7 @@ export class ConversationHttpHandler {
       const conversation = await this.controller.createGroup(
         validatedData.creatorId ?? user.id,
         validatedData.initialMessage,
+        validatedData.subject,
         token
       );
 
@@ -305,6 +349,7 @@ export class ConversationHttpHandler {
         data: {
           conversation: {
             id: conversation.id,
+            subject: conversation.subject,
             status: conversation.status.toString(),
             type: conversation.type.toString(),
             dateOuverture: conversation.dateOuverture,

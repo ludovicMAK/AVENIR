@@ -335,7 +335,6 @@ export const payInstallment = new PayInstallment(
 export const createConversation = new CreateConversation(
   conversationRepository,
   messageRepository,
-  participantConversationRepository,
   sessionRepository,
   userRepository,
   uuidGenerator,
@@ -390,6 +389,7 @@ export const getConversationMessages = new GetConversationMessages(
 
 export const getCustomerConversations = new GetCustomerConversations(
   conversationRepository,
+  participantConversationRepository,
   sessionRepository,
   userRepository
 );

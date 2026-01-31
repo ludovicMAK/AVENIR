@@ -7,6 +7,10 @@ import { GetConversationMessages } from "@application/usecases/conversations/get
 import { GetCustomerConversations } from "@application/usecases/conversations/getCustomerConversations";
 import { GetAdvisorConversations } from "@application/usecases/conversations/getAdvisorConversations";
 import { AddParticipant } from "@application/usecases/conversations/addParticipant";
+import {
+  GetConversationParticipants,
+  ConversationParticipantInfo,
+} from "@application/usecases/conversations/getConversationParticipants";
 import { Conversation } from "@domain/entities/conversation";
 import { Message } from "@domain/entities/message";
 
@@ -20,15 +24,16 @@ export class ConversationController {
     private readonly getConversationMessages: GetConversationMessages,
     private readonly getCustomerConversations: GetCustomerConversations,
     private readonly getAdvisorConversations: GetAdvisorConversations,
-    private readonly addParticipant: AddParticipant
+    private readonly addParticipant: AddParticipant,
+    private readonly getConversationParticipantsUsecase: GetConversationParticipants
   ) {}
 
   public async create(
     customerId: string,
     initialMessage: string,
-    assignedAdvisorId: string,
+    assignedAdvisorId: string | undefined,
     token: string,
-    type?: "private" | "group"
+    type?: "private"
   ): Promise<Conversation> {
     return await this.createConversation.execute({
       token,
@@ -42,11 +47,13 @@ export class ConversationController {
   public async createGroup(
     creatorId: string,
     initialMessage: string,
+    subject: string | undefined,
     token: string
   ): Promise<Conversation> {
     return await this.createGroupConversation.execute({
       token,
       creatorId,
+      subject,
       initialMessage,
     });
   }
@@ -136,6 +143,18 @@ export class ConversationController {
       conversationId,
       userId,
       participantUserId,
+    });
+  }
+
+  public async getConversationParticipants(
+    conversationId: string,
+    userId: string,
+    token: string
+  ): Promise<ConversationParticipantInfo[]> {
+    return await this.getConversationParticipantsUsecase.execute({
+      token,
+      conversationId,
+      userId,
     });
   }
 }

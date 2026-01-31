@@ -33,7 +33,23 @@ export class InMemoryConversationRepository implements ConversationRepository {
     if (conversation) {
       const updated = new Conversation(
         conversation.id,
+        conversation.subject,
         status,
+        conversation.type,
+        conversation.dateOuverture,
+        conversation.customerId
+      );
+      this.items.set(conversationId, updated);
+    }
+  }
+
+  async updateSubject(conversationId: string, subject: string): Promise<void> {
+    const conversation = this.items.get(conversationId);
+    if (conversation) {
+      const updated = new Conversation(
+        conversation.id,
+        subject,
+        conversation.status,
         conversation.type,
         conversation.dateOuverture,
         conversation.customerId

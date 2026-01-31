@@ -270,13 +270,19 @@
   "messages": {
     "title": "Messaging",
     "subtitle": "Your conversations with your advisors",
+    "subtitleCustomer": "Your conversations with your bank advisor",
+    "subtitleAdvisor": "Your conversations with customers",
+    "subtitleManager": "Your team discussions",
+    "subtitleLoading": "Communicate with your bank advisors",
     "newMessage": "New Message",
     "newConversation": "New conversation",
+    "newGroupConversation": "New group chat",
     "noMessages": "No messages",
     "noConversations": "No conversations",
     "noConversationsMessage": "You don't have any conversations yet",
     "startConversation": "Start a conversation",
     "open": "Open",
+    "transferred": "Transferred",
     "closed": "Closed",
     "lastMessage": "Last message",
     "openedOn": "Opened on",
@@ -289,7 +295,126 @@
     "loading": "Loading...",
     "error": "Error",
     "loadError": "Unable to load conversations",
-    "retry": "Retry"
+    "retry": "Retry",
+    "sections": {
+      "open": "Open conversations",
+      "transferred": "Transferred conversations",
+      "closed": "Closed conversations"
+    },
+    "stats": {
+      "total": "Total",
+      "open": "Open",
+      "transferred": "Transferred",
+      "closed": "Closed"
+    },
+    "types": {
+      "private": "Private conversation",
+      "group": "Group conversation"
+    },
+    "preview": {
+      "loadingLastMessage": "Loading last message...",
+      "unknownDate": "Unknown date"
+    },
+    "actions": {
+      "createConversation": "Create conversation",
+      "create": "Create",
+      "creating": "Creating...",
+      "closeConversation": "Close conversation",
+      "closing": "Closing..."
+    },
+    "empty": {
+      "title": "No conversations yet",
+      "customerDescription": "Start a conversation with a bank advisor",
+      "defaultDescription": "No conversations available"
+    },
+    "dialogs": {
+      "newConversation": {
+        "title": "New conversation",
+        "description": "Start a private conversation with your bank advisor.",
+        "messageLabel": "Message",
+        "messagePlaceholder": "Describe your request..."
+      },
+      "newGroup": {
+        "title": "Create a group chat",
+        "description": "Available for advisors and directors.",
+        "groupNameLabel": "Group name",
+        "groupNamePlaceholder": "Team",
+        "initialMessageLabel": "Initial message",
+        "initialMessagePlaceholder": "Announcement / team update..."
+      },
+      "closeConversation": {
+        "title": "Close conversation",
+        "description": "Are you sure you want to close this conversation? You won't be able to send messages anymore."
+      }
+    },
+    "select": {
+      "loading": "Loading...",
+      "noOpen": "No open conversations",
+      "placeholder": "Choose a conversation"
+    },
+    "participants": {
+      "loading": "Loading participants...",
+      "label": "Participants",
+      "unavailable": "Participants unavailable",
+      "waitingAdvisor": "Waiting for an advisor..."
+    },
+    "roles": {
+      "customer": "Customer",
+      "bankAdvisor": "Advisor",
+      "bankManager": "Director",
+      "counterpart": "Counterpart"
+    },
+    "chatbox": {
+      "loadingMessages": "Loading messages...",
+      "empty": {
+        "noConversationCustomer": "No open conversations. Write a message to start.",
+        "selectConversation": "Select a conversation to view messages.",
+        "noMessagesYet": "No messages yet."
+      },
+      "input": {
+        "placeholder": {
+          "write": "Write your message...",
+          "cannotWrite": "You can't write here",
+          "selectConversation": "Select a conversation"
+        }
+      },
+      "aria": {
+        "openMessaging": "Open messaging",
+        "closeMessaging": "Close messaging",
+        "send": "Send"
+      }
+    },
+    "socket": {
+      "online": "Online",
+      "connecting": "Connecting...",
+      "error": "Error",
+      "offline": "Offline"
+    },
+    "toasts": {
+      "userNotConnected": "User not connected",
+      "cannotCreateConversation": "You can't create a conversation",
+      "fillAllFields": "Please fill in all fields",
+      "conversationCreated": "Conversation created successfully",
+      "createConversationFailed": "Failed to create conversation",
+      "cannotCreateGroupConversation": "You can't create a group chat",
+      "groupCreated": "Group chat created",
+      "createGroupFailed": "Failed to create group chat",
+      "sendMessageFailed": "Unable to send message",
+      "conversationError": "Conversation error",
+      "messageSendFailed": "Failed to send message",
+      "conversationClosed": "Conversation closed",
+      "closeConversationFailed": "Failed to close conversation"
+    },
+    "errors": {
+      "validation": "Invalid request",
+      "unauthorized": "Authentication required",
+      "forbidden": "Access denied",
+      "notFound": "Resource not found",
+      "conflict": "Conflict",
+      "unprocessable": "Action not possible",
+      "infrastructure": "Service unavailable",
+      "generic": "Something went wrong"
+    }
   },
   "landing": {
     "hero": {

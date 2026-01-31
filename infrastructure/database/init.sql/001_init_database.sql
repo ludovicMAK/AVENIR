@@ -200,11 +200,12 @@ CREATE TABLE IF NOT EXISTS share_transactions (
 );
 
 -- 13. CONVERSATIONS (Domain: Conversation entity)
--- Fields: id, status, type, dateOuverture, customerId
+-- Fields: id, subject, status, type, dateOuverture, customerId
 -- ConversationStatus values: 'open', 'transferred', 'closed'
 -- ConversationType values: 'PRIVATE', 'GROUP'
 CREATE TABLE IF NOT EXISTS conversations (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    subject VARCHAR(255) NOT NULL DEFAULT 'Conversation',
     status VARCHAR(50) NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'transferred', 'closed')),
     type VARCHAR(50) NOT NULL CHECK (type IN ('PRIVATE', 'GROUP')),
     date_ouverture TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -630,24 +631,24 @@ INSERT INTO share_transactions (id, share_id, buy_order_id, sell_order_id, buyer
 -- =============================================================================
 -- 11. CONVERSATIONS (12 conversations variées)
 -- =============================================================================
-INSERT INTO conversations (id, status, type, date_ouverture, customer_id) VALUES
+INSERT INTO conversations (id, subject, status, type, date_ouverture, customer_id) VALUES
 -- Conversations OUVERTES (6)
-('A0000000-0000-0000-0000-000000000001'::uuid, 'open', 'PRIVATE', CURRENT_TIMESTAMP - INTERVAL '2 days', '00000000-0000-4000-8000-000000000101'::uuid),
-('A0000000-0000-0000-0000-000000000002'::uuid, 'open', 'PRIVATE', CURRENT_TIMESTAMP - INTERVAL '5 days', '00000000-0000-4000-8000-000000000102'::uuid),
-('A0000000-0000-0000-0000-000000000003'::uuid, 'open', 'PRIVATE', CURRENT_TIMESTAMP - INTERVAL '1 day', '00000000-0000-4000-8000-000000000103'::uuid),
-('A0000000-0000-0000-0000-000000000004'::uuid, 'open', 'PRIVATE', CURRENT_TIMESTAMP - INTERVAL '3 hours', '00000000-0000-4000-8000-000000000104'::uuid),
-('A0000000-0000-0000-0000-000000000005'::uuid, 'open', 'PRIVATE', CURRENT_TIMESTAMP - INTERVAL '7 days', '00000000-0000-4000-8000-000000000105'::uuid),
-('A0000000-0000-0000-0000-000000000006'::uuid, 'open', 'GROUP', CURRENT_TIMESTAMP - INTERVAL '10 days', '00000000-0000-4000-8000-000000000106'::uuid),
+('A0000000-0000-0000-0000-000000000001'::uuid, 'Jean Martin • Marie Dupont', 'open', 'PRIVATE', CURRENT_TIMESTAMP - INTERVAL '2 days', '00000000-0000-4000-8000-000000000101'::uuid),
+('A0000000-0000-0000-0000-000000000002'::uuid, 'Sophie Bernard • Pierre Moreau', 'open', 'PRIVATE', CURRENT_TIMESTAMP - INTERVAL '5 days', '00000000-0000-4000-8000-000000000102'::uuid),
+('A0000000-0000-0000-0000-000000000003'::uuid, 'Luc Petit • Julie Laurent', 'open', 'PRIVATE', CURRENT_TIMESTAMP - INTERVAL '1 day', '00000000-0000-4000-8000-000000000103'::uuid),
+('A0000000-0000-0000-0000-000000000004'::uuid, 'Alice Durand • Marc Simon', 'open', 'PRIVATE', CURRENT_TIMESTAMP - INTERVAL '3 hours', '00000000-0000-4000-8000-000000000104'::uuid),
+('A0000000-0000-0000-0000-000000000005'::uuid, 'Paul Leroy • Émilie Michel', 'open', 'PRIVATE', CURRENT_TIMESTAMP - INTERVAL '7 days', '00000000-0000-4000-8000-000000000105'::uuid),
+('A0000000-0000-0000-0000-000000000006'::uuid, 'Équipe', 'open', 'GROUP', CURRENT_TIMESTAMP - INTERVAL '10 days', NULL),
 
 -- Conversations TRANSFÉRÉES (3)
-('A0000000-0000-0000-0000-000000000007'::uuid, 'transferred', 'PRIVATE', CURRENT_TIMESTAMP - INTERVAL '15 days', '00000000-0000-4000-8000-000000000107'::uuid),
-('A0000000-0000-0000-0000-000000000008'::uuid, 'transferred', 'PRIVATE', CURRENT_TIMESTAMP - INTERVAL '20 days', '00000000-0000-4000-8000-000000000108'::uuid),
-('A0000000-0000-0000-0000-000000000009'::uuid, 'transferred', 'PRIVATE', CURRENT_TIMESTAMP - INTERVAL '12 days', '00000000-0000-4000-8000-000000000109'::uuid),
+('A0000000-0000-0000-0000-000000000007'::uuid, 'Hugo Lambert • Julie Laurent', 'transferred', 'PRIVATE', CURRENT_TIMESTAMP - INTERVAL '15 days', '00000000-0000-4000-8000-000000000107'::uuid),
+('A0000000-0000-0000-0000-000000000008'::uuid, 'Léa Garcia • Émilie Michel', 'transferred', 'PRIVATE', CURRENT_TIMESTAMP - INTERVAL '20 days', '00000000-0000-4000-8000-000000000108'::uuid),
+('A0000000-0000-0000-0000-000000000009'::uuid, 'Noah Fontaine • Émilie Michel', 'transferred', 'PRIVATE', CURRENT_TIMESTAMP - INTERVAL '12 days', '00000000-0000-4000-8000-000000000109'::uuid),
 
 -- Conversations FERMÉES (3)
-('A0000000-0000-0000-0000-000000000010'::uuid, 'closed', 'PRIVATE', CURRENT_TIMESTAMP - INTERVAL '30 days', '00000000-0000-4000-8000-000000000101'::uuid),
-('A0000000-0000-0000-0000-000000000011'::uuid, 'closed', 'PRIVATE', CURRENT_TIMESTAMP - INTERVAL '25 days', '00000000-0000-4000-8000-000000000110'::uuid),
-('A0000000-0000-0000-0000-000000000012'::uuid, 'closed', 'PRIVATE', CURRENT_TIMESTAMP - INTERVAL '18 days', '00000000-0000-4000-8000-000000000104'::uuid);
+('A0000000-0000-0000-0000-000000000010'::uuid, 'Jean Martin • Marie Dupont', 'closed', 'PRIVATE', CURRENT_TIMESTAMP - INTERVAL '30 days', '00000000-0000-4000-8000-000000000101'::uuid),
+('A0000000-0000-0000-0000-000000000011'::uuid, 'Chloé Chevalier • Julie Laurent', 'closed', 'PRIVATE', CURRENT_TIMESTAMP - INTERVAL '25 days', '00000000-0000-4000-8000-000000000110'::uuid),
+('A0000000-0000-0000-0000-000000000012'::uuid, 'Alice Durand • Marc Simon', 'closed', 'PRIVATE', CURRENT_TIMESTAMP - INTERVAL '18 days', '00000000-0000-4000-8000-000000000104'::uuid);
 
 -- =============================================================================
 -- 12. MESSAGES (50+ messages dans les conversations)
@@ -682,11 +683,11 @@ INSERT INTO messages (id, conversation_id, sender_id, sender_role, text, send_da
 ('B0000000-0000-0000-0000-000000000018'::uuid, 'A0000000-0000-0000-0000-000000000005'::uuid, '00000000-0000-4000-8000-000000000015'::uuid, 'bankAdvisor', 'Bonjour Monsieur Leroy, Émilie Michel. Les taux actuels varient entre 3.5% et 4.5% selon la durée.', CURRENT_TIMESTAMP - INTERVAL '7 days' + INTERVAL '2 hours'),
 ('B0000000-0000-0000-0000-000000000019'::uuid, 'A0000000-0000-0000-0000-000000000005'::uuid, '00000000-0000-4000-8000-000000000105'::uuid, 'customer', 'Merci, je vais y réfléchir et je reviendrai vers vous.', CURRENT_TIMESTAMP - INTERVAL '7 days' + INTERVAL '2 hours 30 minutes'),
 
--- Conversation 6 : Emma Bonnet (conversation de groupe)
-('B0000000-0000-0000-0000-000000000020'::uuid, 'A0000000-0000-0000-0000-000000000006'::uuid, '00000000-0000-4000-8000-000000000106'::uuid, 'customer', 'Bonjour, j''ai besoin d''aide pour un projet d''investissement complexe.', CURRENT_TIMESTAMP - INTERVAL '10 days'),
-('B0000000-0000-0000-0000-000000000021'::uuid, 'A0000000-0000-0000-0000-000000000006'::uuid, '00000000-0000-4000-8000-000000000012'::uuid, 'bankAdvisor', 'Bonjour Madame Bonnet, je vous mets en relation avec notre expert.', CURRENT_TIMESTAMP - INTERVAL '10 days' + INTERVAL '1 hour'),
-('B0000000-0000-0000-0000-000000000022'::uuid, 'A0000000-0000-0000-0000-000000000006'::uuid, '00000000-0000-4000-8000-000000000014'::uuid, 'bankAdvisor', 'Bonjour, Marc Simon, spécialiste investissements. Pouvez-vous me décrire votre projet ?', CURRENT_TIMESTAMP - INTERVAL '10 days' + INTERVAL '1 hour 30 minutes'),
-('B0000000-0000-0000-0000-000000000023'::uuid, 'A0000000-0000-0000-0000-000000000006'::uuid, '00000000-0000-4000-8000-000000000106'::uuid, 'customer', 'Je souhaite investir 50 000€ sur les marchés actions avec une stratégie diversifiée.', CURRENT_TIMESTAMP - INTERVAL '10 days' + INTERVAL '2 hours'),
+-- Conversation 6 : Équipe (conversation de groupe)
+('B0000000-0000-0000-0000-000000000020'::uuid, 'A0000000-0000-0000-0000-000000000006'::uuid, '00000000-0000-4000-8000-000000000001'::uuid, 'bankManager', 'Bonjour à tous, point rapide : dossier investissement complexe à traiter aujourd''hui.', CURRENT_TIMESTAMP - INTERVAL '10 days'),
+('B0000000-0000-0000-0000-000000000021'::uuid, 'A0000000-0000-0000-0000-000000000006'::uuid, '00000000-0000-4000-8000-000000000012'::uuid, 'bankAdvisor', 'Je peux prendre le dossier. Besoin d''un avis expert pour valider la stratégie.', CURRENT_TIMESTAMP - INTERVAL '10 days' + INTERVAL '1 hour'),
+('B0000000-0000-0000-0000-000000000022'::uuid, 'A0000000-0000-0000-0000-000000000006'::uuid, '00000000-0000-4000-8000-000000000014'::uuid, 'bankAdvisor', 'Je suis dispo pour aider sur la partie marchés actions / diversification.', CURRENT_TIMESTAMP - INTERVAL '10 days' + INTERVAL '1 hour 30 minutes'),
+('B0000000-0000-0000-0000-000000000023'::uuid, 'A0000000-0000-0000-0000-000000000006'::uuid, '00000000-0000-4000-8000-000000000001'::uuid, 'bankManager', 'Parfait. Merci, tenez-moi au courant ici.', CURRENT_TIMESTAMP - INTERVAL '10 days' + INTERVAL '2 hours'),
 
 -- Conversation 7 : Hugo Lambert (transférée)
 ('B0000000-0000-0000-0000-000000000024'::uuid, 'A0000000-0000-0000-0000-000000000007'::uuid, '00000000-0000-4000-8000-000000000107'::uuid, 'customer', 'J''ai un problème avec mon découvert autorisé.', CURRENT_TIMESTAMP - INTERVAL '15 days'),
@@ -724,9 +725,13 @@ INSERT INTO participant_conversations (id, conversation_id, advisor_id, date_add
 ('C0000000-0000-0000-0000-000000000004'::uuid, 'A0000000-0000-0000-0000-000000000004'::uuid, '00000000-0000-4000-8000-000000000014'::uuid, CURRENT_TIMESTAMP - INTERVAL '3 hours', NULL, true),
 ('C0000000-0000-0000-0000-000000000005'::uuid, 'A0000000-0000-0000-0000-000000000005'::uuid, '00000000-0000-4000-8000-000000000015'::uuid, CURRENT_TIMESTAMP - INTERVAL '7 days', NULL, true),
 
--- Conversation de groupe (2 conseillers)
+-- Conversation de groupe (tous les conseillers + directeur)
 ('C0000000-0000-0000-0000-000000000006'::uuid, 'A0000000-0000-0000-0000-000000000006'::uuid, '00000000-0000-4000-8000-000000000012'::uuid, CURRENT_TIMESTAMP - INTERVAL '10 days', NULL, true),
 ('C0000000-0000-0000-0000-000000000007'::uuid, 'A0000000-0000-0000-0000-000000000006'::uuid, '00000000-0000-4000-8000-000000000014'::uuid, CURRENT_TIMESTAMP - INTERVAL '10 days' + INTERVAL '1 hour 30 minutes', NULL, false),
+('C0000000-0000-0000-0000-000000000018'::uuid, 'A0000000-0000-0000-0000-000000000006'::uuid, '00000000-0000-4000-8000-000000000011'::uuid, CURRENT_TIMESTAMP - INTERVAL '10 days' + INTERVAL '2 hours', NULL, false),
+('C0000000-0000-0000-0000-000000000019'::uuid, 'A0000000-0000-0000-0000-000000000006'::uuid, '00000000-0000-4000-8000-000000000013'::uuid, CURRENT_TIMESTAMP - INTERVAL '10 days' + INTERVAL '2 hours 30 minutes', NULL, false),
+('C0000000-0000-0000-0000-000000000020'::uuid, 'A0000000-0000-0000-0000-000000000006'::uuid, '00000000-0000-4000-8000-000000000015'::uuid, CURRENT_TIMESTAMP - INTERVAL '10 days' + INTERVAL '3 hours', NULL, false),
+('C0000000-0000-0000-0000-000000000017'::uuid, 'A0000000-0000-0000-0000-000000000006'::uuid, '00000000-0000-4000-8000-000000000001'::uuid, CURRENT_TIMESTAMP - INTERVAL '10 days', NULL, false),
 
 -- Conversations transférées (ancien + nouveau conseiller)
 ('C0000000-0000-0000-0000-000000000008'::uuid, 'A0000000-0000-0000-0000-000000000007'::uuid, '00000000-0000-4000-8000-000000000011'::uuid, CURRENT_TIMESTAMP - INTERVAL '15 days', CURRENT_TIMESTAMP - INTERVAL '14 days' + INTERVAL '2 hours', true),

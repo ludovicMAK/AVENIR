@@ -6,6 +6,7 @@ import { UserRepository } from "@application/repositories/users";
 import { UuidGenerator } from "@application/services/UuidGenerator";
 import { WebSocketService } from "@application/services/WebSocketService";
 import { Message } from "@domain/entities/message";
+import { ParticipantConversation } from "@domain/entities/participantConversation";
 import { Role } from "@domain/values/role";
 import { SendMessageRequest } from "@application/requests/conversations";
 import {
@@ -31,6 +32,8 @@ export class SendMessage {
   }
 
   async execute(request: SendMessageRequest): Promise<Message> {
+    let claimedSubject: string | null = null;
+
     const isConnected = await this.sessionRepository.isConnected(
       request.senderId,
       request.token
@@ -102,16 +105,57 @@ export class SendMessage {
             request.senderId
           );
 
-        if (!participant) {
-          throw new ForbiddenError(
-            "Advisor must be a participant to send messages"
-          );
+        if (participant) {
+          if (!participant.canSendMessages()) {
+            throw new ForbiddenError(
+              "Advisor is no longer active in this conversation"
+            );
+          }
+        } else {
+          const activeParticipants =
+            await this.participantConversationRepository.findActiveByConversationId(
+              request.conversationId
+            );
+
+          if (activeParticipants.length === 0) {
+            const participantId = this.uuidGenerator.generate();
+            const claimed = new ParticipantConversation(
+              participantId,
+              request.conversationId,
+              request.senderId,
+              new Date(),
+              null,
+              true
+            );
+            await this.participantConversationRepository.save(claimed);
+
+            if (this.webSocketService) {
+              await this.webSocketService.joinConversationRoom(
+                request.senderId,
+                request.conversationId
+              );
+              if (conversation.customerId) {
+                await this.webSocketService.joinConversationRoom(
+                  conversation.customerId,
+                  request.conversationId
+                );
+              }
+            }
+          } else {
+            throw new ForbiddenError(
+              "Advisor must be a participant to send messages"
+            );
+          }
         }
 
-        if (!participant.canSendMessages()) {
-          throw new ForbiddenError(
-            "Advisor is no longer active in this conversation"
-          );
+        if (
+          conversation.customerId &&
+          conversation.subject.toLowerCase().includes("en attente")
+        ) {
+          const customer = await this.userRepository.findById(conversation.customerId);
+          if (customer) {
+            claimedSubject = `${customer.firstname} ${customer.lastname} • ${sender.firstname} ${sender.lastname}`;
+          }
         }
       } else {
         throw new ForbiddenError(
@@ -131,6 +175,13 @@ export class SendMessage {
     );
 
     await this.messageRepository.save(message);
+
+    if (claimedSubject) {
+      await this.conversationRepository.updateSubject(
+        request.conversationId,
+        claimedSubject
+      );
+    }
 
     if (this.webSocketService) {
       await this.webSocketService.emitNewMessage(

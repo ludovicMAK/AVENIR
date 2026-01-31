@@ -2,6 +2,11 @@ import { z } from "zod";
 
 export const CreateGroupConversationSchema = z.object({
   creatorId: z.string().uuid("Invalid creator ID format"),
+  subject: z
+    .string()
+    .min(1, "Subject is required")
+    .max(255, "Subject is too long")
+    .optional(),
   initialMessage: z
     .string()
     .min(1, "Initial message is required")

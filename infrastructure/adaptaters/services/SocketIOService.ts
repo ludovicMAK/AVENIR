@@ -29,32 +29,20 @@ export class SocketIOService implements WebSocketService {
 
   initialize(): void {
     this.io.on("connection", (socket: Socket) => {
-      console.log(`Client connected: ${socket.id}`);
+      const userId = socket.data.userId as string | undefined;
 
-      socket.on("authenticate", (data: { userId: string }) => {
-        this.associateUserWithSocket(data.userId, socket.id);
-        socket.data.userId = data.userId;
-        console.log(`User ${data.userId} authenticated on socket ${socket.id}`);
-      });
-
-      socket.on("join:conversation", (conversationId: string) => {
-        socket.join(`conversation:${conversationId}`);
-        console.log(
-          `Socket ${socket.id} joined conversation:${conversationId}`
+      if (userId) {
+        this.associateUserWithSocket(userId, socket.id);
+      } else {
+        console.warn(
+          `Socket ${socket.id} connected without userId (auth middleware missing?)`
         );
-      });
-
-      socket.on("leave:conversation", (conversationId: string) => {
-        socket.leave(`conversation:${conversationId}`);
-        console.log(`Socket ${socket.id} left conversation:${conversationId}`);
-      });
+      }
 
       socket.on("disconnect", () => {
-        const userId = socket.data.userId;
         if (userId) {
           this.removeSocketFromUser(userId, socket.id);
         }
-        console.log(`Client disconnected: ${socket.id}`);
       });
     });
   }
@@ -77,6 +65,7 @@ export class SocketIOService implements WebSocketService {
     if (conversation.customerId) {
       this.emitToUser(conversation.customerId, "conversation:created", {
         id: conversation.id,
+        subject: conversation.subject,
         status: conversation.status.toString(),
         type: conversation.type.toString(),
         dateOuverture: conversation.dateOuverture,
