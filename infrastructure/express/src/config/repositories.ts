@@ -58,6 +58,12 @@ import { DailyInterestRepository } from "@application/repositories/dailyInterest
 import { PostgresDailyInterestRepository } from "@adapters/repositories/sql/PostgresDailyInterestRepository";
 import { InMemoryDailyInterestRepository } from "@adapters/repositories/memory/InMemoryDailyInterestRepository";
 
+// Notifications & Activities Repositories
+import { NotificationRepository } from "@application/repositories/notification";
+import { ActivityRepository } from "@application/repositories/activity";
+import { PostgresNotificationRepository } from "@adapters/repositories/sql/PostgresNotificationRepository";
+import { PostgresActivityRepository } from "@adapters/repositories/sql/PostgresActivityRepository";
+
 function resolveRepositoryDriver(): RepositoryDriver {
   const driver = (process.env.DATA_DRIVER ?? "memory").toLowerCase();
 
@@ -230,6 +236,28 @@ function buildDailyInterestRepository(
   return new InMemoryDailyInterestRepository();
 }
 
+function buildNotificationRepository(
+  driver: RepositoryDriver
+): NotificationRepository {
+  if (driver === "postgres") {
+    return new PostgresNotificationRepository(getPool());
+  }
+
+  // In-memory not implemented for notifications yet
+  throw new Error("In-memory notification repository not implemented");
+}
+
+function buildActivityRepository(
+  driver: RepositoryDriver
+): ActivityRepository {
+  if (driver === "postgres") {
+    return new PostgresActivityRepository(getPool());
+  }
+
+  // In-memory not implemented for activities yet
+  throw new Error("In-memory activity repository not implemented");
+}
+
 export const repositoryDriver: RepositoryDriver = resolveRepositoryDriver();
 process.stdout.write(`Repository driver: ${repositoryDriver}\n`);
 export const userRepository: UserRepository =
@@ -268,3 +296,7 @@ export const savingsRateRepository: SavingsRateRepository =
   buildSavingsRateRepository(repositoryDriver);
 export const dailyInterestRepository: DailyInterestRepository =
   buildDailyInterestRepository(repositoryDriver);
+export const notificationRepository: NotificationRepository =
+  buildNotificationRepository(repositoryDriver);
+export const activityRepository: ActivityRepository =
+  buildActivityRepository(repositoryDriver);

@@ -61,7 +61,6 @@ export function clearAuthentication() {
 
 export function getAuthenticationToken(): string | null {
     const token = readCookie(AUTH_COOKIE_NAME);
-    console.log('[Auth Client] Token:', token ? `Found (${token.substring(0, 20)}...)` : 'NOT FOUND');
     return token;
 }
 

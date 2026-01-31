@@ -62,6 +62,8 @@ import {
   dueDateRepository,
   savingsRateRepository,
   dailyInterestRepository,
+  notificationRepository,
+  activityRepository,
 } from "@express/src/config/repositories";
 import {
   emailSender,
@@ -115,6 +117,26 @@ import { SavingsController } from "@express/controllers/SavingsController";
 import { SavingsHttpHandler } from "../http/SavingsHttpHandler";
 import { AuthenticateUser } from "@application/usecases/auth/authenticateUser";
 import { AuthGuard } from "@express/src/http/AuthGuard";
+
+// Notifications & Activities Use Cases
+import { SendNotificationToClient } from "@application/usecases/notifications/SendNotificationToClient";
+import { GetNotificationsForClient } from "@application/usecases/notifications/GetNotificationsForClient";
+import { MarkNotificationAsRead } from "@application/usecases/notifications/MarkNotificationAsRead";
+import { GetUnreadNotificationCount } from "@application/usecases/notifications/GetUnreadNotificationCount";
+import { DeleteNotification } from "@application/usecases/notifications/DeleteNotification";
+
+import { CreateActivity } from "@application/usecases/activities/CreateActivity";
+import { GetActivities } from "@application/usecases/activities/GetActivities";
+import { GetActivityById } from "@application/usecases/activities/GetActivityById";
+import { UpdateActivity } from "@application/usecases/activities/UpdateActivity";
+import { DeleteActivity } from "@application/usecases/activities/DeleteActivity";
+import { GetRecentActivities } from "@application/usecases/activities/GetRecentActivities";
+
+// Notifications & Activities Controllers & Handlers
+import { NotificationController } from "@express/controllers/NotificationController";
+import { ActivityController } from "@express/controllers/ActivityController";
+import { NotificationHttpHandler } from "@express/src/http/NotificationHttpHandler";
+import { ActivityHttpHandler } from "@express/src/http/ActivityHttpHandler";
 
 const registerUser = new RegisterUser(
   userRepository,
@@ -522,6 +544,73 @@ const savingsController = new SavingsController(
 );
 const savingsHttpHandler = new SavingsHttpHandler(savingsController, authGuard);
 
+// Notifications Use Cases & Controller
+const sendNotificationToClientUsecase = new SendNotificationToClient(
+  notificationRepository,
+  userRepository,
+  uuidGenerator
+);
+const getNotificationsForClientUsecase = new GetNotificationsForClient(
+  notificationRepository,
+  userRepository
+);
+const markNotificationAsReadUsecase = new MarkNotificationAsRead(
+  notificationRepository
+);
+const getUnreadNotificationCountUsecase = new GetUnreadNotificationCount(
+  notificationRepository
+);
+const deleteNotificationUsecase = new DeleteNotification(notificationRepository);
+
+const notificationController = new NotificationController(
+  sendNotificationToClientUsecase,
+  getNotificationsForClientUsecase,
+  markNotificationAsReadUsecase,
+  getUnreadNotificationCountUsecase,
+  deleteNotificationUsecase
+);
+const notificationHttpHandler = new NotificationHttpHandler(
+  notificationController,
+  authGuard
+);
+
+// Activities Use Cases & Controller
+const createActivityUsecase = new CreateActivity(
+  activityRepository,
+  userRepository,
+  uuidGenerator
+);
+const getActivitiesUsecase = new GetActivities(
+  activityRepository,
+  userRepository
+);
+const getActivityByIdUsecase = new GetActivityById(
+  activityRepository,
+  userRepository
+);
+const updateActivityUsecase = new UpdateActivity(
+  activityRepository,
+  userRepository
+);
+const deleteActivityUsecase = new DeleteActivity(activityRepository);
+const getRecentActivitiesUsecase = new GetRecentActivities(
+  activityRepository,
+  userRepository
+);
+
+const activityController = new ActivityController(
+  createActivityUsecase,
+  getActivitiesUsecase,
+  getActivityByIdUsecase,
+  updateActivityUsecase,
+  deleteActivityUsecase,
+  getRecentActivitiesUsecase
+);
+const activityHttpHandler = new ActivityHttpHandler(
+  activityController,
+  authGuard
+);
+
 const userHttpHandler = new UserHttpHandler(userController, authGuard);
 const accountHttpHandler = new AccountHttpHandler(
   accountController,
@@ -551,7 +640,9 @@ export const httpRouter = createHttpRouter(
   transferHttpHandler,
   conversationHttpHandler,
   creditHttpHandler,
-  savingsHttpHandler
+  savingsHttpHandler,
+  notificationHttpHandler,
+  activityHttpHandler
 );
 
 export {

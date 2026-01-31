@@ -4,6 +4,9 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAccountsByOwner } from "@/hooks/useAccounts";
 import { useTransferHistory } from "@/hooks/useTransfers";
+import { useNotifications } from "@/hooks/useNotifications";
+import { useActivities } from "@/hooks/useActivities";
+import { ActivityFeed } from "@/components/molecules/ActivityFeed";
 import {
   Card,
   CardContent,
@@ -34,6 +37,7 @@ import {
   PiggyBank,
   ArrowDownLeft,
   ArrowUpRight,
+  Bell,
 } from "lucide-react";
 import { useTranslations } from "@/lib/i18n/simple-i18n";
 
@@ -46,6 +50,8 @@ export default function Dashboard({ userId }: DashboardClientProps) {
   const { accounts, isLoading, error, fetchAccounts } =
     useAccountsByOwner(userId);
   const { transfers, isLoading: isLoadingTransfers } = useTransferHistory();
+  const { notifications } = useNotifications();
+  const { activities } = useActivities();
   
   const tDashboard = useTranslations('dashboard');
 
@@ -360,6 +366,79 @@ export default function Dashboard({ userId }: DashboardClientProps) {
           )}
         </CardContent>
       </Card>
+
+      {/* Notifications Section */}
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Bell className="h-5 w-5" />
+              Notifications Récentes
+            </CardTitle>
+            <CardDescription>Vos notifications les plus récentes</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {notifications.slice(0, 5).length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>Aucune notification</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {notifications.slice(0, 5).map((notification) => (
+                  <div
+                    key={notification.id}
+                    className="p-3 border rounded-lg hover:bg-accent/50 transition-colors"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1">
+                        <p className="font-medium text-sm">{notification.title}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {notification.message}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          {new Date(notification.createdAt).toLocaleDateString("fr-FR")}
+                        </p>
+                      </div>
+                      <Badge variant={notification.isRead ? "secondary" : "default"}>
+                        {notification.isRead ? "Lue" : "Nouvelle"}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {notifications.length > 5 && (
+              <Button
+                variant="outline"
+                className="w-full mt-4"
+                onClick={() => router.push("/notifications")}
+              >
+                Voir toutes les notifications
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Activities Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Activités</CardTitle>
+            <CardDescription>Dernières activités du compte</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ActivityFeed limit={5} />
+            {activities.length > 5 && (
+              <Button
+                variant="outline"
+                className="w-full mt-4"
+                onClick={() => router.push("/activities")}
+              >
+                Voir toutes les activités
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

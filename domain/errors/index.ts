@@ -117,3 +117,34 @@ export class InvalidShareDataError extends DomainError {
     super("INVALID_SHARE_DATA", message, details);
   }
 }
+
+export class UnknownNotificationTypeError extends DomainError {
+  constructor(value: string) {
+    super("UNKNOWN_NOTIFICATION_TYPE", `Unknown notification type: ${value}`, {
+      issue: "unknown_notification_type",
+      context: { value },
+    });
+  }
+}
+
+export class UnknownNotificationStatusError extends DomainError {
+  constructor(value: string) {
+    super(
+      "UNKNOWN_NOTIFICATION_STATUS",
+      `Unknown notification status: ${value}`,
+      {
+        issue: "unknown_notification_status",
+        context: { value },
+      }
+    );
+  }
+}
+
+export class UnknownActivityPriorityError extends DomainError {
+  constructor(value: string) {
+    super("UNKNOWN_ACTIVITY_PRIORITY", `Unknown activity priority: ${value}`, {
+      issue: "unknown_activity_priority",
+      context: { value },
+    });
+  }
+}

@@ -45,8 +45,9 @@ export async function request<ResponseBody extends JsonValue = JsonValue>(
     }
 
     const isUserMeEndpoint = path === "/users/me";
+    const isPublicAuthEndpoint = path === "/login" || path === "/register" || path === "/users/confirm-registration";
     
-    if (!isUserMeEndpoint) {
+    if (!isUserMeEndpoint && !isPublicAuthEndpoint) {
       if (userId && isValidUUID(userId)) {
         headers.set("x-user-id", userId);
         console.log('[API Request]', path, '- userId:', userId);
@@ -55,12 +56,12 @@ export async function request<ResponseBody extends JsonValue = JsonValue>(
       } else {
         console.warn('[API Request]', path, '- No userId available');
       }
-    } else {
-      console.log('[API Request]', path, '- /users/me endpoint, skipping x-user-id header');
+    } else if (isUserMeEndpoint || isPublicAuthEndpoint) {
+      console.log('[API Request]', path, '- Public/special endpoint, skipping x-user-id header');
     }
   }
 
-  const fullUrl = `${API_BASE_URL}${path}`;
+  const fullUrl = `${API_BASE_URL}/api${path}`;
 
   let response: Response;
   try {

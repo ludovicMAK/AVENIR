@@ -23,6 +23,10 @@ import {
   userRepository,
   sessionRepository,
 } from "@express/src/config/repositories";
+import { NotificationHttpHandler } from "@express/src/http/NotificationHttpHandler";
+import { ActivityHttpHandler } from "@express/src/http/ActivityHttpHandler";
+import { createNotificationRoutes } from "./notificationRoutes";
+import { createActivityRoutes } from "./activityRoutes";
 
 export function createHttpRouter(
   userHttpHandler: UserHttpHandler,
@@ -32,7 +36,9 @@ export function createHttpRouter(
   TransferHttpHandler: TransferHttpHandler,
   conversationHttpHandler: ConversationHttpHandler,
   creditHttpHandler: CreditHttpHandler,
-  savingsHttpHandler: SavingsHttpHandler
+  savingsHttpHandler: SavingsHttpHandler,
+  notificationHttpHandler: NotificationHttpHandler,
+  activityHttpHandler: ActivityHttpHandler
 ): Router {
   const router = Router();
 
@@ -50,6 +56,8 @@ export function createHttpRouter(
   router.use(createConversationRoutes(conversationHttpHandler));
   router.use(createCreditRoutes(creditHttpHandler));
   router.use(createSavingsRoutes(savingsHttpHandler));
+  router.use(createNotificationRoutes(notificationHttpHandler));
+  router.use(createActivityRoutes(activityHttpHandler));
 
   return router;
 }
